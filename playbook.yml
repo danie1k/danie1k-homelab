@@ -1,0 +1,8 @@
+---
+
+- hosts: unraid
+  vars_files:
+    - defaults/vars.yml
+
+  roles:
+    -

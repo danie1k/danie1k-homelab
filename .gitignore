@@ -96,6 +96,9 @@ modules.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/ansible,intellij+all
 
+defaults/inventory
+defaults/vars.yml
+
 # asdf-vm
 .tool-versions
 
