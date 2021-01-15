@@ -1,0 +1,62 @@
+---
+
+- name: Tool home directory
+  file:
+    path: /boot/config/certbot
+    state: directory
+
+- name: Certificates target directory
+  file:
+    path: /boot/config/certbot/cert
+    state: directory
+
+- name: Certbot Docker Container runner script
+  copy:
+    content: |
+      #!/bin/env sh -e
+
+      docker run --rm --name certbot \
+        -v $(pwd)/.cloudflare.ini:/tmp/.cloudflare.ini \
+        -v $(pwd)/run_certbot.sh:/tmp/get_certificate.sh \
+        -v $(pwd)/cert/:/tmp/cert/ \
+        --entrypoint /bin/sh \
+        {% if certbot.syslog_server %}--log-driver syslog --log-opt syslog-address={{ certbot.syslog_server }} --log-opt tag=docker.certbot \
+        {% endif %}
+        certbot/dns-cloudflare:latest \
+        /tmp/get_certificate.sh
+    dest: /boot/config/certbot/docker_certbot.sh
+    force: true
+
+- name: In-Docker Certbot app runner script
+  copy:
+    content: |
+      #!/bin/env sh -e
+
+      certbot certonly \
+        --dns-cloudflare \
+        --dns-cloudflare-credentials /tmp/.cloudflare.ini \
+        -d '{{ certbot.domain }}' \
+        -m '{{ certbot.email }}' \
+        --agree-tos --non-interactive
+        "$@"
+
+      cp -v /etc/letsencrypt/live/* /tmp/cert/
+    dest: /boot/config/certbot/run_certbot.sh
+    force: true
+
+- name: CloudFlare API Token config file
+  copy:
+    content: |
+      dns_cloudflare_api_token = {{ certbot.dns_cloudflare_api_token }}
+    dest: /boot/config/certbot/.cloudflare.ini
+    force: true
+
+- name: Cron job for Certbot
+  ansible.builtin.cron:
+    name: Certbot
+    job: sh /boot/config/certbot/docker_certbot.sh
+    minute:  '{{ certbot.cron_string.split(" ")[0] }}'
+    hour:    '{{ certbot.cron_string.split(" ")[1] }}'
+    day:     '{{ certbot.cron_string.split(" ")[2] }}'
+    month:   '{{ certbot.cron_string.split(" ")[3] }}'
+    weekday: '{{ certbot.cron_string.split(" ")[4] }}'

@@ -1,8 +1,9 @@
 ---
 
 - hosts: unraid
+  gather_facts: false
   vars_files:
     - defaults/vars.yml
 
   roles:
-    -
+    - docker_certbot_cron

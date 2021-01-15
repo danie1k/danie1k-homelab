@@ -1,0 +1,8 @@
+---
+
+certbot:
+  domain:
+  email:
+  dns_cloudflare_api_token: # https://certbot-dns-cloudflare.readthedocs.io/en/stable/#credentials
+  cron_string: '0 4 1 */2 *'
+  syslog_server: '' # Leave empty to disable
