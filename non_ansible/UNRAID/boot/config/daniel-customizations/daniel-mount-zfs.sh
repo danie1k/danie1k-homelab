@@ -14,9 +14,19 @@
 _zfs_dataset_name="POOL_NAME/DATASET_NAME" <--------------------------------------------
 _zfs_key_status="$(zfs get -H keystatus "$_zfs_dataset_name" | awk '{print $3}')"
 
-_nfs_nobody_uid="$(id -u nobody)"
-_nfs_nobody_gid="$(id -g nobody)"
-_nfc_client_loc="127.0.0.1/32" <--------------------------------------------------------
+# _nfs_nobody_uid="$(id -u nobody)"
+# _nfs_nobody_gid="$(id -g nobody)"
+# _nfc_client_loc="127.0.0.1/32" <--------------------------------------------------------
+_nfs_share_options=(
+  all_squash
+  anonuid=$(id -u nobody)
+  anongid=$(id -g nobody)
+  async
+  fsid=1000 <---------------------------------------------------------------------------
+  no_subtree_check
+  root_squash
+  rw=127.0.0.1/32 <---------------------------------------------------------------------
+)
 
 echo -n "Checking ZFS encryption key... "
 if [[ "$_zfs_key_status" == "unavailable" ]]
@@ -37,14 +47,18 @@ then
 fi
 echo "OK"
 
-echo -n "Checking NFS export..."
-if [[ ! $(cat /etc/exports | grep "$_zfs_dataset_name") ]]
+echo -n "Checking NFS export... "
+if [[ ! $(cat /var/lib/nfs/etab | grep "$_zfs_dataset_name") ]]
 then
-  echo -n "Adding export... "
-  echo "" >> /etc/exports
-  echo "\"/mnt/${_zfs_dataset_name}\" -async,all_squash,root_squash,no_subtree_check,fsid=1000,anonuid=${_nfs_nobody_uid},anongid=${_nfs_nobody_gid} ${_nfc_client_loc}(rw)" >> /etc/exports
-
-  echo -n "Exporting shares..."
-  exportfs -r
+  # echo -n "Adding export... "
+  # echo "" >> /etc/exports
+  # echo "\"/mnt/${_zfs_dataset_name}\" -async,all_squash,root_squash,no_subtree_check,fsid=1000,anonuid=${_nfs_nobody_uid},anongid=${_nfs_nobody_gid} ${_nfc_client_loc}(rw)" >> /etc/exports
+  # echo -n "Exporting shares..."
+  # exportfs -r
+  
+  # https://blog.programster.org/sharing-zfs-datasets-via-nfs
+  # https://codebytez.blogspot.com/2011/06/exporting-zfs-filesystem-over-nfs.html
+  echo -n "Enabling... "
+  zfs set sharenfs="$(IFS=, ; echo "${_nfs_share_options[*]}")" $_zfs_pool_name 
 fi
 echo "OK"
