@@ -1,10 +1,24 @@
-![Beta](https://img.shields.io/badge/release-beta-red?style=for-the-badge)
-[![Platform; Dell PowerEdge r720](https://img.shields.io/badge/platform-Dell%20PowerEdge%20r720-%23989898?style=for-the-badge)](https://www.dell.com/support/home/pl-pl/product-support/product/poweredge-r720/overview)
-[![Platform: Dell iDRAC7](https://img.shields.io/badge/platform-Dell%20iDRAC7-%23989898?style=for-the-badge)](https://www.dell.com/support/home/pl-pl/product-support/product/idrac7-8-lifecycle-controller-v2.65.65.65/overview)
-[![Platform: unRAID](https://img.shields.io/badge/platform-unraid-%23989898?style=for-the-badge)](https://unraid.net/)
-![Ansible 2.10](https://img.shields.io/badge/ansible-2.10-9cf?logo=ansible&style=for-the-badge)
-[![MIT License](https://img.shields.io/github/license/danie1k/danie1k-unraid?style=for-the-badge)](./LICENSE)
+<p align="center">
+  <a href="https://unraid.net/" target="_blank">
+    <img src="https://img.shields.io/badge/unraid-6.8.3-9cf?logo=unraid&style=for-the-badge" alt="unRAID 6.8.3">
+  </a>
+  <a href="https://docs.ansible.com/ansible/2.10/" target="_blank">
+    <img src="https://img.shields.io/badge/ansible-2.10-9cf?logo=ansible&style=for-the-badge" alt="Ansible 2.10">
+  </a>
+  <br>
+  <a href="https://www.dell.com/support/home/pl-pl/product-support/product/poweredge-r720/overview" target="_blank">
+    <img src="https://img.shields.io/badge/Dell-PowerEdge%20r720-%23989898?logo=dell&style=for-the-badge" alt="Dell PowerEdge r720">
+  </a>
+  <a href="https://www.dell.com/support/home/pl-pl/product-support/product/idrac7-8-lifecycle-controller-v2.65.65.65/overview" target="_blank">
+    <img src="https://img.shields.io/badge/Dell-iDRAC7-%23989898?logo=dell&style=for-the-badge" alt="Dell iDRAC7">
+  </a>
+  <br>
+  <img src="https://img.shields.io/badge/release-beta-red?style=for-the-badge" alt="Beta">
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/github/license/danie1k/danie1k-unraid?style=for-the-badge" alt="MIT License">
+  </a>
+</p>
 
 # danie1k-homelab
 
-Personal homelab iDRAC7 & unRAID base infrastructure as code
+Personal [homelab](https://www.reddit.com/r/homelab/) iDRAC7 & unRAID base infrastructure as code
