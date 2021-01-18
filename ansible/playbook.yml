@@ -7,3 +7,4 @@
 
   roles:
     - docker_internal_network
+    - docker_external_network

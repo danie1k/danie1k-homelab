@@ -1,4 +1,6 @@
 ---
 
 docker:
+  external_network_name:
+  external_network_parent: # The interface the traffic will physically go through on the Docker host (https://docs.docker.com/network/macvlan/)
   internal_network_name:
