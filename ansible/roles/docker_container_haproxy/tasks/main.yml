@@ -2,7 +2,7 @@
 
 - vars:
     container_name: haproxy
-    image: danie1k/clearlinux-haproxy:rolling # image: clearlinux/haproxy:latest
+    image: danie1k/homelab-haproxy:latest # image: clearlinux/haproxy:latest
     volume_location: '{{ docker.persistent_volume_location.hdd }}'
     volume_name: haproxy
   block:
@@ -13,6 +13,13 @@
       copy:
         src: haproxy.cfg
         dest: '{{ volume_location }}/{{ volume_name }}/_data/'
+        force: false
+
+    - name: Copy Jinja template(s)
+      copy:
+        src: templates
+        dest: '{{ volume_location }}/{{ volume_name }}/_data/'
+        force: true
 
     - name: Spin up the Container
       community.docker.docker_container:
@@ -34,7 +41,7 @@
         purge_networks: true
         # Runtime Environment
         command:
-          - '"python /usr/local/bin/docker-network-monitor.py"'
+          - '"python /docker_network_monitor/monitor.py"'
           - '"haproxy -W -db -p /var/run/haproxy.pid -f /usr/local/etc/haproxy/haproxy.cfg"'
         detach: true
         env:

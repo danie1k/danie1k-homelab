@@ -1,0 +1,15 @@
+listen docker-{{ hostname }}
+  mode http
+  bind *:80 interface eth0
+
+  # SSL
+  bind *:443 interface eth0 ssl crt "${HAPROXY_CONFIG_VOLUME}/${DOMAIN_NAME}.pem"  alpn h2,http/1.1
+  redirect scheme https code 301 if !{ ssl_fc }
+
+  # Allow only requests for a valid FQDN
+  acl is_{{ hostname }} hdr(host) -i "{{ hostname }}.${DOMAIN_NAME}"
+  tcp-request content accept if is_{{ hostname }}
+  tcp-request content reject
+
+  option forwardfor
+  server {{ hostname }} {{ ip }}:{{ target_port }}
