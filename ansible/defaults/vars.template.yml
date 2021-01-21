@@ -7,3 +7,7 @@ docker:
   persistent_volume_location:
     hdd: /mnt/...
     ssd: /mnt/...
+  syslog_address: udp://localhost:514
+
+lab:
+  domain_name: local
