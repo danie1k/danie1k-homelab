@@ -1,36 +1,17 @@
 ---
 
-- vars:
-    container_name: postgres
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: postgres
     image: clearlinux/postgres:11 # https://hub.docker.com/r/clearlinux/postgres
-    volume_location: '{{ docker.persistent_volume_location.ssd }}'
-    volume_name: postgres
-  block:
-    - name: Create Volume
-      include_tasks: '{{ playbook_dir }}/dry/docker/unraid-volume.yml'
-
-    - name: Spin up the Container
-      community.docker.docker_container:
-        image: '{{ image }}'
-        # Naming
-        hostname: '{{ container_name }}'
-        name: '{{ container_name }}'
-        # Logging
-        log_driver: syslog
-        log_options:
-          syslog-address: '{{ docker.syslog_address }}'
-          tag: '{{ container_name }}.{{ docker.internal_network_name }}.docker'
-        # Networking
-        network_mode: '{{ docker.internal_network_name }}'
-        networks:
-          - name: '{{ docker.internal_network_name }}'
-        networks_cli_compatible: true
-        purge_networks: true
-        # Runtime Environment
-        detach: true
-        env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: changeme
-        restart_policy: always
-        volumes:
-          - '{{ volume_name }}:/var/lib/postgresql/data/:rw'
+    env:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: changeme
+    labels:
+      haproxy.source_port: '5432'
+      haproxy.target_port: '5432'
+    networks:
+      - name: '{{ docker.external_network_name }}'
+      - name: '{{ docker.internal_network_name }}'
+    volumes:
+      - [ '', '/var/lib/postgresql/data', 'rw' ]

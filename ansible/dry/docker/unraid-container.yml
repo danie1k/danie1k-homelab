@@ -1,0 +1,71 @@
+---
+
+- assert:
+    that: ['name is defined', 'name | length > 0']
+    fail_msg: "Missing or empty 'name'"
+- assert:
+    that: ['image is defined', 'image | length > 0']
+    fail_msg: "Missing or empty 'image'"
+- assert:
+    that: ['networks is defined', 'networks | length > 0']
+    fail_msg: "Missing or empty 'networks'"
+
+- set_fact:
+    _volume_base: '{{ docker.volume_base }}/{{ name }}'
+
+- set_fact:
+    volume: '{% if item is string %}{{ item }}{% else %}{{ _volume_base }}{{ item | join(":") }}{% endif %}'
+  with_list: "{{ volumes | default([]) }}"
+  register: _volumes
+
+- set_fact:
+    container_volumes: '{{ _volumes.results | map(attribute="ansible_facts") | map(attribute="volume") }}'
+
+- set_fact:
+    container_params:
+      image: '{{ image }}'
+      container_default_behavior: no_defaults
+
+      # Naming
+      name: '{{ name }}'
+      hostname: '{{ name }}'
+      labels: '{{ labels | default({}) }}'
+
+      # Logging
+      log_driver: syslog
+      log_options:
+        syslog-address: '{{ docker.syslog_address }}'
+        tag: '{{ name }}.docker'
+
+      # Networking
+      exposed_ports: '{{ ports | default([]) }}'
+      network_mode: '{{ networks[0].name }}'
+      networks: '{{ networks }}'
+      networks_cli_compatible: true
+      purge_networks: true
+
+      # Runtime Environment
+      detach: true
+      env: '{{ env | default({}) }}'
+
+      restart_policy: unless-stopped
+      volumes: '{{ container_volumes }}'
+
+- set_fact:
+    container_params: '{{ container_params | combine({"command": command}) }}'
+  when: command is defined
+
+- name: Create Container Volume base
+  file:
+    path: '{{ _volume_base }}'
+    state: directory
+
+- name: Copy files
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ _volume_base }}/{{ item.dest }}'
+    force: '{{ item.force | default(false) }}'
+  with_list: '{{ files | default([]) }}'
+
+- name: Spin up the Container
+  community.docker.docker_container: '{{ container_params }}'

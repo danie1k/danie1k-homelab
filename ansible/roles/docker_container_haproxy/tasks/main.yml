@@ -1,55 +1,27 @@
 ---
 
-- vars:
-    container_name: haproxy
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: haproxy
     image: danie1k/homelab-haproxy:latest # image: clearlinux/haproxy:latest
-    volume_location: '{{ docker.persistent_volume_location.hdd }}'
-    volume_name: haproxy
-  block:
-    - name: Create Volume
-      include_tasks: '{{ playbook_dir }}/dry/docker/unraid-volume.yml'
+    command:
+      - "'python /docker_network_monitor/monitor.py'"
+      - "'haproxy -W -db -p /var/run/haproxy.pid -f /usr/local/etc/haproxy/haproxy.cfg'"
+    env:
+      DOMAIN_NAME: '{{ lab.domain_name }}'
+      HAPROXY_CONFIG_FILE: /usr/local/etc/haproxy/haproxy.cfg
+      HAPROXY_PID_FILE: /var/run/haproxy.pid
+      NETWORK_NAME: '{{ docker.internal_network_name }}'
+    networks:
+      - name: '{{ docker.external_network_name }}'
+      - name: '{{ docker.internal_network_name }}'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - [ '', '/usr/local/etc/haproxy', 'rw' ]
 
-    - name: Copy haproxy.cfg
-      copy:
-        src: haproxy.cfg
-        dest: '{{ volume_location }}/{{ volume_name }}/_data/'
-        force: false
-
-    - name: Copy Jinja template(s)
-      copy:
-        src: templates
-        dest: '{{ volume_location }}/{{ volume_name }}/_data/'
+    files:
+      - src: haproxy.cfg
+        dest: ''
+      - src: templates
+        dest: ''
         force: true
-
-    - name: Spin up the Container
-      community.docker.docker_container:
-        image: '{{ image }}'
-        # Naming
-        hostname: '{{ container_name }}'
-        name: '{{ container_name }}'
-        # Logging
-        log_driver: syslog
-        log_options:
-          syslog-address: '{{ docker.syslog_address }}'
-          tag: '{{ container_name }}.{{ docker.internal_network_name }}.docker'
-        # Networking
-        network_mode: '{{ docker.external_network_name }}'
-        networks:
-          - name: '{{ docker.external_network_name }}'
-          - name: '{{ docker.internal_network_name }}'
-        networks_cli_compatible: true
-        purge_networks: true
-        # Runtime Environment
-        command:
-          - '"python /docker_network_monitor/monitor.py"'
-          - '"haproxy -W -db -p /var/run/haproxy.pid -f /usr/local/etc/haproxy/haproxy.cfg"'
-        detach: true
-        env:
-          DOMAIN_NAME: '{{ lab.domain_name }}'
-          HAPROXY_CONFIG_FILE: /usr/local/etc/haproxy/haproxy.cfg
-          HAPROXY_PID_FILE: /var/run/haproxy.pid
-          NETWORK_NAME: '{{ docker.internal_network_name }}'
-        restart_policy: always
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock
-          - '{{ volume_name }}:/usr/local/etc/haproxy/:rw'
