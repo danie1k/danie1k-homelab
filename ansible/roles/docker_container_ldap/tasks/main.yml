@@ -1,0 +1,15 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: ldap
+    image: danie1k/homelab-ldap:0.1.1
+    env:
+      DOMAIN_NAME: '{{ lab.domain_name }}'
+      DOMAIN_NAME_DC: '{{ lab.domain_name | split(".") | first }}'
+      LDAP_ROOT_USERNAME: root
+      LDAP_ROOT_PASSWORD: '{{ lab.ldap_password }}'
+    networks:
+      - name: '{{ docker.internal_network_name }}'
+    volumes:
+      - [ '', '/var/lib/openldap/openldap-data' ]
