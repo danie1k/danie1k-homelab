@@ -15,5 +15,5 @@
     - docker_external_network
 
     # Containers
-    - docker_container_haproxy
+    - docker_container_reverseproxy
     - docker_container_postgresql
