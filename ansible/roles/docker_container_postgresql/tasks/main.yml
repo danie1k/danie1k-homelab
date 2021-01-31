@@ -7,7 +7,9 @@
     env:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: changeme
+      PGDATA: /var/lib/pgsql/data
+      POSTGRES_INITDB_WALDIR: /var/lib/pgsql/waldir
     networks:
       - name: '{{ docker.internal_network_name }}'
     volumes:
-      - [ '', '/var/lib/postgresql/data', 'rw' ]
+      - [ '', '/var/lib/pgsql/data', 'rw' ]
