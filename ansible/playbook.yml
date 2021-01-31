@@ -24,5 +24,6 @@
     - docker_container_ldap
     - docker_container_postgresql
     - docker_container_influxdb
+    - docker_container_telegraf
 
     - docker_container_reverseproxy

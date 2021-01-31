@@ -34,6 +34,13 @@
     force: '{{ item.force | default(false) }}'
   with_list: '{{ files | default([]) }}'
   when: container_volumes | length > 0
+- name: Copy templates to Container Volume
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ _volume_base }}/{{ item.dest }}'
+    force: '{{ item.force | default(false) }}'
+  with_list: '{{ templates | default([]) }}'
+  wwhen: container_volumes | length > 0
 
 
 # LOG DRIVER
