@@ -1,0 +1,50 @@
+---
+
+# TO USE THIS ROLE YOU NEED TO FIRST CONFIGURE UNRAID'S SYSLOG !
+
+- name: Create persistent storage directory on the Flash drive
+  ansible.builtin.file:
+    path: '{{ _install_path }}/{{ _install_version }}'
+    state: directory
+
+- name: Download binaries to the Flash drive
+  ansible.builtin.unarchive:
+    src: '{{ item.value }}'
+    remote_src: yes
+    dest: '{{ _install_path }}/{{ _install_version }}/'
+    creates: '{{ _install_path }}/{{ _install_version }}/{{ item.key }}'
+  with_dict: '{{ _downloads }}'
+
+- name: Copy all files to the Flash drive
+  ansible.builtin.copy:
+    src: '.'
+    dest: '{{ _install_path }}/'
+    force: true
+
+- name: Copy all templates to the Flash drive
+  ansible.builtin.template:
+    src: '{{ item }}'
+    dest: '{{ _install_path }}/{{ item }}'
+    force: true
+  with_list:
+    - bin/install.sh
+    - etc/loki.yaml
+    - etc/promtail.yaml
+
+- name: Install Loki & Promtail to /boot/config/go
+  ansible.builtin.blockinfile:
+    content: |
+      if [ -f "{{ _install_path }}/bin/install.sh" ]; then
+        logger "Starting {{ _install_path }}/bin/install.sh"
+        fromdos < "{{ _install_path }}/bin/install.sh" > /var/tmp/unraid_loki_promtail_install.sh
+        chmod +x /var/tmp/unraid_loki_promtail_install.sh
+        /var/tmp/unraid_loki_promtail_install.sh
+      fi
+      if [ -f "{{ _install_path }}/bin/boot.sh" ]; then
+        logger "Starting {{ _install_path }}/bin/boot.sh"
+        fromdos < "{{ _install_path }}/bin/boot.sh" > /var/tmp/unraid_loki_promtail_boot.sh
+        chmod +x /var/tmp/unraid_loki_promtail_boot.sh
+        /var/tmp/unraid_loki_promtail_boot.sh
+      fi
+    dest: /boot/config/go
+    marker: "# {mark} UNRAID_LOKI_PROMTAIL"

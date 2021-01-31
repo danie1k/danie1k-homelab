@@ -1,0 +1,55 @@
+#!/bin/sh
+
+config_file="/etc/loki.yaml"
+
+loki_verify() {
+  if [ -x /usr/bin/loki ] && [ -r "$config_file" ]
+  then
+    echo "Verifying loki config: "
+    echo "/usr/bin/loki -verify-config -config.file $config_file"
+    /usr/bin/loki -verify-config -config.file "$config_file"
+  fi
+}
+
+loki_start() {
+  loki_verify
+
+  if [ -x /usr/bin/loki ] && [ -r "$config_file" ] && loki_verify
+  then
+    echo "Starting loki in background: "
+    daemonize -v \
+        -e /var/log/loki.log \
+        -o /var/log/loki.log \
+        -p /var/run/loki.pid \
+        -l /var/run/loki.lock \
+        /usr/bin/loki -config.file "$config_file"
+  fi
+}
+
+loki_stop() {
+  kill $(cat /var/run/loki.pid)
+}
+
+loki_restart() {
+  loki_verify
+  loki_stop
+  sleep 1
+  loki_start
+}
+
+case "$1" in
+  'start')
+    loki_start
+    ;;
+  'stop')
+    loki_stop
+    ;;
+  'restart')
+    loki_restart
+    ;;
+  'verify')
+    loki_verify
+    ;;
+  *)
+    echo "usage $0 start|stop|restart|verify"
+esac

@@ -1,0 +1,9 @@
+---
+
+_install_path: /boot/config/unraid_loki_promtail
+_install_version: 2.1.0
+
+_downloads:
+  logcli-linux-amd64: 'https://github.com/grafana/loki/releases/download/v{{ _install_version }}/logcli-linux-amd64.zip'
+  loki-linux-amd64: 'https://github.com/grafana/loki/releases/download/v{{ _install_version }}/loki-linux-amd64.zip'
+  promtail-linux-amd64: 'https://github.com/grafana/loki/releases/download/v{{ _install_version }}/promtail-linux-amd64.zip'
