@@ -22,6 +22,19 @@
 - set_fact:
     container_volumes: '{{ _volumes.results | map(attribute="ansible_facts") | map(attribute="volume") }}'
 
+- name: Create Container Volume persistent directory
+  file:
+    path: '{{ _volume_base }}'
+    state: directory
+  when: container_volumes | length > 0
+- name: Copy files to Container Volume
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ _volume_base }}/{{ item.dest }}'
+    force: '{{ item.force | default(false) }}'
+  with_list: '{{ files | default([]) }}'
+  when: container_volumes | length > 0
+
 
 # LOG DRIVER
 
@@ -76,18 +89,6 @@
 
 
 # CONTAINER CREATION
-
-- name: Create Container Volume base
-  file:
-    path: '{{ _volume_base }}'
-    state: directory
-
-- name: Copy files
-  copy:
-    src: '{{ item.src }}'
-    dest: '{{ _volume_base }}/{{ item.dest }}'
-    force: '{{ item.force | default(false) }}'
-  with_list: '{{ files | default([]) }}'
 
 - name: Spin up the Container
   community.docker.docker_container: '{{ container_params }}'
