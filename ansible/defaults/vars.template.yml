@@ -4,9 +4,6 @@ docker:
   external_network_name:
   external_network_parent: # The interface the traffic will physically go through on the Docker host (https://docs.docker.com/network/macvlan/)
   internal_network_name:
-  persistent_volume_location:
-    hdd: /mnt/...
-    ssd: /mnt/...
   syslog_address: udp://127.0.0.1:514
   loki_url: http://127.0.0.1:3100/loki/api/v1/push
 
