@@ -22,5 +22,6 @@
 
     # Containers
     - docker_container_ldap
-    - docker_container_reverseproxy
     - docker_container_postgresql
+
+    - docker_container_reverseproxy
