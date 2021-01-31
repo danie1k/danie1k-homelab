@@ -7,7 +7,8 @@ docker:
   persistent_volume_location:
     hdd: /mnt/...
     ssd: /mnt/...
-  syslog_address: udp://localhost:514
+  syslog_address: udp://127.0.0.1:514
+  loki_url: http://127.0.0.1:3100/loki/api/v1/push
 
 lab:
   domain_name: local

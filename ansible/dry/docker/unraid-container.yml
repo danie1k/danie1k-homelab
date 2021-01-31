@@ -10,16 +10,37 @@
     that: ['networks is defined', 'networks | length > 0']
     fail_msg: "Missing or empty 'networks'"
 
+
+# VOLUME(S)
+
 - set_fact:
     _volume_base: '{{ docker.volume_base }}/{{ name }}'
-
 - set_fact:
     volume: '{% if item is string %}{{ item }}{% else %}{{ _volume_base }}{{ item | join(":") }}{% endif %}'
   with_list: "{{ volumes | default([]) }}"
   register: _volumes
-
 - set_fact:
     container_volumes: '{{ _volumes.results | map(attribute="ansible_facts") | map(attribute="volume") }}'
+
+
+# LOG DRIVER
+
+- set_fact:
+    _log_driver: '{{ log_driver | default("loki") }}'
+    _log_driver_config:
+      syslog:
+        syslog-address: '{{ docker.syslog_address }}'
+        tag: '{{ name }}.docker'
+      loki:
+        loki-url: '{{ docker.loki_url }}'
+        loki-batch-size: '128'
+        loki-external-labels: 'job=docker,container={{ name }},network={{ networks[0].name }}'
+        # no-file: true
+        max-size: '1m'
+        max-file: '1'
+
+
+# FINAL CONTAINER PARAMS
 
 - set_fact:
     container_params:
@@ -32,10 +53,8 @@
       labels: '{{ labels | default({}) }}'
 
       # Logging
-      log_driver: syslog
-      log_options:
-        syslog-address: '{{ docker.syslog_address }}'
-        tag: '{{ name }}.docker'
+      log_driver: '{{ _log_driver }}'
+      log_options: '{{ _log_driver_config[_log_driver] }}'
 
       # Networking
       exposed_ports: '{{ ports | default([]) }}'
@@ -54,6 +73,9 @@
 - set_fact:
     container_params: '{{ container_params | combine({"command": command}) }}'
   when: command is defined
+
+
+# CONTAINER CREATION
 
 - name: Create Container Volume base
   file:
