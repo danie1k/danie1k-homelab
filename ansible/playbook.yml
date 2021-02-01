@@ -27,4 +27,19 @@
     - docker_container_telegraf
     - docker_container_grafana
 
+    - docker_container_dns
     - docker_container_reverseproxy
+
+  vars:
+    _dnsmasq_ip: 172.16.100.129
+    _dnsmasq_hostname: dns
+
+    _reverseproxy_ip: 172.16.100.130
+    _reverseproxy_hostname: envoy
+
+    _static_containers:
+      - grafana
+      - influxdb
+      - ldap
+      - postgresql
+      - telegraf
