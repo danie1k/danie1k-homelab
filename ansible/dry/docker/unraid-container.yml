@@ -20,27 +20,32 @@
   with_list: "{{ volumes | default([]) }}"
   register: _volumes
 - set_fact:
+    item: '{% if item is string %}false{% else %}true{% endif %}'
+  with_list: "{{ volumes | default([]) }}"
+  register: _any_volumes_to_create
+- set_fact:
     container_volumes: '{{ _volumes.results | map(attribute="ansible_facts") | map(attribute="volume") }}'
+    any_volumes_to_create: '{{ true in (_any_volumes_to_create.results | map(attribute="ansible_facts") | map(attribute="item")) }}'
 
 - name: Create Container Volume persistent directory
   file:
     path: '{{ _volume_base }}'
     state: directory
-  when: container_volumes | length > 0
+  when: any_volumes_to_create
 - name: Copy files to Container Volume
-  copy:
+  ansible.builtin.copy:
     src: '{{ item.src }}'
     dest: '{{ _volume_base }}/{{ item.dest }}'
     force: '{{ item.force | default(false) }}'
   with_list: '{{ files | default([]) }}'
-  when: container_volumes | length > 0
+  when: any_volumes_to_create
 - name: Copy templates to Container Volume
-  copy:
+  ansible.builtin.template:
     src: '{{ item.src }}'
     dest: '{{ _volume_base }}/{{ item.dest }}'
     force: '{{ item.force | default(false) }}'
   with_list: '{{ templates | default([]) }}'
-  wwhen: container_volumes | length > 0
+  when: any_volumes_to_create
 
 
 # LOG DRIVER
@@ -74,7 +79,7 @@
 
       # Logging
       log_driver: '{{ _log_driver }}'
-      log_options: '{{ _log_driver_config[_log_driver] }}'
+      log_options: '{{ _log_driver_config[_log_driver] | default({}) }}'
 
       # Networking
       exposed_ports: '{{ ports | default([]) }}'
