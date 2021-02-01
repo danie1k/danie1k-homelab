@@ -37,9 +37,11 @@
     _reverseproxy_ip: 172.16.100.130
     _reverseproxy_hostname: envoy
 
+    _influxdb_ip: 172.16.100.141
+    _influxdb_hostname: influxdb
+
     _static_containers:
       - grafana
-      - influxdb
       - ldap
       - postgresql
       - telegraf
