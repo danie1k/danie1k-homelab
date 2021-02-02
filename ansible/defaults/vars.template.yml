@@ -6,6 +6,7 @@ docker:
   internal_network_name:
   syslog_address: udp://127.0.0.1:514
   loki_url: http://127.0.0.1:3100/loki/api/v1/push
+  volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
 
 lab:
   domain_name: local
