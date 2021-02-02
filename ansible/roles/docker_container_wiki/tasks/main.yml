@@ -1,0 +1,24 @@
+---
+
+# https://github.com/linuxserver/docker-wikijs
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: wiki
+    image: linuxserver/wikijs:latest
+    env:
+      # https://docs.linuxserver.io/images/docker-wikijs
+      PUID: '99' # UID of 'nobody'
+      PGID: '100' # GID of 'nobody'
+      TZ: Europe/Warsaw
+      UMASK: '000'
+    networks:
+      - name: '{{ docker.internal_network_name }}'
+      - name: '{{ docker.external_network_name }}' # Because Wiki.js needs access the Internet sometimes
+    volumes:
+      - [ '/config', '/config', 'rw' ]
+      - [ '/data', '/data', 'rw' ]
+
+    templates:
+      - src: config.yml
+        dest: 'config/'

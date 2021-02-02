@@ -29,6 +29,8 @@
     - docker_container_telegraf
     - docker_container_grafana
 
+    - docker_container_wiki
+
     - docker_container_dns
     - docker_container_reverseproxy
 
@@ -48,3 +50,4 @@
       - postgresql
       - portainer
       - telegraf
+      - wiki
