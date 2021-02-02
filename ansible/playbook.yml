@@ -23,6 +23,8 @@
     # Containers
     - docker_container_ldap
     - docker_container_postgresql
+    - docker_container_portainer
+
     - docker_container_influxdb
     - docker_container_telegraf
     - docker_container_grafana
@@ -44,4 +46,5 @@
       - grafana
       - ldap
       - postgresql
+      - portainer
       - telegraf
