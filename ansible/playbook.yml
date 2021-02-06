@@ -20,20 +20,24 @@
     - docker_internal_network
     - docker_external_network
 
-    # Containers
+    # Networking
+    - docker_container_reverseproxy
+    - docker_container_dns
+
+    - docker_container_certbot
+
+    # Databases
+    - docker_container_influxdb
     - docker_container_ldap
     - docker_container_postgresql
-    - docker_container_portainer
     - docker_container_redis
 
-    - docker_container_influxdb
-    - docker_container_telegraf
     - docker_container_grafana
-
+    - docker_container_portainer
     - docker_container_wiki
 
-    - docker_container_dns
-    - docker_container_reverseproxy
+    # No GUI
+    - docker_container_telegraf
 
   vars:
     _dnsmasq_ip: 172.16.100.129
