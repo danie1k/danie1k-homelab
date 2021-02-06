@@ -1,6 +1,9 @@
 [api]
   dashboard = true
 
+[log]
+  level = "WARN"
+
 [providers]
   [providers.docker]
 

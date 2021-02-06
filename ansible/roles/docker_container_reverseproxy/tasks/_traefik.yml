@@ -21,9 +21,10 @@
         service: api@internal
 
     files:
-      - src: traefik/dynamic.toml
+      - src: traefik/traefik.toml
         dest: ''
         force: true
-      - src: traefik/traefik.toml
+    templates:
+      - src: traefik/dynamic.toml
         dest: ''
         force: true

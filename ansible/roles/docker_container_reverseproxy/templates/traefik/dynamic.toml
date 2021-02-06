@@ -1,3 +1,9 @@
+[http.middlewares]
+  [http.middlewares.api-auth.basicAuth]
+    users = [
+      "{{ lab.traefik_auth }}",
+    ]
+
 # https://ssl-config.mozilla.org/#server=traefik&version=2.1.2&config=modern&hsts=false&guideline=5.6
 [[tls.certificates]]
   certFile = "/tls/fullchain1.pem"
