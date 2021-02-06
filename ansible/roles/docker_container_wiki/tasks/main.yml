@@ -22,3 +22,6 @@
     templates:
       - src: config.yml
         dest: 'config/'
+
+    proxy:
+      - http_port: 3000

@@ -13,3 +13,6 @@
       - name: '{{ docker.internal_network_name }}'
     volumes:
       - [ '', '/var/lib/openldap/openldap-data' ]
+
+    proxy:
+      - http_port: 80
