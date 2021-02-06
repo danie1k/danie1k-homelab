@@ -1,0 +1,23 @@
+---
+# https://grafana.com/docs/grafana/latest/administration/configure-docker/
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: grafana
+    image: grafana/grafana:latest
+    env:
+      # https://grafana.com/docs/grafana/latest/administration/configuration/#configure-with-environment-variables
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: 'postgres.{{ docker.internal_network_name }}:5432'
+      GF_DATABASE_NAME: grafana
+      GF_DATABASE_USER: foo
+      GF_DATABASE_PASSWORD: bar
+    networks:
+      - name: '{{ docker.internal_network_name }}'
+      - name: 'bridge'
+
+    proxy:
+      - http_port: 3000
+
+    volumes:
+      - [ '', '/var/lib/grafana' ]
