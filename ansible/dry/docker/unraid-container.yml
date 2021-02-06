@@ -56,8 +56,8 @@
     _traefik_labels: >-
       {
       'traefik.http.routers.{{ name }}-http-{{ _index }}.rule': 'Host(`{{ name }}.{{ lab.domain_name }}`)',
-      'traefik.http.routers.{{ name }}-http-{{ _index }}.service': '{% if item.service and item.service is not mapping %}{{ item.service}}{% else %}{{ name }}-http-{{ _index }}{% endif %}',
-      'traefik.http.services.{% if item.service and item.service is not mapping %}{{ item.service}}{% else %}{{ name }}-http-{{ _index }}{% endif %}.loadbalancer.server.port': '{{ item.http_port }}',
+      'traefik.http.routers.{{ name }}-http-{{ _index }}.service': '{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-http-{{ _index }}@docker{% endif %}',
+      'traefik.http.services.{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-http-{{ _index }}{% endif %}.loadbalancer.server.port': '{{ item.http_port }}',
       {% if item.router is defined %}{% for _key, _value in item.router.items() %}
       'traefik.http.routers.{{ name }}-http-{{ _index }}.{{ _key }}': '{{ _value }}',
       {% endfor %}{% endif %}
