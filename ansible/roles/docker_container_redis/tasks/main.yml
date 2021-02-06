@@ -1,0 +1,16 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: redis
+    image: clearlinux/redis:latest
+    command: redis-server /redis.conf
+    networks:
+      - name: '{{ docker.internal_network_name }}'
+    volumes:
+      - [ '/data', '/data', 'rw' ]
+      - [ '/redis.conf', '/redis.conf', 'ro' ]
+
+    files:
+      - src: redis.conf
+        dest: ''
