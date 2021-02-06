@@ -102,5 +102,16 @@
 
 # CONTAINER CREATION
 
+- name: Create Dynamix Plugin container template
+  ansible.builtin.copy:
+    content: |-
+      <?xml version="1.0"?>
+      <Container version="2">
+        <Icon>https://raw.githubusercontent.com/danie1k/danie1k-homelab/master/icons/{{ name }}.png</Icon>
+        <Name>{{ name }}</Name>
+        <Repository>{{ image }}</Repository>
+      </Container>
+    dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
+
 - name: Spin up the Container
   community.docker.docker_container: '{{ container_params }}'
