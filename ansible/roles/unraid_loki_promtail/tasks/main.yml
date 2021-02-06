@@ -1,50 +1,55 @@
 ---
 
-# TO USE THIS ROLE YOU NEED TO FIRST CONFIGURE UNRAID'S SYSLOG !
-
 - name: Create persistent storage directory on the Flash drive
   ansible.builtin.file:
-    path: '{{ _install_path }}/{{ _install_version }}'
+    path: '{{ unraid.homelab_dir }}/loki_promtail'
     state: directory
 
-- name: Download binaries to the Flash drive
+- name: Get latest release version number
+  ansible.builtin.shell: 'curl -s https://api.github.com/repos/grafana/loki/releases/latest | jq -r .tag_name'
+  register: _latest_loki_release
+  changed_when: false
+
+- name: Download & unzip latest binaries to persistent storage
   ansible.builtin.unarchive:
     src: '{{ item.value }}'
     remote_src: yes
-    dest: '{{ _install_path }}/{{ _install_version }}/'
-    creates: '{{ _install_path }}/{{ _install_version }}/{{ item.key }}'
+    dest:  '{{ unraid.homelab_dir }}/loki_promtail/'
+    creates: '{{ unraid.homelab_dir }}/loki_promtail/{{ item.key }}'
   with_dict: '{{ _downloads }}'
+  vars:
+    _install_version: '{{ _latest_loki_release.stdout }}'
 
-- name: Copy all files to the Flash drive
+- name: Copy Supervisord config to persistent storage
   ansible.builtin.copy:
-    src: '.'
-    dest: '{{ _install_path }}/'
+    src: supervisord.conf
+    dest: '{{ unraid.homelab_dir }}/supervisord/supervisor.d/loki_promtail.conf'
     force: true
 
-- name: Copy all templates to the Flash drive
+- name: Copy Syslog config to persistent storage
+  ansible.builtin.copy:
+    src: syslog.conf
+    dest: '{{ unraid.homelab_dir }}/loki_promtail/syslog.conf'
+    force: true
+
+- name: Copy Loki & Promtail config to persistent storage
   ansible.builtin.template:
     src: '{{ item }}'
-    dest: '{{ _install_path }}/{{ item }}'
+    dest: '{{ unraid.homelab_dir }}/loki_promtail/{{ item }}'
     force: true
   with_list:
-    - bin/install.sh
-    - etc/loki.yaml
-    - etc/promtail.yaml
+    - loki.conf.yaml
+    - promtail.conf.yaml
 
-- name: Install Loki & Promtail to /boot/config/go
+- name: Set up boot script
   ansible.builtin.blockinfile:
-    content: |
-      if [ -f "{{ _install_path }}/bin/install.sh" ]; then
-        logger "Starting {{ _install_path }}/bin/install.sh"
-        fromdos < "{{ _install_path }}/bin/install.sh" > /var/tmp/unraid_loki_promtail_install.sh
-        chmod +x /var/tmp/unraid_loki_promtail_install.sh
-        /var/tmp/unraid_loki_promtail_install.sh
-      fi
-      if [ -f "{{ _install_path }}/bin/boot.sh" ]; then
-        logger "Starting {{ _install_path }}/bin/boot.sh"
-        fromdos < "{{ _install_path }}/bin/boot.sh" > /var/tmp/unraid_loki_promtail_boot.sh
-        chmod +x /var/tmp/unraid_loki_promtail_boot.sh
-        /var/tmp/unraid_loki_promtail_boot.sh
-      fi
-    dest: /boot/config/go
-    marker: "# {mark} UNRAID_LOKI_PROMTAIL"
+    content: '{{ lookup("template", role_path ~ "/other/boot.sh") }}'
+    dest: '{{ unraid.homelab_dir }}/boot.sh'
+    marker: "# {mark} ANSIBLE_LOKI_PROMTAIL"
+
+- name: Install User Script
+  include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
+  vars:
+    name: loki_promtail_update
+    description: Update Logcli, Loki & Promtail
+    script: '{{ lookup("template", role_path ~ "/other/update.sh") }}'
