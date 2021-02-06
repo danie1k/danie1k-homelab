@@ -48,6 +48,31 @@
   when: any_volumes_to_create
 
 
+# LABELS
+- set_fact:
+    _container_labels: '{{ (labels | default({})) | combine(docker.container_defaults.labels | default({})) }}'
+
+- set_fact:
+    _traefik_labels: >-
+      {
+      'traefik.http.routers.{{ name }}-http-{{ _index }}.rule': 'Host(`{{ name }}.{{ lab.domain_name }}`)',
+      'traefik.http.routers.{{ name }}-http-{{ _index }}.service': '{% if item.service and item.service is not mapping %}{{ item.service}}{% else %}{{ name }}-http-{{ _index }}{% endif %}',
+      'traefik.http.services.{% if item.service and item.service is not mapping %}{{ item.service}}{% else %}{{ name }}-http-{{ _index }}{% endif %}.loadbalancer.server.port': '{{ item.http_port }}',
+      {% if item.router is defined %}{% for _key, _value in item.router.items() %}
+      'traefik.http.routers.{{ name }}-http-{{ _index }}.{{ _key }}': '{{ _value }}',
+      {% endfor %}{% endif %}
+      {% if item.service is mapping %}{% for _key, _value in item.service.items() %}
+      'traefik.http.services.{{ name }}-http-{{ _index }}.{{ _key }}': '{{ _value }}',
+      {% endfor %}{% endif %}
+      }
+  with_items: "{{ proxy | community.general.json_query(\"[?http_port]\") }}"
+  loop_control:
+    index_var: _index
+  register: _traefik_http
+
+- set_fact:
+    _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
+
 # LOG DRIVER
 
 - set_fact:
@@ -75,7 +100,7 @@
       # Naming
       name: '{{ name }}'
       hostname: '{{ name }}'
-      labels: '{{ labels | default({}) }}'
+      labels: '{{ _container_labels }}'
 
       # Logging
       log_driver: '{{ _log_driver }}'

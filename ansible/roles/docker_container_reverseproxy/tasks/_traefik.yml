@@ -16,6 +16,10 @@
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - '{{ lab.tls_storage_dir }}:/tls:ro'
 
+    proxy:
+      - http_port: 8080
+        service: api@internal
+
     files:
       - src: traefik/dynamic.toml
         dest: ''
