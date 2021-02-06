@@ -1,0 +1,25 @@
+---
+
+# This task requires "CA User Scripts" application to be installed via "Community Applications" plugin
+
+- assert:
+    that: ['name is defined', 'name | length > 0']
+    fail_msg: "Missing or empty 'name'"
+- assert:
+    that: ['description is defined', 'description | length > 0']
+    fail_msg: "Missing or empty 'description'"
+- assert:
+    that: ['script is defined', 'script | length > 0']
+    fail_msg: "Missing or empty 'script'"
+
+- ansible.builtin.file:
+    path: '/boot/config/plugins/user.scripts/scripts/{{ name }}'
+    state: directory
+
+- ansible.builtin.copy:
+    content: '{{ description | default("") }}'
+    dest: '/boot/config/plugins/user.scripts/scripts/{{ name }}/description'
+
+- ansible.builtin.copy:
+    content: '{{ script }}'
+    dest: '/boot/config/plugins/user.scripts/scripts/{{ name }}/script'

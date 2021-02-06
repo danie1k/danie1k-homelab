@@ -1,0 +1,48 @@
+---
+
+# http://supervisord.org/
+
+- name: Install Supervisord
+  ansible.builtin.shell:
+    cmd: '{{ unraid.python_venv_dir }}/bin/python -m pip install supervisor'
+    creates: '{{ unraid.python_venv_dir }}/bin/supervisord'
+
+- name: Create directories for persistent files
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+  with_list:
+    - '{{ unraid.homelab_dir }}/supervisord'
+    - '{{ unraid.homelab_dir }}/supervisord/supervisor.d'
+
+- name: Copy supervisord.conf
+  ansible.builtin.copy:
+    src: supervisord.conf
+    dest: '{{ unraid.homelab_dir }}/supervisord/supervisord.conf'
+    force: false
+
+- name: Copy Slackware rc file
+  ansible.builtin.copy:
+    content: '{{ lookup("template", role_path ~ "/other/rc.supervisord") }}'
+    dest: '{{ unraid.homelab_dir }}/supervisord/rc.supervisord'
+    force: false
+
+- name: Set up boot script
+  ansible.builtin.blockinfile:
+    content: '{{ lookup("template", role_path ~ "/other/boot_supervisord.sh") }}'
+    dest: '{{ unraid.homelab_dir }}/boot.sh'
+    marker: "# {mark} ANSIBLE_SUPERVISORD"
+
+- name: Install User Scripts
+  include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
+  vars:
+    name: 'supervisord_{{ item }}'
+    description: '{{ item | capitalize }} Supervisord daemon'
+    script: |
+      #!/bin/sh
+      /etc/rc.d/rc.supervisord {{ item }}
+  with_list:
+    - restart
+    - start
+    - status
+    - stop

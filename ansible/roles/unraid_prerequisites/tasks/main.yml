@@ -1,6 +1,7 @@
 ---
 
 - include_tasks: _persistent-storage.yml
+- include_tasks: _python-virtualenv.yml
 
 - include_tasks: _daemonize.yml
-- include_tasks: _python-virtualenv.yml
+- include_tasks: _supervisord.yml

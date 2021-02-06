@@ -24,6 +24,14 @@
 Personal [homelab](https://www.reddit.com/r/homelab/) iDRAC7 & unRAID base infrastructure as code
 
 
+## unRaid requirements
+
+1. "[Community Applications](https://lime-technology.com/forums/topic/38582-plug-in-community-applications/)" plugin
+    1. "[CA User Scripts](http://lime-technology.com/forum/index.php?topic=49992.0)" app
+1. "[NerdPack](http://lime-technology.com/forum/index.php?topic=37541.0)" plugin
+    1. `python3-3.*-x86_64-1.txz` package
+
+
 ## Ansible
 
 Ansible requires Python interpreter to be installed in unRAID.  
