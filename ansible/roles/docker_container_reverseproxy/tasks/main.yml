@@ -3,4 +3,8 @@
 # HA-Proxy
 # - include_tasks: _haproxy.yml
 
-- include_tasks: _envoy.yml
+# Envoy Proxy
+# - include_tasks: _envoy.yml
+
+# Traefik
+- include_tasks: _traefik.yml

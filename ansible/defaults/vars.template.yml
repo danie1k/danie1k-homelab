@@ -11,6 +11,7 @@ docker:
 lab:
   domain_name: local
   ldap_password: # Password string generated using `slappasswd` - https://github.com/danie1k/homelab-ldap
+  tls_storage_dir: /mnt/cache/system/tls
 
 unraid:
   homelab_dir: /boot/homelab # A place where all persistent stuff will be stored

@@ -14,6 +14,7 @@
       NETWORK_NAME: '{{ docker.internal_network_name }}'
     networks:
       - name: '{{ docker.external_network_name }}'
+        ipv4_address: '{{ _reverseproxy_ip }}'
       - name: '{{ docker.internal_network_name }}'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

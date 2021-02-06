@@ -1,0 +1,24 @@
+[api]
+  insecure = true
+
+[providers]
+  [providers.docker]
+
+  [providers.file]
+    filename = "/config/dynamic.toml"
+    watch = true
+
+# https://doc.traefik.io/traefik/routing/entrypoints/
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+
+    [entryPoints.http.http.redirections]
+      [entryPoints.http.http.redirections.entryPoint]
+        to = "https"
+        scheme = "https"
+
+  [entryPoints.https]
+  address = ":443"
+
+    [entryPoints.https.http.tls]
