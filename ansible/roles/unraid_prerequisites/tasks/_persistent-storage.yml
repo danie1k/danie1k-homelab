@@ -1,0 +1,25 @@
+---
+
+- name: Create storage directory for persistent files
+  ansible.builtin.file:
+    path: '{{ unraid.homelab_dir }}'
+    state: directory
+
+- name: Create homelab boot shell script file for unRAID start up
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+    dest: '{{ unraid.homelab_dir }}/boot.sh'
+    force: false
+
+- name: Install homelab boot shell script in /boot/config/go
+  ansible.builtin.blockinfile:
+    content: |
+      if [ -f "{{ unraid.homelab_dir }}/boot.sh" ]; then
+        logger 'Starting {{ unraid.homelab_dir }}/boot.sh'
+        fromdos < "{{ unraid.homelab_dir }}/boot.sh" > /var/tmp/ansible_homelab_boot.sh
+        chmod +x /var/tmp/ansible_homelab_boot.sh
+        /var/tmp/ansible_homelab_boot.sh
+      fi
+    dest: /boot/config/go
+    marker: "# {mark} ANSIBLE_HOMELAB"

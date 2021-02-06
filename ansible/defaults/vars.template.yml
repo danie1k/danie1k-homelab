@@ -13,4 +13,6 @@ lab:
   ldap_password: # Password string generated using `slappasswd` - https://github.com/danie1k/homelab-ldap
 
 unraid:
+  homelab_dir: /boot/homelab # A place where all persistent stuff will be stored
   logging_dir: # See: unraid_loki_promtail
+  python_venv_dir: /mnt/cache/system/python

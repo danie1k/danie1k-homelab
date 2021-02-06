@@ -22,3 +22,11 @@
 # danie1k-homelab
 
 Personal [homelab](https://www.reddit.com/r/homelab/) iDRAC7 & unRAID base infrastructure as code
+
+
+## Ansible
+
+Ansible requires Python interpreter to be installed in unRAID.  
+
+1. Use [Nerd Pack plugin](https://forums.unraid.net/topic/35866-unraid-6-nerdpack-cli-tools-iftop-iotop-screen-kbd-etc/) to install Python 3.
+1. Then set `ansible_python_interpreter=/usr/bin/python3` in Ansible `inventory` file.

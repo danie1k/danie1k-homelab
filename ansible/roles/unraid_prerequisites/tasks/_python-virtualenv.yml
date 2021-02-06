@@ -1,0 +1,23 @@
+---
+
+# Python is needed by Ansible to work, so no need to check if Python is installed in unRAID
+
+- name: Set up Python3 virtual environment
+  shell:
+    cmd: 'python3 -m venv --copies "{{ unraid.python_venv_dir }}"'
+    creates: '{{ unraid.python_venv_dir }}'
+
+- name: Install pip in virtual environment
+  ansible.builtin.shell:
+    cmd: >-
+      curl https://bootstrap.pypa.io/get-pip.py -o /var/tmp/get-pip.py
+      && "{{ unraid.python_venv_dir }}/bin/python" /var/tmp/get-pip.py
+      && rm -f /var/tmp/get-pip.py
+    creates: '{{ unraid.python_venv_dir }}/bin/pip'
+
+- name: Set up PATH on boot
+  ansible.builtin.blockinfile:
+    content: |
+      echo 'export PATH="{{ unraid.python_venv_dir }}/bin:${PATH}"' >> /root/.bash_profile
+    dest: '{{ unraid.homelab_dir }}/boot.sh'
+    marker: "# {mark} ANSIBLE_PYTHON_VIRTUALENV"
