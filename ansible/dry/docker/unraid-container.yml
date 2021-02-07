@@ -53,6 +53,7 @@
     _container_labels: '{{ (labels | default({})) | combine(docker.container_defaults.labels | default({})) }}'
 
 - block:
+    # HTTP
     - set_fact:
         _traefik_labels: >-
           {
@@ -70,12 +71,33 @@
       loop_control:
         index_var: _index
       register: _traefik_http
-
     - set_fact:
         _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
 
+    # TCP
     - set_fact:
-        # https://github.com/traefik/traefik/issues/1254#issuecomment-299114960
+        _traefik_labels: >-
+          {
+          'traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.entrypoints': '{{ item.tcp_entrypoint }}',
+          'traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.rule': 'HostSNI(`*`)',
+          'traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.service': '{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-tcp-{{ _index }}@docker{% endif %}',
+          'traefik.tcp.services.{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-tcp-{{ _index }}{% endif %}.loadbalancer.server.port': '{{ item.tcp_port }}',
+          {% if item.router is defined %}{% for _key, _value in item.router.items() %}
+          'traefik.http.routers.{{ name }}-tcp-{{ _index }}.{{ _key }}': '{{ _value }}',
+          {% endfor %}{% endif %}
+          {% if item.service is mapping %}{% for _key, _value in item.service.items() %}
+          'traefik.http.services.{{ name }}-tcp-{{ _index }}.{{ _key }}': '{{ _value }}',
+          {% endfor %}{% endif %}
+          }
+      with_items: "{{ proxy | community.general.json_query(\"[?tcp_port]\") }}"
+      loop_control:
+        index_var: _index
+      register: _traefik_http
+    - set_fact:
+        _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
+
+    # https://github.com/traefik/traefik/issues/1254#issuecomment-299114960
+    - set_fact:
         _container_labels: '{{ _container_labels | combine({"traefik.docker.network": docker.internal_network_name}) }}'
 
   when: proxy is defined

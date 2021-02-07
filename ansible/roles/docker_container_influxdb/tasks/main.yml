@@ -6,15 +6,17 @@
 
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
-    name: '{{ _influxdb_hostname }}'
+    name: 'influxdb'
     image: influxdb:1.8-alpine
     command: influxd -config /var/lib/influxdb/influxdb.conf
     networks:
       - name: '{{ docker.internal_network_name }}'
-      - name: '{{ docker.external_network_name }}'
-        ipv4_address: '{{ _influxdb_ip }}'
     volumes:
       - [ '', '/var/lib/influxdb', 'rw' ]
+
+    proxy:
+      - tcp_entrypoint: tcp0 # docker_container_reverseproxy/files/traefik/traefik.toml
+        tcp_port: 9090
 
     files:
       - src: influxdb.conf
