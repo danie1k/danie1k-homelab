@@ -38,8 +38,10 @@
     - docker_container_portainer
     - docker_container_wiki
 
-    # No GUI
-    - docker_container_telegraf
+    # =======================================================
+    # OTHER
+    # =======================================================
+    - unraid_telegraf
 
   vars:
     _dnsmasq_ip: 172.16.100.129
@@ -55,5 +57,4 @@
       - ldap
       - postgresql
       - portainer
-      - telegraf
       - wiki

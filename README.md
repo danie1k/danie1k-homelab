@@ -30,6 +30,7 @@ Personal [homelab](https://www.reddit.com/r/homelab/) iDRAC7 & unRAID base infra
     1. "[CA User Scripts](http://lime-technology.com/forum/index.php?topic=49992.0)" app
     1. "[Sanoid](https://forums.unraid.net/topic/94549-sanoidsyncoid-zfs-snapshots-and-replication/)" app
 1. "[NerdPack](http://lime-technology.com/forum/index.php?topic=37541.0)" plugin
+    1. `ipmitool-*-x86_64-1.txz` package
     1. `python3-3.*-x86_64-1.txz` package
 1. "[ZFS for unRAID 6](http://lime-technology.com/forum/index.php?topic=43019.0)" plugin
 
