@@ -1,0 +1,36 @@
+---
+
+- name: Create persistent storage directory on the Flash drive
+  ansible.builtin.file:
+    path: '{{ unraid.homelab_dir }}/unraid_backups'
+    state: directory
+
+# Rsync #################################################################### #
+
+- name: Install User Script for offsite rsync backups
+  include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
+  vars:
+    name: rsync_offsite_backups
+    description: Offsite backups using rsync
+    script: '{{ lookup("template", role_path ~ "/other/rsync_offsite_backups.sh") }}'
+
+# Sanoid ################################################################### #
+
+# https://github.com/jimsalterjrs/sanoid
+# https://forums.unraid.net/topic/94549-sanoidsyncoid-zfs-snapshots-and-replication/
+
+- name: Check if Sanoid is installed
+  ansible.builtin.shell: which sanoid
+  changed_when: false
+
+- name: Copy Sanoid config to persistent storage
+  ansible.builtin.copy:
+    src: sanoid.conf
+    dest: '{{ unraid.homelab_dir }}/unraid_backups/sanoid.conf'
+    force: true
+
+- name: Set up boot script
+  ansible.builtin.blockinfile:
+    content: '{{ lookup("template", role_path ~ "/other/boot.sh") }}'
+    dest: '{{ unraid.homelab_dir }}/boot.sh'
+    marker: "# {mark} ANSIBLE_UNRAID_BACKUPS"

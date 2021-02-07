@@ -9,6 +9,11 @@ docker:
   volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
 
 lab:
+  backup:
+    targets:
+      - 'unique_name /local/path/ remote/path/'
+    ssh_key: /etc/ssh/ssh_host_rsa_key
+    ssh_target: user@domain.tld
   domain_name: local
   ldap_password: # Password string generated using `slappasswd` - https://github.com/danie1k/homelab-ldap
   tls_storage_dir: /mnt/cache/system/tls
