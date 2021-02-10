@@ -1,5 +1,24 @@
 ---
 
+# https://redis.io/topics/admin
+
+- block:
+    - name: Set kernel settings in boot script
+      ansible.builtin.blockinfile:
+        content: "{{ settings | join('\n') }}"
+        dest: '{{ unraid.homelab_dir }}/boot.sh'
+        marker: "# {mark} ANSIBLE_DOCKER_REDIS"
+      register: _redis_kernel_settings_on_boot
+    - name: Optimize kernel settings for Redis
+      command: '{{ item }}'
+      with_list: '{{ settings }}'
+      when: _redis_kernel_settings_on_boot.changed
+  vars:
+    settings:
+      - 'sysctl -w vm.overcommit_memory=1'
+      - 'echo madvise > /sys/kernel/mm/transparent_hugepage/enabled'
+
+
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: redis
@@ -14,3 +33,8 @@
     files:
       - src: redis.conf
         dest: ''
+        force: true
+
+    extra:
+      sysctls:
+        net.core.somaxconn: '1024'

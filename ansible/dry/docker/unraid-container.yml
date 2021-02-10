@@ -151,6 +151,9 @@
       volumes: '{{ container_volumes }}'
 
 - set_fact:
+    container_params: '{{ container_params | combine(extra | default({})) }}'
+
+- set_fact:
     container_params: '{{ container_params | combine({"command": command}) }}'
   when: command is defined
 
