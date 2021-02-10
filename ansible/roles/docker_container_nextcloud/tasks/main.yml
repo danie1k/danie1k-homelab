@@ -1,0 +1,33 @@
+---
+
+# IMPORTANT!
+# After successful deployment, chmod on copied files must be done manually!
+
+- set_fact:
+    _nextcloud_default_volumes:
+      - [ '/config', '/config', 'rw' ]
+      - [ '/data', '/data', 'rw' ]
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: nextcloud
+    image: ghcr.io/linuxserver/nextcloud
+    env:
+      PUID: '99' # UID of 'nobody'
+      PGID: '100' # GID of 'nobody'
+      TZ: Europe/Warsaw
+      UMASK: '000'
+    networks:
+      - name: '{{ docker.internal_network_name }}'
+      - name: '{{ docker.external_network_name }}' # Because Nextcloud needs access to the Internet
+    volumes: '{{ _nextcloud_default_volumes + lab.nextcloud_volumes }}'
+
+    files:
+      - src: '.'
+        dest: ''
+    templates:
+      - src: 'config/www/nextcloud/config/config.php'
+        dest: 'config/www/nextcloud/config/config.php'
+
+    proxy:
+      - http_port: 80

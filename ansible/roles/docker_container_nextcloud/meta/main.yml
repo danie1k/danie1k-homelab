@@ -1,0 +1,7 @@
+---
+
+dependencies:
+  - role: docker_internal_network
+  - role: docker_container_reverseproxy
+  - role: docker_container_postgresql
+  - role: docker_container_redis

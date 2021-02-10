@@ -35,6 +35,7 @@
 
     - docker_container_grafana
     - docker_container_home
+    - docker_container_nextcloud
     - docker_container_portainer
     - docker_container_wiki
 

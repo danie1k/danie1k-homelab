@@ -16,6 +16,7 @@ lab:
     ssh_target: user@domain.tld
   domain_name: local
   ldap_password: # Password string generated using `slappasswd` - https://github.com/danie1k/homelab-ldap
+  nextcloud_volumes: []
   tls_storage_dir: /mnt/cache/system/tls
   traefik_auth: user:password # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
 
