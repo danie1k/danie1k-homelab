@@ -1,0 +1,32 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: anime-catalog
+    image: anime_catalog:latest
+    env:
+      PYTHONUNBUFFERED: '1'
+      PYTHONPATH: /python-packages
+    networks:
+      - name: '{{ docker.external_network_name }}'
+      - name: '{{ docker.internal_network_name }}'
+
+    log_driver: local
+
+    proxy:
+      - http_port: 3000
+
+    volumes:
+      - [ '/python-packages', '/python-packages', 'rw' ]
+      - '/mnt/work/encrypted/~git/anime-catalog:/application:rw'
+
+    # command: tail -f /dev/null
+    #   apk add --no-cache postgresql-libs && apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev
+    #   python -m venv /python-packages && source /python-packages/bin/activate
+    #   pip install -U -r /application/src/requirements-dev.txt
+    command: /python-packages/bin/python /application/src/manage.py runserver 0.0.0.0:3000
+
+    extra:
+      cpus: 0.5
+      memory: 512M
+      kernel_memory: 512M

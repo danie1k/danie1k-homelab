@@ -1,0 +1,6 @@
+---
+
+dependencies:
+  - role: unraid_prerequisites
+  - role: docker_external_network
+  - role: docker_internal_network
