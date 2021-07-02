@@ -3,5 +3,6 @@
 dependencies:
   - role: docker_internal_network
   - role: docker_external_network
-  - role: docker_container_postgres
+  - role: docker_container_mysql
+  # - role: docker_container_postgres
   - role: docker_container_ldap

@@ -1,0 +1,30 @@
+---
+
+# https://github.com/linuxserver/docker-wikijs
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: wiki
+    image: ghcr.io/linuxserver/bookstack:latest
+    env:
+      PUID: '99' # UID of 'nobody'
+      PGID: '100' # GID of 'nobody'
+      APP_URL: 'https://wiki.{{ lab.domain_name }}'
+      DB_HOST: mysql
+      DB_USER: bookstack
+      DB_PASS: _changeme_
+      DB_DATABASE: bookstack
+      UMASK: '000'
+    networks:
+      - name: '{{ docker.internal_network_name }}'
+#      - name: '{{ docker.external_network_name }}' # Because Wiki.js needs access the Internet sometimes
+    volumes:
+      - [ '/bookstack', '/config', 'rw' ]
+
+    proxy:
+      - http_port: 80
+
+    extra:
+      cpus: 2
+      memory: 2G
+      kernel_memory: 3G
