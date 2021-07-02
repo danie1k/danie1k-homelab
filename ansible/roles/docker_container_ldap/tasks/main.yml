@@ -6,11 +6,11 @@
     image: glauth/glauth:latest
     command: /app/glauth -c /glauth-config.toml
     volumes:
-      - [ '/glauth.toml', '/glauth.toml', 'rw' ]
+      - [ '/glauth-config.toml', '/glauth-config.toml', 'rw' ]
       - '{{ lab.tls_storage_dir }}:/tls:ro'
     templates:
-      - src: 'glauth.toml.jinja2'
-        dest: '/glauth-config.toml'
+      - src: 'glauth-config.toml'
+        dest: '/'
 
     # image: danie1k/homelab-ldap:0.1.1
     # env:
