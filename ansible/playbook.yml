@@ -31,6 +31,7 @@
     - docker_container_influxdb
     - docker_container_ldap
     - docker_container_postgresql
+    - docker_container_mysql
     - docker_container_redis
 
     - docker_container_grafana
@@ -47,6 +48,9 @@
   vars:
     _dnsmasq_ip: 172.16.100.129
     _dnsmasq_hostname: dns
+
+    _postgres_ip: 10.0.100.10
+    _mysql_ip: 10.0.100.11
 
     _reverseproxy_ip: 172.16.100.130
     _reverseproxy_hostname: envoy

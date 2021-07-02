@@ -1,0 +1,22 @@
+---
+
+# CREATE DATABASE yourdbname;
+# CREATE USER 'youruser'@'%' IDENTIFIED BY 'yourpass';
+# GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, DROP, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES ON yourdbname.* TO 'youruser'@'%';
+# GRANT FILE ON *.* TO 'youruser'@'%';
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: mysql
+    image: ghcr.io/linuxserver/mariadb
+    env:
+      MYSQL_ROOT_PASSWORD: changeme
+      PGID: '100' # GID of 'nobody'
+      PUID: '99' # UID of 'nobody'
+      TZ: UTC
+    networks:
+      - name: '{{ docker.external_network_name }}'
+        ipv4_address: '{{ _mysql_ip }}'
+      - name: '{{ docker.internal_network_name }}'
+    volumes:
+      - [ '', '/config', 'rw' ]

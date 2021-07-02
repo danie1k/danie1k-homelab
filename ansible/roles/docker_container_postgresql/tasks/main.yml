@@ -1,5 +1,9 @@
 ---
 
+# CREATE DATABASE yourdbname;
+# CREATE USER youruser WITH ENCRYPTED PASSWORD 'yourpass';
+# GRANT ALL PRIVILEGES ON DATABASE yourdbname TO youruser;
+
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: postgres
@@ -16,6 +20,8 @@
       POSTGRES_PASSWORD: changeme
       PGDATA: /var/lib/pgsql/data
     networks:
+      - name: '{{ docker.external_network_name }}'
+        ipv4_address: '{{ _postgres_ip }}'
       - name: '{{ docker.internal_network_name }}'
     volumes:
       - [ '', '/var/lib/pgsql/data', 'rw' ]
