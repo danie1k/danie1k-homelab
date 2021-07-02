@@ -3,16 +3,29 @@
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: ldap
-    image: danie1k/homelab-ldap:0.1.1
-    env:
-      DOMAIN_NAME: '{{ lab.domain_name }}'
-      DOMAIN_NAME_DC: '{{ lab.domain_name.split(".") | first }}'
-      LDAP_ROOT_USERNAME: root
-      LDAP_ROOT_PASSWORD: '{{ lab.ldap_password }}'
+    image: glauth/glauth:latest
+    command: /app/glauth -c /glauth-config.toml
+    volumes:
+      - [ '/glauth.toml', '/glauth.toml', 'rw' ]
+      - '{{ lab.tls_storage_dir }}:/tls:ro'
+    templates:
+      - src: 'glauth.toml.jinja2'
+        dest: '/glauth-config.toml'
+
+    # image: danie1k/homelab-ldap:0.1.1
+    # env:
+    #   DOMAIN_NAME: '{{ lab.domain_name }}'
+    #   DOMAIN_NAME_DC: '{{ lab.domain_name.split(".") | first }}'
+    #   LDAP_ROOT_USERNAME: root
+    #   LDAP_ROOT_PASSWORD: '{{ lab.ldap_password }}'
+    # proxy:
+    #   - http_port: 80
+    # volumes:
+    #   - [ '', '/var/lib/openldap/openldap-data' ]
+
     networks:
       - name: '{{ docker.internal_network_name }}'
-    volumes:
-      - [ '', '/var/lib/openldap/openldap-data' ]
-
-    proxy:
-      - http_port: 80
+    extra:
+      cpus: 0.5
+      memory: 128M
+      kernel_memory: 128M

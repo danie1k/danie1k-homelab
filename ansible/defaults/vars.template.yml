@@ -14,8 +14,17 @@ lab:
       - 'unique_name /local/path/ remote/path/'
     ssh_key: /etc/ssh/ssh_host_rsa_key
     ssh_target: user@domain.tld
-  domain_name: local
-  ldap_password: # Password string generated using `slappasswd` - https://github.com/danie1k/homelab-ldap
+  domain_name: example.com
+  ldap:
+    baseDN: dc=example,dc=com
+    groups:
+      - name: root
+        unixid: 1
+    users:
+      - name: root
+        unixid: 1
+        primarygroup: 1
+        passsha256: "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2" # echo -n 'root' | openssl dgst -sha256
   nextcloud_volumes: []
   tls_storage_dir: /mnt/cache/system/tls
   traefik_auth: user:password # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
