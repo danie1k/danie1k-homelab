@@ -52,6 +52,9 @@
     _postgres_ip: 10.0.100.10
     _mysql_ip: 10.0.100.11
 
+    _influxdb_ip: 10.0.100.12
+    _influxdb_url: 'http://influxdb.{{ lab.domain_name }}:9091'
+
     _reverseproxy_ip: 172.16.100.130
     _reverseproxy_hostname: envoy
 

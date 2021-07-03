@@ -1,6 +1,6 @@
 ---
 
-# docker exec -it influxdb influx -port 9090
+# docker exec -it influxdb influx -port 9091
 # CREATE DATABASE <db_name>;
 # CREATE RETENTION POLICY <name> ON <db_name> DURATION ___ REPLICATION 1 DEFAULT;
 
@@ -10,14 +10,24 @@
     image: influxdb:1.8-alpine
     command: influxd -config /var/lib/influxdb/influxdb.conf
     networks:
+      - name: '{{ docker.external_network_name }}'
+        ipv4_address: '{{ _influxdb_ip }}'
       - name: '{{ docker.internal_network_name }}'
     volumes:
       - [ '', '/var/lib/influxdb', 'rw' ]
 
     proxy:
-      - tcp_entrypoint: tcp0 # docker_container_reverseproxy/files/traefik/traefik.toml
-        tcp_port: 9090
+      # docker_container_reverseproxy/files/traefik/traefik.toml
+      - tcp_entrypoint: tcp1
+        tcp_port: 9091
+      - tcp_entrypoint: tcp2
+        tcp_port: 9092
 
     files:
       - src: influxdb.conf
         dest: ''
+
+    extra:
+      cpus: 2
+      memory: 2G
+      kernel_memory: 4G
