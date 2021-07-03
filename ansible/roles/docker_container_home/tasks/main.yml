@@ -7,14 +7,24 @@
     name: home
     image: b4bz/homer:latest
     env:
-      UID: '0'
-      GID: '0'
-      PORT: '80'
+      GID: '100' # GID of 'nobody'
+      UID: '99' # UID of 'nobody'
+      PORT: '8080'
     log_driver: local
     networks:
       - name: '{{ docker.internal_network_name }}'
     volumes:
       - [ '', '/www/assets', 'rw' ]
+      - [ '/entrypoint.sh', '/entrypoint.sh', 'ro' ]
+
+    files:
+      - src: entrypoint.sh
+        dest: ''
 
     proxy:
-      - http_port: 80
+      - http_port: 8080
+
+    extra:
+      cpus: 0.5
+      memory: 128M
+      kernel_memory: 128M
