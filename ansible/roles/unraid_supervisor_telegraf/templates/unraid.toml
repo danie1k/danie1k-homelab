@@ -32,7 +32,7 @@
 # Disk - metrics about disk usage
 [[inputs.disk]]
   # https://github.com/influxdata/telegraf/blob/master/plugins/inputs/disk/README.md
-  ignore_fs = ["tmpfs", "devtmpfs", "devfs"]
+  ignore_fs = [ "tmpfs", "devtmpfs", "devfs" ]
 
 # DiskIO - metrics about disk traffic and timing
 [[inputs.diskio]]
@@ -43,7 +43,7 @@
 [[inputs.docker]]
   # https://github.com/influxdata/telegraf/blob/master/plugins/inputs/docker/README.md
   endpoint = "unix:///var/run/docker.sock"
-  container_state_exclude = ["removing"]
+  container_state_exclude = [ "removing" ]
   gather_services = false
   perdevice = true
   total = true
@@ -66,7 +66,7 @@
 # Net - metrics about network interface and protocol usage
 [[inputs.net]]
   # https://github.com/influxdata/telegraf/blob/master/plugins/inputs/net/NET_README.md
-  # no custom settings
+  interfaces = [ "br[0-3]", "eth[0-3]" ]
 
 # Netstat - collects TCP connections state and UDP socket counts by using lsof.
 [[inputs.netstat]]
@@ -83,6 +83,11 @@
   # https://github.com/influxdata/telegraf/blob/master/plugins/inputs/smart/README.md
   nocheck = "standby"
   devices = [ "/dev/sdc", "/dev/sdd", "/dev/sde", "/dev/sdf" ]
+
+# Swap - system swap metrics.
+[[inputs.swap]]
+  # https://github.com/influxdata/telegraf/blob/master/plugins/inputs/swap/README.md
+  # no configuration avail
 
 # System - general stats on system load, uptime, and number of users logged in.
 [[inputs.system]]
