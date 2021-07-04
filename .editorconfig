@@ -16,5 +16,8 @@ trim_trailing_whitespace = false
 [*.{ini, cfg, conf}]
 indent_size = 2
 
+[*.toml]
+indent_size = 2
+
 [*.{yaml, yml}]
 indent_size = 2

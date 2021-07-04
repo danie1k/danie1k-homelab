@@ -2,10 +2,11 @@
 
 - set_fact:
     program: |
-      [program:{{ item.key }}]
+      [program:{{ name }}-{{ item.key }}]
       autorestart = {{ (item.value.autorestart | default(false)) | string | lower }}
       autostart = {{ (item.value.autostart | default(false)) | string | lower }}
       command = {{ item.value.command }}
+      killasgroup = {{ (item.value.killasgroup | default(false)) | string | lower }}
       priority = {{ item.value.priority | default(1) }}
       process_name = %(program_name)s
       stderr_logfile = /var/log/%(program_name)s.log
@@ -23,7 +24,7 @@
 - set_fact:
     config_group: |
       [group:{{ name }}]
-      programs = {{ programs.keys() | join(',') }}
+      programs = {{ [name ~ '-'] | product(programs.keys()) | map('join') | join(',') }}
   when: 'programs.keys() | length > 1'
 
 - name: Create Supervisord config file

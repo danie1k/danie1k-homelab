@@ -9,10 +9,9 @@
   quiet = true
   round_interval = true
 
-
 [[outputs.influxdb]]
   # InfluxDB v1.x
-  urls = ["${INFLUX_URL}"]
+  urls = [ "{{ lab.services.influxdb_url }}" ]
   database = "telegraf"
   skip_database_creation = true
 
@@ -20,13 +19,12 @@
 ##
 # 1. IPMI
 ##
-
 # https://grafana.com/grafana/dashboards/9739
 # https://grafana.com/grafana/dashboards/11015
 # https://grafana.com/grafana/dashboards/13689
 
 [[inputs.ipmi_sensor]]
-  servers = ["${IDRAC_IPMI_URI}"]
+  servers = [ "{{ lab.idrac.ipmi_uri }}" ]
   interval = "30s"
   metric_version = 2
   path = "/usr/bin/ipmitool"
@@ -36,7 +34,6 @@
 ##
 # 2. SNMP
 ##
-
 # https://grafana.com/grafana/dashboards/12106
 
 [[processors.regex]]
@@ -46,7 +43,7 @@
     replacement = "${YYYY}-${MM}-${DD} ${HH}:${mm}:${ss}"
 
 [[inputs.snmp]]
-  agents = ["${IDRAC_SNMP_URI}"]
+  agents = [ "{{ lab.idrac.snmp_uri }}" ]
   community = "public"
   name = "idrac-hosts"
   timeout = "15s"
