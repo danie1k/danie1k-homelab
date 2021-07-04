@@ -11,10 +11,10 @@
 # file executable:  chmod 755 /etc/rc.d/rc.supervisord
 
 # Time to wait between stop/start on a restart
-SHUTDOWN_TIME=10
+SHUTDOWN_TIME=5
 
 # Time to wait after a start before reporting success/fail
-STARTUP_TIME=5
+STARTUP_TIME=2
 
 # Location of the pid file
 PIDFILE=/var/run/supervisord.pid
@@ -45,7 +45,8 @@ supervisord_status() {
 }
 
 supervisord_stop() {
-    kill -9 $(cat $PIDFILE)
+    # http://supervisord.org/running.html#signals
+    kill -s 15 $(cat $PIDFILE)
 }
 
 case "$1" in
