@@ -11,7 +11,7 @@ fi
 
 echo "UPDATING FROM ${current_version} TO ${latest_version}..."
 
-for item in logcli loki promtail
+for item in logcli loki
 do
   echo "Processing ${item}..."
   wget -O "/var/tmp/${item}.zip" "https://github.com/grafana/loki/releases/download/${latest_version}/${item}-linux-amd64.zip"

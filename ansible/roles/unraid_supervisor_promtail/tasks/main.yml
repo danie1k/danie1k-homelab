@@ -1,0 +1,75 @@
+---
+
+- set_fact:
+    promtail_dir: '{{ unraid.homelab_dir }}/promtail'
+
+- name: Create directories
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+  with_list:
+    - /mnt/cache/promtail
+    - '{{ promtail_dir }}'
+
+- name: Get latest release version number
+  ansible.builtin.shell: 'curl -s https://api.github.com/repos/grafana/loki/releases/latest | jq -r .tag_name'
+  register: version
+  changed_when: false
+
+- set_fact:
+    latest_version_file_path: '{{ promtail_dir }}/promtail-{{ version.stdout | replace(".", "") }}'
+
+- block:
+    - name: Download latest Promtail release to /tmp
+      ansible.builtin.unarchive:
+        src: 'https://github.com/grafana/loki/releases/download/{{ version.stdout }}/promtail-linux-amd64.zip'
+        remote_src: yes
+        dest:  '/tmp'
+        creates: '{{ latest_version_file_path }}'
+      register: _download
+
+    - name: Copy Promtail binary from /tmp to USB drive
+      ansible.builtin.command:
+        cmd: "mv /tmp/promtail-linux-amd64 '{{ latest_version_file_path }}'"
+        creates: '{{ latest_version_file_path }}'
+      when: _download.changed
+  always:
+    - ansible.builtin.file:
+        path: /tmp/promtail-linux-amd64
+        state: absent
+
+- name: Copy Promtail config file
+  ansible.builtin.template:
+    src: promtail.conf.yaml
+    dest: '{{ promtail_dir }}/promtail.conf.yaml'
+    force: true
+
+- name: Copy syslog config file
+  ansible.builtin.copy:
+    src: syslog.conf
+    dest: '{{ promtail_dir }}/syslog.conf'
+    force: true
+
+- name: Set up boot script
+  ansible.builtin.blockinfile:
+    content: |
+      logger 'Configuring Promtail'
+
+      if [ -f '{{ promtail_dir }}/syslog.conf' ]; then
+        fromdos < '{{ promtail_dir }}/syslog.conf' > /etc/rsyslog.d/promtail.conf
+        /etc/rc.d/rc.rsyslogd reload
+      fi
+
+      cp -vf '{{ latest_version_file_path }}' /usr/bin/promtail
+      chmod +x /usr/bin/promtail
+    dest: '{{ unraid.homelab_dir }}/boot.sh'  # unraid_prerequisites
+    marker: "# {mark} ANSIBLE_PROMTAIL"
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'
+  vars:
+    name: promtail
+    programs:
+      promtail:
+        autorestart: true
+        autostart: true
+        command: /usr/bin/promtail -config.file '{{ promtail_dir }}/promtail.conf.yaml'

@@ -14,7 +14,13 @@ lab:
       - 'unique_name /local/path/ remote/path/'
     ssh_key: /etc/ssh/ssh_host_rsa_key
     ssh_target: user@domain.tld
+
   domain_name: example.com
+
+  services:
+    influxdb_url: 'http://influxdb.<domain_name>:9091'           # `docker_container_influxdb`
+    loki_url: 'http://loki.<domain_name>:9092/loki/api/v1/push'  # wherever your Loki is hosted
+
   ldap:
     baseDN: dc=example,dc=com
     groups:

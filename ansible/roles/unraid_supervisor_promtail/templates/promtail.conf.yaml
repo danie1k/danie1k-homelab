@@ -11,11 +11,11 @@ server:
   log_level: warn
 
 clients:
-  - url: http://127.0.0.1:9092/loki/api/v1/push
+  - url: '{{ lab.services.loki_url }}'
 
 # The positions block configures where Promtail will save a file indicating how far it has read into a file.
 positions:
-  filename: '{{ unraid.logging_dir }}/promtail-positions.yaml'
+  filename: '/mnt/cache/promtail/positions.yaml'
 
 scrape_configs:
   - job_name: unraid

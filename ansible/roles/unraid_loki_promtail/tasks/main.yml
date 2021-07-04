@@ -39,7 +39,6 @@
     force: true
   with_list:
     - loki.conf.yaml
-    - promtail.conf.yaml
 
 - name: Set up boot script
   ansible.builtin.blockinfile:

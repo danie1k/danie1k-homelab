@@ -6,10 +6,12 @@
     - defaults/vars.yml
 
   roles:
+    - unraid_prerequisites
+
     # =======================================================
     # UNRAID
     # =======================================================
-    - unraid_prerequisites
+    - unraid_supervisor_promtail
     - unraid_loki_promtail
     - unraid_backups
 

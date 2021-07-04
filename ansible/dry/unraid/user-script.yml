@@ -19,7 +19,9 @@
 - ansible.builtin.copy:
     content: '{{ description | default("") }}'
     dest: '/boot/config/plugins/user.scripts/scripts/{{ name }}/description'
+    force: true
 
 - ansible.builtin.copy:
     content: '{{ script }}'
     dest: '/boot/config/plugins/user.scripts/scripts/{{ name }}/script'
+    force: true
