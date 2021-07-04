@@ -12,7 +12,6 @@
     # UNRAID
     # =======================================================
     - unraid_supervisor_promtail
-    - unraid_loki_promtail
     - unraid_backups
 
     # =======================================================
