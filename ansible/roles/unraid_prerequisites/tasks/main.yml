@@ -6,5 +6,5 @@
 - include_tasks: _docker-icons.yml
 
 - include_tasks: _daemonize.yml
-- include_tasks: _hddtemp.yml
+- include_tasks: '{{ role_path }}/_hddtemp/task.yml'
 - include_tasks: '{{ role_path }}/_supervisor/task.yml'

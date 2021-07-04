@@ -6,24 +6,34 @@
     path: '/boot/extra'
     state: directory
 
-- name: Download hddtemp packages
+- name: Download hddtemp package
   ansible.builtin.get_url:
     url: https://packages.slackonly.com/pub/packages/current-x86_64/system/hddtemp/hddtemp-0.3beta15-x86_64-4_slonly.txz
     dest: /boot/extra/hddtemp.txz
 
-- name: Install hddtemp packages
+- name: Install hddtemp package
   ansible.builtin.shell:
     cmd: installpkg /boot/extra/hddtemp.txz
     creates: /usr/sbin/hddtemp
 
+- name: Create directory for persistent files
+  ansible.builtin.file:
+    path: '{{ unraid.homelab_dir }}/hddtemp'
+    state: directory
+
 - name: Copy Slackware rc file
   ansible.builtin.copy:
-    content: '{{ lookup("template", role_path ~ "/other/rc.hddtemp") }}'
-    dest: '{{ unraid.homelab_dir }}/supervisord/rc.hddtemp'
-    force: false
+    content: '{{ lookup("template", role_path ~ "/_hddtemp/rc") }}'
+    dest: '{{ unraid.homelab_dir }}/hddtemp/rc'
+    force: true
 
 - name: Set up boot script
   ansible.builtin.blockinfile:
-    content: '{{ lookup("template", role_path ~ "/other/boot_hddtemp.sh") }}'
-    dest: '{{ unraid.homelab_dir }}/boot.sh'
+    content: |
+      logger 'Configuring hddtemp'
+
+      fromdos < '{{ unraid.homelab_dir }}/hddtemp/rc '> /etc/rc.d/rc.hddtemp
+      chmod +x /etc/rc.d/rc.hddtemp
+      /etc/rc.d/rc.hddtemp start
+    dest: '{{ unraid.homelab_dir }}/boot.sh'  # unraid_prerequisites
     marker: "# {mark} ANSIBLE_HDDTEMP"
