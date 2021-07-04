@@ -21,13 +21,24 @@ docker:
   syslog_address: udp://127.0.0.1:514
   volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
 
-lab:
-  backup:
-    targets:
-      - 'unique_name /local/path/ remote/path/'
+unraid_backups:
+  rclone_remote:
+    # SFTP 'rclone_remote' example - https://rclone.org/sftp/
+    type: sftp
+    host: example.com
+    user: johndoe
+    port: 22
+    key_file: /etc/ssh/ssh_host_rsa_key
+    use_insecure_cipher: false
+  rsync:
     ssh_key: /etc/ssh/ssh_host_rsa_key
-    ssh_target: user@domain.tld
+    ssh_target: johndoe@example.com
+  sync_targets:
+    unique_name:
+      local_path: /local/path/
+      remote_path: remote/path/
 
+lab:
   domain_name: example.com
 
   idrac:

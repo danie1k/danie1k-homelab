@@ -1,0 +1,5 @@
+**/.Trash**
+**/lost+found/**
+**/node_modules/**
+**/venv/**
+**/virtualenv/**

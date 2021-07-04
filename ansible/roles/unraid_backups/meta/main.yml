@@ -1,4 +1,4 @@
 ---
 
-#dependencies:
-#  - role: unraid_prerequisites
+dependencies:
+  - role: unraid_prerequisites

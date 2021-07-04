@@ -28,6 +28,7 @@ Personal [homelab](https://www.reddit.com/r/homelab/) iDRAC7 & unRAID base infra
 
 1. "[Community Applications](https://lime-technology.com/forums/topic/38582-plug-in-community-applications/)" plugin
     1. "[CA User Scripts](http://lime-technology.com/forum/index.php?topic=49992.0)" app
+    1. "[Rclone](https://forums.unraid.net/topic/51633-plugin-rclone/)" app
     1. "[Sanoid](https://forums.unraid.net/topic/94549-sanoidsyncoid-zfs-snapshots-and-replication/)" app
 1. "[NerdPack](http://lime-technology.com/forum/index.php?topic=37541.0)" plugin
     1. `ipmitool-*-x86_64-1.txz` package

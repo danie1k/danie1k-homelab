@@ -1,0 +1,14 @@
+---
+
+- name: Copy exclude file
+  ansible.builtin.copy:
+    content: '{{ lookup("template", role_path ~ "/_rsync/exclude.txt") }}'
+    dest: '{{ unraid.homelab_dir }}/unraid_backups/rsync-exclude.txt'
+    force: true
+
+- name: Install User Script
+  include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
+  vars:
+    name: rsync_offsite_backups
+    description: Offsite backups using rsync
+    script: '{{ lookup("template", role_path ~ "/_rsync/user-script.sh") }}'
