@@ -3,7 +3,6 @@
 - block:
     - include_tasks: _persistent-storage.yml
     - include_tasks: _python-virtualenv.yml
-    - include_tasks: _daemonize.yml
 
     - include_tasks: '{{ role_path }}/_docker_icons/task.yml'
     - include_tasks: '{{ role_path }}/_hddtemp/task.yml'
