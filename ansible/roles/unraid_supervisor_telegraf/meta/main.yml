@@ -2,4 +2,3 @@
 
 dependencies:
   - role: unraid_prerequisites
-  - role: docker_container_influxdb

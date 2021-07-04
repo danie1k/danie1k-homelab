@@ -1,10 +1,13 @@
 ---
 
-- include_tasks: _persistent-storage.yml
-- include_tasks: _python-virtualenv.yml
+- block:
+    - include_tasks: _persistent-storage.yml
+    - include_tasks: _python-virtualenv.yml
 
-- include_tasks: _docker-icons.yml
+    - include_tasks: _docker-icons.yml
 
-- include_tasks: _daemonize.yml
-- include_tasks: '{{ role_path }}/_hddtemp/task.yml'
-- include_tasks: '{{ role_path }}/_supervisor/task.yml'
+    - include_tasks: _daemonize.yml
+    - include_tasks: '{{ role_path }}/_hddtemp/task.yml'
+    - include_tasks: '{{ role_path }}/_supervisor/task.yml'
+
+  when: not (disable_meta_dependencies|default(false))

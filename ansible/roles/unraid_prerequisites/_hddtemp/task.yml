@@ -32,7 +32,7 @@
     content: |
       logger 'Configuring hddtemp'
 
-      fromdos < '{{ unraid.homelab_dir }}/hddtemp/rc '> /etc/rc.d/rc.hddtemp
+      fromdos < '{{ unraid.homelab_dir }}/hddtemp/rc' > /etc/rc.d/rc.hddtemp
       chmod +x /etc/rc.d/rc.hddtemp
       /etc/rc.d/rc.hddtemp start
     dest: '{{ unraid.homelab_dir }}/boot.sh'  # unraid_prerequisites

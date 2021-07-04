@@ -3,7 +3,7 @@
 #  2. SNMP
 
 [agent]
-  # https://docs.influxdata.com/telegraf/v1.17/administration/configuration/#agent-configuration
+  # https://docs.influxdata.com/telegraf/latest/administration/configuration/#agent-configuration
   interval = "15s"
   logfile = ""
   quiet = true

@@ -5,7 +5,6 @@ docker:
   external_network_parent: # The interface the traffic will physically go through on the Docker host (https://docs.docker.com/network/macvlan/)
   internal_network_name:
   syslog_address: udp://127.0.0.1:514
-  loki_url: http://127.0.0.1:3100/loki/api/v1/push
   volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
 
 lab:
@@ -35,11 +34,11 @@ lab:
         unixid: 1
         primarygroup: 1
         passsha256: "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2" # echo -n 'root' | openssl dgst -sha256
+
   nextcloud_volumes: []
   tls_storage_dir: /mnt/cache/system/tls
   traefik_auth: user:password # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
 
 unraid:
   homelab_dir: /boot/homelab # A place where all persistent stuff will be stored
-  logging_dir: # See: unraid_loki_promtail
   python_venv_dir: /mnt/cache/system/python

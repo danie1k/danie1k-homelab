@@ -3,19 +3,22 @@
 # FYI: Remember to enable the following unRAID setting:
 #      Settings > Docker > Preserve user defined networks
 
-- name: Create internal Docker Network
-  # https://docs.ansible.com/ansible/latest/collections/community/general/docker_network_module.html
-  community.docker.docker_network:
-    name: '{{ docker.internal_network_name }}'
-    attachable: false
-    driver: bridge
-    enable_ipv6: false
-    internal: true
-    ipam_config:
-      - subnet: 10.0.1.1/24
-        iprange: 10.0.1.1/24
-        gateway: 10.0.1.1
-    ipam_driver: default
-    labels:
-      ManagedBy: Ansible
-    scope: local
+- block:
+    - name: Create internal Docker Network
+      # https://docs.ansible.com/ansible/latest/collections/community/general/docker_network_module.html
+      community.docker.docker_network:
+        name: '{{ docker.internal_network_name }}'
+        attachable: false
+        driver: bridge
+        enable_ipv6: false
+        internal: true
+        ipam_config:
+          - subnet: 10.0.1.1/24
+            iprange: 10.0.1.1/24
+            gateway: 10.0.1.1
+        ipam_driver: default
+        labels:
+          ManagedBy: Ansible
+        scope: local
+
+  when: not (disable_meta_dependencies|default(false))

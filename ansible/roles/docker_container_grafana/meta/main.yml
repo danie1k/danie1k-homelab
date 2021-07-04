@@ -3,4 +3,3 @@
 dependencies:
   - role: unraid_prerequisites
   - role: docker_internal_network
-  - role: docker_container_postgresql

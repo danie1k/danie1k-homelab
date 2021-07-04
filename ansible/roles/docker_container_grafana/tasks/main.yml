@@ -14,7 +14,7 @@
       GF_DATABASE_PASSWORD: bar
     networks:
       - name: '{{ docker.internal_network_name }}'
-      - name: 'bridge'
+      - name: '{{ docker.external_network_name }}'
 
     proxy:
       - http_port: 3000

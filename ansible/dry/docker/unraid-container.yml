@@ -112,7 +112,7 @@
         syslog-address: '{{ docker.syslog_address }}'
         tag: '{{ name }}.docker'
       loki:
-        loki-url: '{{ docker.loki_url }}'
+        loki-url: '{{ lab.services.loki_url }}'
         loki-batch-size: '128'
         loki-external-labels: 'job=docker,container={{ name }},network={{ networks[0].name }}'
         # no-file: true

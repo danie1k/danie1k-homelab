@@ -6,7 +6,10 @@
     - defaults/vars.yml
 
   roles:
+    # Prerequisites
     - unraid_prerequisites
+    - docker_internal_network
+    - docker_external_network
 
     # =======================================================
     # UNRAID
@@ -18,10 +21,6 @@
     # =======================================================
     # DOCKER
     # =======================================================
-
-    # Prerequisites
-    - docker_internal_network
-    - docker_external_network
 
     # Networking
     - docker_container_reverseproxy
@@ -48,17 +47,18 @@
 
 
   vars:
-    _dnsmasq_ip: 172.16.100.129
+    disable_meta_dependencies: true
+
+    _dnsmasq_ip: 10.0.100.100
     _dnsmasq_hostname: dns
+
+    _reverseproxy_ip: 10.0.100.101
+    _reverseproxy_hostname: tyvia
 
     _postgres_ip: 10.0.100.10
     _mysql_ip: 10.0.100.11
 
     _influxdb_ip: 10.0.100.12
-    _influxdb_url: 'http://influxdb.{{ lab.domain_name }}:9091'
-
-    _reverseproxy_ip: 172.16.100.130
-    _reverseproxy_hostname: envoy
 
     _static_containers:
       - grafana

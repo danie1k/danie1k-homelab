@@ -12,7 +12,9 @@
     - '{{ promtail_dir }}'
 
 - name: Get latest release version number
-  ansible.builtin.shell: 'curl -s https://api.github.com/repos/grafana/loki/releases/latest | jq -r .tag_name'
+  ansible.builtin.shell:
+    cmd: 'curl -s https://api.github.com/repos/grafana/loki/releases/latest | jq -r .tag_name'
+    warn: false
   register: version
   changed_when: false
 
@@ -24,7 +26,7 @@
       ansible.builtin.unarchive:
         src: 'https://github.com/grafana/loki/releases/download/{{ version.stdout }}/promtail-linux-amd64.zip'
         remote_src: yes
-        dest:  '/tmp'
+        dest: /tmp
         creates: '{{ latest_version_file_path }}'
       register: _download
 
@@ -65,7 +67,8 @@
     dest: '{{ unraid.homelab_dir }}/boot.sh'  # unraid_prerequisites
     marker: "# {mark} ANSIBLE_PROMTAIL"
 
-- include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'
+- name: Set up Supervisord config
+  include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'
   vars:
     name: promtail
     programs:

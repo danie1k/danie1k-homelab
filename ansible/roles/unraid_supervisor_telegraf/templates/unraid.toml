@@ -1,5 +1,5 @@
 [agent]
-  # https://docs.influxdata.com/telegraf/v1.17/administration/configuration/#agent-configuration
+  # https://docs.influxdata.com/telegraf/latest/administration/configuration/#agent-configuration
   interval = "10s"
   logfile = ""
   quiet = true

@@ -38,7 +38,7 @@ hddtemp_start() {
 
     if [ -x /usr/sbin/hddtemp ]; then
         echo -n "Starting hddtemp daemon:  "
-        /usr/sbin/hddtemp --daemon ${HDDTEMP_DRIVES} &> /dev/null
+        /usr/sbin/hddtemp --daemon ${HDDTEMP_OPTIONS} &> /dev/null
     fi
 
     hddtemp_getpid
