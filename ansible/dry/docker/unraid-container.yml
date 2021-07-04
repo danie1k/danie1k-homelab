@@ -151,14 +151,23 @@
       volumes: '{{ container_volumes }}'
 
 - set_fact:
-    container_params: '{{ container_params | combine(extra | default({})) }}'
+    container_params: '{{ (docker.container_defaults | default({})) | combine(container_params) | combine(extra | default({})) }}'
 
 - set_fact:
     container_params: '{{ container_params | combine({"command": command}) }}'
   when: command is defined
 
 
-# CONTAINER CREATION
+# PULL IMAGE
+
+- name: Pull Docker Image
+  community.docker.docker_image:
+    name: '{{ image }}'
+    source: pull
+    state: present
+
+
+# CREATE CONTAINER
 
 - name: Create Dynamix Plugin container template
   ansible.builtin.copy:
@@ -168,6 +177,7 @@
         <Icon>https://raw.githubusercontent.com/danie1k/danie1k-homelab/master/icons/{{ name }}.png</Icon>
         <Name>{{ name }}</Name>
         <Repository>{{ image }}</Repository>
+        <WebUI>https://{{ name }}.{{ lab.domain_name }}/</WebUI>
       </Container>
     dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
 

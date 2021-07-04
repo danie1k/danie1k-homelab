@@ -21,3 +21,8 @@
 
     volumes:
       - [ '', '/var/lib/grafana' ]
+
+    extra:
+      cpus: 0.5
+      memory: 512M
+      kernel_memory: 512M

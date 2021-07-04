@@ -36,5 +36,8 @@
         force: true
 
     extra:
+      cpus: 2
+      memory: 12G
+      kernel_memory: 14G
       sysctls:
         net.core.somaxconn: '1024'

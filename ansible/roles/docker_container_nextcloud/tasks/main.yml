@@ -31,3 +31,8 @@
 
     proxy:
       - http_port: 80
+
+    extra:
+      cpus: 4
+      memory: 10G
+      kernel_memory: 10G

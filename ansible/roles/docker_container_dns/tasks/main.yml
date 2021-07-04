@@ -25,6 +25,11 @@
     volumes:
       - [ '/dnsmasq.conf', '/etc/dnsmasq.conf', 'rw' ]
 
+    extra:
+      cpus: 0.5
+      memory: 128M
+      kernel_memory: 256M
+
     templates:
       - src: dnsmasq.conf
         dest: ''
