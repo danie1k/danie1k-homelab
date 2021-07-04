@@ -7,4 +7,4 @@
 
 - include_tasks: _daemonize.yml
 - include_tasks: _hddtemp.yml
-- include_tasks: _supervisord.yml
+- include_tasks: '{{ role_path }}/_supervisor/task.yml'

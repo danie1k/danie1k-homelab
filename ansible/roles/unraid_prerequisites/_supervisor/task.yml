@@ -1,5 +1,4 @@
 ---
-
 # http://supervisord.org/
 
 - name: Install Supervisord
@@ -15,23 +14,14 @@
     - '{{ unraid.homelab_dir }}/supervisord'
     - '{{ unraid.homelab_dir }}/supervisord/supervisor.d'
 
-- name: Copy supervisord.conf
+- name: Copy files
   ansible.builtin.copy:
-    src: supervisord.conf
-    dest: '{{ unraid.homelab_dir }}/supervisord/supervisord.conf'
-    force: false
-
-- name: Copy Slackware rc file
-  ansible.builtin.copy:
-    content: '{{ lookup("template", role_path ~ "/other/rc.supervisord") }}'
-    dest: '{{ unraid.homelab_dir }}/supervisord/rc.supervisord'
-    force: false
-
-- name: Set up boot script
-  ansible.builtin.blockinfile:
-    content: '{{ lookup("template", role_path ~ "/other/boot_supervisord.sh") }}'
-    dest: '{{ unraid.homelab_dir }}/boot.sh'
-    marker: "# {mark} ANSIBLE_SUPERVISORD"
+    content: '{{ lookup("template", role_path ~ "/_supervisor/" ~ item) }}'
+    dest: '{{ unraid.homelab_dir }}/supervisord/{{ item }}'
+    force: true
+  with_list:
+    - 'rc'
+    - 'supervisord.conf'
 
 - name: Install User Scripts
   include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
@@ -40,9 +30,10 @@
     description: '{{ item | capitalize }} Supervisord daemon'
     script: |
       #!/bin/sh
-      /etc/rc.d/rc.supervisord {{ item }}
+      fromdos < '{{ unraid.homelab_dir }}/supervisord/rc' > /tmp/rc.supervisord
+      /bin/sh /tmp/rc.supervisord {{ item }}
+      rm -f /tmp/rc.supervisord
   with_list:
     - restart
     - start
-    - status
     - stop
