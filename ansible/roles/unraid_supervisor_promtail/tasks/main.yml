@@ -40,8 +40,8 @@
 
 - name: Copy Promtail config file
   ansible.builtin.template:
-    src: promtail.conf.yaml
-    dest: '{{ promtail_dir }}/promtail.conf.yaml'
+    src: config.yaml
+    dest: '{{ promtail_dir }}/config.yaml'
     force: true
 
 - name: Copy syslog config file
@@ -72,4 +72,4 @@
       promtail:
         autorestart: true
         autostart: true
-        command: /usr/bin/promtail -config.file '{{ promtail_dir }}/promtail.conf.yaml'
+        command: /usr/bin/promtail -config.file '{{ promtail_dir }}/config.yaml'
