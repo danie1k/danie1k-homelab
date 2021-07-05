@@ -36,6 +36,7 @@
     - docker_container_redis
 
     - docker_container_grafana
+    - docker_container_firefly
     - docker_container_home
     - docker_container_nextcloud
     - docker_container_portainer

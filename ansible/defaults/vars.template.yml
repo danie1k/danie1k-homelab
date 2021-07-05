@@ -21,6 +21,15 @@ docker:
   syslog_address: udp://127.0.0.1:514
   volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
 
+apps:
+  # docker_container_firefly
+  firefly:
+    # https://docs.firefly-iii.org/firefly-iii/installation/docker/
+    APP_KEY: CHANGEME_32_CHARS
+    DB_DATABASE: CHANGEME
+    DB_USERNAME: CHANGEME
+    DB_PASSWORD: CHANGEME
+
 unraid_backups:
   rclone_remote:
     # SFTP 'rclone_remote' example - https://rclone.org/sftp/

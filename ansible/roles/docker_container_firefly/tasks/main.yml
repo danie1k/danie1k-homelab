@@ -1,0 +1,43 @@
+---
+
+# https://github.com/Volmarg/personal-management-system
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: firefly
+    image: fireflyiii/core:latest
+    entrypoint: ['sh']
+    command: /entrypoint.sh
+    env:
+      APP_ENV: heroku  # Hacky way to force https scheme
+      APP_KEY: '{{ apps.firefly.APP_KEY }}'
+      APP_NAME: Firefly
+      APP_URL: 'https://firefly.{{ lab.domain_name }}'
+      DEFAULT_LANGUAGE: pl_PL
+      TZ: Europe/Warsaw
+      UMASK: '000'
+      # APP_DEBUG: 'true'
+      # APP_LOG_LEVEL: debug
+      DB_CONNECTION: pgsql
+      DB_DATABASE: '{{ apps.firefly.DB_DATABASE }}'
+      DB_HOST: 'postgres.{{ docker.internal_network_name }}'
+      DB_PASSWORD: '{{ apps.firefly.DB_PASSWORD }}'
+      DB_PORT: '5432'
+      DB_USERNAME: '{{ apps.firefly.DB_USERNAME }}'
+
+      # TODO: Enable LDAP
+      # https://docs.firefly-iii.org/firefly-iii/advanced-installation/authentication/#ldap
+    networks:
+      - name: '{{ docker.internal_network_name }}'
+    volumes:
+      - [ '/composer.lock', '/var/www/html/composer.lock', 'rw' ]
+      - [ '/uploads', '/var/www/html/storage/upload', 'rw' ]
+      - [ '/vendor', '/var/www/html/vendor', 'rw' ]
+
+    proxy:
+      - http_port: 8080
+
+    extra:
+      cpus: 1
+      memory: 1G
+      kernel_memory: 2G

@@ -157,6 +157,10 @@
     container_params: '{{ container_params | combine({"command": command}) }}'
   when: command is defined
 
+- set_fact:
+    container_params: '{{ container_params | combine({"entrypoint": entrypoint}) }}'
+  when: entrypoint is defined
+
 
 # PULL IMAGE
 
