@@ -69,7 +69,6 @@ lab:
         primarygroup: 1
         passsha256: "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2" # echo -n 'root' | openssl dgst -sha256
 
-  nextcloud_volumes: []
   tls_storage_dir: /mnt/cache/system/tls
   traefik_auth: user:password # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
 

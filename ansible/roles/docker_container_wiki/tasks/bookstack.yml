@@ -32,7 +32,6 @@
 - set_fact:
     _nginx_config_file: '{{ docker.volume_base }}/wiki/bookstack/nginx/nginx.conf'
     _nginx_site_config_file: '{{ docker.volume_base }}/wiki/bookstack/nginx/site-confs/default'
-    _nginx_ssl_keys_dir: '{{ docker.volume_base }}/wiki/bookstack/keys'
     _php_config_file: '{{ docker.volume_base }}/wiki/bookstack/php/www2.conf'
 
 - name: "Wait for '{{ _nginx_config_file }}' file"
@@ -61,15 +60,6 @@
     - 'listen 443 ssl'
     - 'ssl_certificate_key'
     - 'ssl_certificate'
-
-- name: "Wait for '{{ _nginx_ssl_keys_dir }}' directory"
-  wait_for:
-    path: '{{ _nginx_ssl_keys_dir }}'
-    sleep: 1
-- name: Remove self-signed SSL keys
-  ansible.builtin.file:
-    path: '{{ _nginx_ssl_keys_dir }}'
-    state: absent
 
 - name: "Wait for '{{ _php_config_file }}' file"
   wait_for:
