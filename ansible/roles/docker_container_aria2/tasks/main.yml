@@ -1,0 +1,33 @@
+---
+
+- set_fact:
+    default_volumes:
+      - [ '/config', '/config', 'rw' ]
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: aria2
+    image: danie1k/aria2-ariang:tagname:latest
+    env:
+      GID: '100' # GID of 'nobody'
+      UID: '99' # UID of 'nobody'
+      TZ: Europe/Warsaw
+      UMASK: '000'
+
+      aria2Secret: '{{ apps.aria2.aria2_rpc_secret }}'
+      AUTH: '{{ apps.aria2.ariang_auth }}'
+    networks:
+      - name: '{{ docker.external_network_name }}'
+      - name: '{{ docker.internal_network_name }}'
+    volumes: '{{ default_volumes + apps.aria2.volumes|default("") }}'
+
+    proxy:
+      - http_port: 8080
+      # docker_container_reverseproxy/files/traefik/traefik.toml
+      - tcp_entrypoint: tcp3
+        tcp_port: 6800
+
+    extra:
+      cpus: 2
+      memory: 1G
+      kernel_memory: 2G

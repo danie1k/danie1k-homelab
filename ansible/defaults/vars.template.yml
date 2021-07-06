@@ -22,6 +22,11 @@ docker:
   volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
 
 apps:
+  # docker_container_aria2
+  aria2:
+    aria2_rpc_secret: loremipsum
+    ariang_auth: username:password
+    volumes: []
   # docker_container_firefly
   firefly:
     # https://docs.firefly-iii.org/firefly-iii/installation/docker/
