@@ -1,0 +1,46 @@
+---
+# https://docs.miguelndecarvalho.pt/projects/speedtest-exporter/
+
+- ansible.builtin.copy:
+    src: blackbox_exporter.yml
+    dest: '{{ docker.volume_base }}/prometheus/config/blackbox_exporter.yml'
+    force: true
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: prometheus_uptime
+    image: prom/blackbox-exporter:latest
+    command: >-
+      --config.file=/config/blackbox_exporter.yml
+      --history.limit=1
+      --log.level=warn
+      --web.listen-address=':9115'
+    networks:
+      - name: '{{ docker.external_network_name }}'
+      - name: '{{ docker.internal_network_name }}'
+    volumes:
+      - '{{ docker.volume_base }}/prometheus/config:/config:ro'
+    extra:
+      cpus: 0.5
+      memory: 1G
+      kernel_memory: 1G
+
+- name: Add Speedtest to Prometheus Config
+  include_tasks: '{{ playbook_dir }}/dry/prometheus-config.yml'
+  vars:
+    job_name: blackbox
+    job:
+      metrics_path: /probe
+      scrape_interval: 5s
+      params:
+        module: [http_2xx]
+      static_configs:
+        - targets: '{{ apps.prometheus.blackbox.targets }}'
+      relabel_configs:
+        - source_labels: [__address__]
+          target_label: instance
+        - source_labels: [__address__]
+          target_label: __param_target
+          replacement: 'http://$1'
+        - target_label: __address__
+          replacement: 'prometheus_uptime.{{ docker.internal_network_name }}:9115'

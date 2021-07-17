@@ -1,0 +1,21 @@
+---
+# docker_container_prometheus
+
+- name: 'Add "{{ job_name }}" job to Prometheus Config'
+  ansible.builtin.blockinfile:
+    insertafter: 'scrape_configs:'
+    marker: '### {mark} {{ job_name | upper }}'
+    marker_begin: '\/ START'
+    marker_end: '/\ END'
+    content: |2
+        - job_name: '{{ job_name }}'
+          {{ job | to_nice_yaml | indent(4) }}
+    dest: '{{ docker.volume_base }}/prometheus/config/prometheus.yml'
+  register: _prometheus_config
+
+- name: Reload Prometheus
+  uri:
+    url: 'https://prometheus.{{ lab.domain_name }}/-/reload'
+    method: POST
+    status_code: 200
+  when: _prometheus_config.changed

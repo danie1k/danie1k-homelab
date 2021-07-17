@@ -34,6 +34,12 @@ apps:
     DB_DATABASE: CHANGEME
     DB_USERNAME: CHANGEME
     DB_PASSWORD: CHANGEME
+  # docker_container_prometheus
+  prometheus:
+    blackbox:
+      targets: []
+    speedtest:
+      server: CHANGEME
 
 unraid_backups:
   rclone_remote:

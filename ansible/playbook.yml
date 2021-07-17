@@ -36,6 +36,7 @@
     - docker_container_redis
 
     - docker_container_grafana
+    - docker_container_prometheus
     - docker_container_portainer
 
     - docker_container_aria2

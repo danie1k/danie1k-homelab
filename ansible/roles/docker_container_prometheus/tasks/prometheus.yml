@@ -1,0 +1,36 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: prometheus
+    image: prom/prometheus:latest
+    command: >-
+      --config.file=/config/prometheus.yml
+      --log.level=warn
+      --storage.tsdb.path=/prometheus
+      --storage.tsdb.retention.time=3m
+      --web.console.libraries=/usr/share/prometheus/console_libraries
+      --web.console.templates=/usr/share/prometheus/consoles
+      --web.enable-admin-api
+      --web.enable-lifecycle
+      --web.external-url='https://prometheus.{{ lab.domain_name }}'
+      --web.listen-address='0.0.0.0:9090'
+    networks:
+      - name: '{{ docker.internal_network_name }}'
+    volumes:
+      - [ '/data', '/prometheus', 'rw' ]
+      - [ '/config', '/config', 'ro' ]
+
+    files:
+      - src: prometheus.yml
+        dest: 'config/'
+        force: false
+
+    proxy:
+      - http_port: 9090
+
+    extra:
+      user: 99:100  # 'nobody'
+      cpus: 2
+      memory: 1G
+      kernel_memory: 1G
