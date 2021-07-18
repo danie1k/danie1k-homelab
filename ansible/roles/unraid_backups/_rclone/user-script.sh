@@ -7,7 +7,7 @@ timestamp="$(date '+%Y-%m-%d-%H-%M')"
 declare -A sync_targets
 
 rclone_flags=(
-  --copy-links   # Follow symlinks and copy the pointed to item
+#  --copy-links   # Follow symlinks and copy the pointed to item
   --filter-from  # Read filtering patterns from a file (use - to read from stdin)
   '{{ unraid.homelab_dir }}/unraid_backups/rclone-filters.txt'
   --verbose      # Print lots more stuff (repeat for more)
