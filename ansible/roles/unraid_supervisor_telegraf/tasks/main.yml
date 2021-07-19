@@ -51,6 +51,7 @@
   with_list:
     - idrac.toml
     - unraid.toml
+    - weather.toml
 
 - name: Set up boot script
   ansible.builtin.blockinfile:
@@ -77,5 +78,11 @@
         autorestart: true
         autostart: true
         command: /usr/bin/telegraf --config '{{ telegraf_dir }}/unraid.toml'
+        killasgroup: true
+        stopasgroup: true
+      weather:
+        autorestart: true
+        autostart: true
+        command: /usr/bin/telegraf --config '{{ telegraf_dir }}/weather.toml'
         killasgroup: true
         stopasgroup: true

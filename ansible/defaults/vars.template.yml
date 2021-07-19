@@ -40,6 +40,10 @@ apps:
       targets: []
     speedtest:
       server: CHANGEME
+  telegraf:
+    openweathermap:
+      api_key: CHANGEME
+      cities: []
 
 unraid_backups:
   rclone_remote:
