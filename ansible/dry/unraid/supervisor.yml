@@ -1,6 +1,6 @@
 ---
 
-- set_fact:
+- set_fact:  # noqa 502
     program: |
       [program:{{ name }}-{{ item.key }}]
       autorestart = {{ (item.value.autorestart | default(false)) | string | lower }}
@@ -17,11 +17,11 @@
   with_dict: '{{ programs }}'
   register: _programs
 
-- set_fact:
+- set_fact:  # noqa 502
     config_programs: "{{ _programs.results | map(attribute='ansible_facts') | map(attribute='program') | join('\n') }}"
     config_group: ''
 
-- set_fact:
+- set_fact:  # noqa 502
     config_group: |
       [group:{{ name }}]
       programs = {{ [name ~ '-'] | product(programs.keys()) | map('join') | join(',') }}

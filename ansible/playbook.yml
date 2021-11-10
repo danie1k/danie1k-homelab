@@ -17,8 +17,8 @@
     # UNRAID
     # =======================================================
     - unraid/backups
+    - services/promtail
 
-#    - unraid_supervisor_promtail
 #    - unraid_supervisor_telegraf
 #
 #    # =======================================================

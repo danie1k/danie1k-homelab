@@ -110,10 +110,10 @@
     _log_driver: '{{ log_driver | default("loki") }}'
     _log_driver_config:
       syslog:
-        syslog-address: '{{ docker.syslog_address }}'
+        syslog-address: '{{ services.syslog.address }}'
         tag: '{{ name }}.docker'
       loki:
-        loki-url: '{{ lab.services.loki_url }}'
+        loki-url: '{{ services.loki.url }}'
         loki-batch-size: '128'
         loki-external-labels: 'job=docker,container={{ name }},network={{ networks[0].name }}'
         # no-file: true
