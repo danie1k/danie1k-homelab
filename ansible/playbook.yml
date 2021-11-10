@@ -28,13 +28,11 @@
     - docker/database/influxdb
     - docker/database/mysql
     - docker/database/postgresql
+    - docker/database/redis
 
 #    - docker_container_dns
 #    - docker_container_certbot
-#
-#    # Databases
 #    - docker_container_ldap
-#    - docker_container_redis
 #
 #    - docker_container_grafana
 #    - docker_container_prometheus
