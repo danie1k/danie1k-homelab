@@ -1,0 +1,76 @@
+---
+
+static_resources:
+  listeners:
+    ##
+    # HTTP -> HTTPS
+    ##
+    - name: HTTP_TO_HTTPS
+      address: { socket_address: { address: 0.0.0.0, port_value: 80, protocol: TCP } }
+      # listener_filters:
+      #  - ??
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http_to_https
+                http_filters: [{ name: envoy.filters.http.router }]
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: local_service
+                      domains: [ "*" ]
+                      routes:
+                        - match: { prefix: "/" }
+                          redirect: { path_redirect: "/", https_redirect: true }
+    ##
+    # HTTPS
+    ##
+    - name: HTTPS
+      address: { socket_address: { address: 0.0.0.0, port_value: 443 } }
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_https
+                http_filters: [{ name: envoy.filters.http.router }]
+                upgrade_configs: [{ upgrade_type: websocket }] # Enable websocket support
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    {% for container_name in _static_containers %}
+                    ##
+                    # {{ container_name | upper }}
+                    ##
+                    - name: {{ container_name }}
+                      domains: [ "{{ container_name }}.{{ lab_domain_name }}" ]
+                      routes:
+                        - match: { prefix: "/" }
+                          route: { cluster: "CLUSTER_{{ container_name | upper }}" }
+                    {% endif %}
+
+          transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              common_tls_context:
+                tls_certificates:
+                  - certificate_chain: { filename: "/config/tls/fullchain1.pem" }
+                    private_key: { filename: "/config/tls/privkey1.pem" }
+                alpn_protocols: [ "h2,http/1.1" ]
+
+  clusters:
+    {% for container_name in _static_containers %}
+    ##
+    # {{ container_name | upper }}
+    ##
+    - name: "CLUSTER_{{ container_name | upper }}"
+      connect_timeout: 300s
+      type: STRICT_DNS
+      dns_lookup_family: V4_ONLY
+      load_assignment:
+        cluster_name: {{ container_name }}
+        endpoints: [{ lb_endpoints: [{ endpoint: { address: { socket_address: { address: "{{ container_name }}.{{ docker_config.network.internal.name }}", port_value: "80" } } } }] }]
+    {% endif %}

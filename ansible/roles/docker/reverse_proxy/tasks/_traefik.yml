@@ -1,20 +1,19 @@
 ---
-
 # https://doc.traefik.io/traefik/getting-started/quick-start/
 
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
-    name: '{{ _reverseproxy_hostname }}'
+    name: traefik
     image: traefik:latest
     command: --configFile=/config/traefik.toml
     networks:
-      - name: '{{ docker.external_network_name }}'
-        ipv4_address: '{{ _reverseproxy_ip }}'
-      - name: '{{ docker.internal_network_name }}'
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: '{{ services.reverse_proxy.static_external_ip }}'
+      - name: '{{ docker_config.network.internal.name }}'
     volumes:
       - [ '', '/config', 'rw' ]
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - '{{ lab.tls_storage_dir }}:/tls:ro'
+      - '{{ unraid.tls_storage_dir }}:/tls:ro'
 
     proxy:
       - http_port: 8080

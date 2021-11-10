@@ -4,7 +4,9 @@ lab_domain_name: example.com
 
 unraid:
   homelab_dir: /boot/homelab  # A place where all persistent stuff will be stored
+  docker_volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
   python_venv_dir: /mnt/cache/system/python
+  tls_storage_dir: /mnt/cache/system/tls
   backups:
     rclone:
       remote:
@@ -50,6 +52,9 @@ services:
     url: 'http://<hostname>:9091'   # wherever your InfluxDV instance is hosted
   loki:
     url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
+  reverse_proxy:
+    traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
+    static_external_ip:
   syslog:
     address: 'udp://<hostname_or_ip>:514'
   telegraf:
@@ -72,9 +77,6 @@ services:
 #     memory_swap: 0       # The amount of memory this container is allowed to swap to disk
 #     memory_swappiness: 0 # https://docs.docker.com/config/containers/resource_constraints/#--memory-swappiness-details
 #
-#  volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
-#
-#
 # apps:
 #   # docker_container_aria2
 #   aria2:
@@ -96,9 +98,6 @@ services:
 #       server: CHANGEME
 #
 # lab:
-#   services:
-#     influxdb_url: 'http://influxdb.<domain_name>:9091'           # `docker_container_influxdb`
-#
 #   ldap:
 #     baseDN: dc=example,dc=com
 #     groups:
@@ -109,6 +108,3 @@ services:
 #         unixid: 1
 #         primarygroup: 1
 #         passsha256: "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2" # echo -n 'root' | openssl dgst -sha256
-#
-#   tls_storage_dir: /mnt/cache/system/tls
-#   traefik_auth: user:password # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration

@@ -1,9 +1,9 @@
 ---
 
-- assert:
+- assert:  # noqa 502
     that: ['name is defined', 'name | length > 0']
     fail_msg: "Missing or empty 'name'"
-- assert:
+- assert:  # noqa 502
     that: ['image is defined', 'image | length > 0']
     fail_msg: "Missing or empty 'image'"
 
@@ -21,23 +21,24 @@
 
 # VOLUME(S)
 
-- set_fact:
-    _volume_base: '{{ docker.volume_base }}/{{ name }}'
-- set_fact:
+- set_fact:  # noqa 502
+    _volume_base: '{{ unraid.docker_volume_base }}/{{ name }}'
+- set_fact:  # noqa 502
     volume: '{% if item is string %}{{ item }}{% else %}{{ _volume_base }}{{ item | join(":") }}{% endif %}'
   with_list: "{{ volumes | default([]) }}"
   register: _volumes
-- set_fact:
+- set_fact:  # noqa 502
     item: '{% if item is string %}false{% else %}true{% endif %}'
   with_list: "{{ volumes | default([]) }}"
   register: _any_volumes_to_create
-- set_fact:
+- set_fact:  # noqa 502
     container_volumes: '{{ _volumes.results | map(attribute="ansible_facts") | map(attribute="volume") }}'
     any_volumes_to_create: '{{ true in (_any_volumes_to_create.results | map(attribute="ansible_facts") | map(attribute="item")) }}'
 
 - name: Create Container Volume persistent directory
   file:
     path: '{{ _volume_base }}'
+    mode: '0774'
     state: directory
   when: any_volumes_to_create
 - name: Copy files to Container Volume
@@ -63,12 +64,12 @@
 
 
 # LABELS
-- set_fact:
+- set_fact:  # noqa 502
     _container_labels: '{{ (labels | default({})) | combine(docker.container_defaults.labels | default({})) }}'
 
 - block:
     # HTTP
-    - set_fact:
+    - set_fact:  # noqa 502
         _traefik_labels: >-
           {
           'traefik.http.routers.{{ name }}-http-{{ _index }}.rule': 'Host(`{{ name }}.{{ lab_domain_name }}`)',
@@ -85,11 +86,11 @@
       loop_control:
         index_var: _index
       register: _traefik_http
-    - set_fact:
+    - set_fact:  # noqa 502
         _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
 
     # TCP
-    - set_fact:
+    - set_fact:  # noqa 502
         _traefik_labels: >-
           {
           'traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.entrypoints': '{{ item.tcp_entrypoint }}',
@@ -107,11 +108,11 @@
       loop_control:
         index_var: _index
       register: _traefik_http
-    - set_fact:
+    - set_fact:  # noqa 502
         _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
 
     # https://github.com/traefik/traefik/issues/1254#issuecomment-299114960
-    - set_fact:
+    - set_fact:  # noqa 502
         _container_labels: '{{ _container_labels | combine({"traefik.docker.network": docker_config.network.internal.name}) }}'
 
   when: proxy is defined
@@ -119,7 +120,7 @@
 
 # LOG DRIVER
 
-- set_fact:
+- set_fact:  # noqa 502
     _log_driver: '{{ log_driver | default("loki") }}'
     _log_driver_config:
       syslog:
@@ -146,7 +147,7 @@
 
 # FINAL CONTAINER PARAMS
 
-- set_fact:
+- set_fact:  # noqa 502
     container_params:
       image: '{{ image }}'
       container_default_behavior: no_defaults
@@ -174,14 +175,14 @@
       restart_policy: unless-stopped
       volumes: '{{ container_volumes }}'
 
-- set_fact:
+- set_fact:  # noqa 502
     container_params: '{{ (docker.container_defaults | default({})) | combine(container_params) | combine(extra | default({})) }}'
 
-- set_fact:
+- set_fact:  # noqa 502
     container_params: '{{ container_params | combine({"command": command}) }}'
   when: command is defined
 
-- set_fact:
+- set_fact:  # noqa 502
     container_params: '{{ container_params | combine({"entrypoint": entrypoint}) }}'
   when: entrypoint is defined
 

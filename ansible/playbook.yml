@@ -20,12 +20,12 @@
     - services/promtail
     - services/telegraf
 
-#    # =======================================================
-#    # DOCKER
-#    # =======================================================
-#
+    # =======================================================
+    # DOCKER
+    # =======================================================
+    - docker/reverse_proxy
+
 #    # Networking
-#    - docker_container_reverseproxy
 #    - docker_container_dns
 #
 #    - docker_container_certbot
@@ -58,9 +58,6 @@
 #
 #    _dnsmasq_ip: 10.0.100.100
 #    _dnsmasq_hostname: dns
-#
-#    _reverseproxy_ip: 10.0.100.101
-#    _reverseproxy_hostname: tyvia
 #
 #    _postgres_ip: 10.0.100.10
 #    _mysql_ip: 10.0.100.11

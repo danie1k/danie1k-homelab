@@ -7,9 +7,9 @@
     command: --log-level warn --config-path /config/envoy.yaml
     image: danie1k/homelab-envoyproxy:rolling
     networks:
-      - name: '{{ docker.external_network_name }}'
-        ipv4_address: '{{ _reverseproxy_ip }}'
-      - name: '{{ docker.internal_network_name }}'
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: '{{ services.reverse_proxy.static_external_ip }}'
+      - name: '{{ docker_config.network.internal.name }}'
     volumes:
       - [ '', '/config', 'rw' ]
 
