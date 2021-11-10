@@ -25,13 +25,12 @@
     # =======================================================
     - docker/reverse_proxy
 
-#    # Networking
+    - docker/database/influxdb
+
 #    - docker_container_dns
-#
 #    - docker_container_certbot
 #
 #    # Databases
-#    - docker_container_influxdb
 #    - docker_container_ldap
 #    - docker_container_postgresql
 #    - docker_container_mysql
@@ -62,12 +61,9 @@
 #    _postgres_ip: 10.0.100.10
 #    _mysql_ip: 10.0.100.11
 #
-#    _influxdb_ip: 10.0.100.12
-#
 #    _static_containers:
 #      - grafana
 #      - home
-#      - influxdb
 #      - ldap
 #      - postgresql
 #      - portainer
