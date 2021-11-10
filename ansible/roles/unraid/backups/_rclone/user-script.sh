@@ -20,13 +20,13 @@ if [[ "$@" == *'dry-run'* ]]; then
   )
 fi
 
-{% for key, value in unraid_backups.sync_targets.items() %}
+{% for key, value in unraid.backups.rclone.sync_targets.items() %}
 sync_targets[{{ loop.index }},0]="{{ key }}"
 sync_targets[{{ loop.index }},1]="{{ value.local_path }}"
 sync_targets[{{ loop.index }},2]="{{ value.remote_path }}"
 {% endfor %}
 
-for i in {1..{{ unraid_backups.sync_targets | length }}}; do
+for i in {1..{{ unraid.backups.rclone.sync_targets | length }}}; do
   name="${sync_targets[$i,0]}"
   local_path="${sync_targets[$i,1]}"
   remote_path="${sync_targets[$i,2]}"

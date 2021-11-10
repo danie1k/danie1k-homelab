@@ -2,7 +2,7 @@
 set -e
 
 timestamp="$(date '+%Y-%m-%d-%H-%M')"
-remote='{{ unraid_backups.rsync.ssh_target }}'
+remote='{{ unraid.backups.rsync.ssh_target }}'
 declare -A sync_targets
 
 rsync_options=(
@@ -13,7 +13,7 @@ rsync_options=(
   --exclude-from     # read exclude patterns from FILE
   '{{ unraid.homelab_dir }}/unraid_backups/rsync-exclude.txt'
   -e                 # specify the remote shell to use
-  "ssh -i '{{ unraid_backups.rsync.ssh_key }}'"
+  "ssh -i '{{ unraid.backups.rsync.ssh_key }}'"
   -h                # output numbers in a human-readable format
   -i                # output a change-summary for all updates
   -l                # copy symlinks as symlinks
@@ -35,13 +35,13 @@ if [[ "$@" == *'dry-run'* ]]; then
   )
 fi
 
-{% for key, value in unraid_backups.sync_targets.items() %}
+{% for key, value in unraid.backups.rclone.sync_targets.items() %}
 sync_targets[{{ loop.index }},0]="{{ key }}"
 sync_targets[{{ loop.index }},1]="{{ value.local_path }}"
 sync_targets[{{ loop.index }},2]="{{ value.remote_path }}"
 {% endfor %}
 
-for i in {1..{{ unraid_backups.sync_targets | length }}}; do
+for i in {1..{{ unraid.backups.rclone.sync_targets | length }}}; do
   name="${sync_targets[$i,0]}"
   local_path="${sync_targets[$i,1]}"
   remote_path="${sync_targets[$i,2]}"

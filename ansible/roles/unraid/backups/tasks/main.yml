@@ -6,5 +6,5 @@
     state: directory
 
 - include_tasks: '{{ role_path }}/_rclone/task.yml'
-- include_tasks: '{{ role_path }}/_rsync/task.yml'
+# - include_tasks: '{{ role_path }}/_rsync/task.yml'
 - include_tasks: '{{ role_path }}/_zfs_sanoid/task.yml'

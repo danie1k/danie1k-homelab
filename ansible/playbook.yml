@@ -13,12 +13,13 @@
     - prerequisites/docker_external_network
     - prerequisites/docker_internal_network
 
-#    # =======================================================
-#    # UNRAID
-#    # =======================================================
+    # =======================================================
+    # UNRAID
+    # =======================================================
+    - unraid/backups
+
 #    - unraid_supervisor_promtail
 #    - unraid_supervisor_telegraf
-#    - unraid_backups
 #
 #    # =======================================================
 #    # DOCKER

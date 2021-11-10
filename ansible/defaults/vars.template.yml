@@ -5,6 +5,23 @@ lab_domain_name: example.com
 unraid:
   homelab_dir: /boot/homelab  # A place where all persistent stuff will be stored
   python_venv_dir: /mnt/cache/system/python
+  backups:
+    rclone:
+      remote:
+        # SFTP 'rclone_remote' example - https://rclone.org/sftp/
+        type: sftp
+        host: example.com
+        user: johndoe
+        port: 22
+        key_file: /etc/ssh/ssh_host_rsa_key
+        use_insecure_cipher: false
+      sync_targets:
+        <unique_name>:
+          local_path: /local/path/
+          remote_path: remote/path/
+    rsync:
+      ssh_key: /etc/ssh/ssh_host_rsa_key
+      ssh_target: johndoe@example.com
 
 docker_config:
   network:
@@ -64,23 +81,6 @@ docker_config:
 #     openweathermap:
 #       api_key: CHANGEME
 #       cities: []
-#
-# unraid_backups:
-#   rclone_remote:
-#     # SFTP 'rclone_remote' example - https://rclone.org/sftp/
-#     type: sftp
-#     host: example.com
-#     user: johndoe
-#     port: 22
-#     key_file: /etc/ssh/ssh_host_rsa_key
-#     use_insecure_cipher: false
-#   rsync:
-#     ssh_key: /etc/ssh/ssh_host_rsa_key
-#     ssh_target: johndoe@example.com
-#   sync_targets:
-#     unique_name:
-#       local_path: /local/path/
-#       remote_path: remote/path/
 #
 # lab:
 #   idrac:
