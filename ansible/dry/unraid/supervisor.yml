@@ -30,5 +30,5 @@
 - name: Create Supervisord config file
   ansible.builtin.copy:
     content: "{{ config_programs }}\n\n{{ config_group }}"
-    dest: '{{ unraid.homelab_dir }}/supervisord/supervisor.d/{{ name }}.conf'  # `unraid_prerequisites`
+    dest: '{{ unraid.homelab_dir }}/supervisord/supervisor.d/{{ name }}.conf'  # `prerequisites/unraid`
     force: true

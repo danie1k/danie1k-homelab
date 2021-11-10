@@ -6,70 +6,73 @@
     - defaults/vars.yml
 
   roles:
+    # =======================================================
     # Prerequisites
-    - unraid_prerequisites
-    - docker_internal_network
-    - docker_external_network
-
     # =======================================================
-    # UNRAID
-    # =======================================================
-    - unraid_supervisor_promtail
-    - unraid_supervisor_telegraf
-    - unraid_backups
+    - prerequisites/unraid
 
-    # =======================================================
-    # DOCKER
-    # =======================================================
-
-    # Networking
-    - docker_container_reverseproxy
-    - docker_container_dns
-
-    - docker_container_certbot
-
-    # Databases
-    - docker_container_influxdb
-    - docker_container_ldap
-    - docker_container_postgresql
-    - docker_container_mysql
-    - docker_container_redis
-
-    - docker_container_grafana
-    - docker_container_prometheus
-    - docker_container_portainer
-
-    - docker_container_aria2
-    - docker_container_firefly
-    - docker_container_home
-    - docker_container_nextcloud
-    - docker_container_portainer
-    - docker_container_wiki
-
-    # =======================================================
-    # OTHER
-    # =======================================================
-
-
-  vars:
-    disable_meta_dependencies: true
-
-    _dnsmasq_ip: 10.0.100.100
-    _dnsmasq_hostname: dns
-
-    _reverseproxy_ip: 10.0.100.101
-    _reverseproxy_hostname: tyvia
-
-    _postgres_ip: 10.0.100.10
-    _mysql_ip: 10.0.100.11
-
-    _influxdb_ip: 10.0.100.12
-
-    _static_containers:
-      - grafana
-      - home
-      - influxdb
-      - ldap
-      - postgresql
-      - portainer
-      - wiki
+#    - prerequisites/docker_internal_network
+#    - prerequisites/docker_external_network
+#
+#    # =======================================================
+#    # UNRAID
+#    # =======================================================
+#    - unraid_supervisor_promtail
+#    - unraid_supervisor_telegraf
+#    - unraid_backups
+#
+#    # =======================================================
+#    # DOCKER
+#    # =======================================================
+#
+#    # Networking
+#    - docker_container_reverseproxy
+#    - docker_container_dns
+#
+#    - docker_container_certbot
+#
+#    # Databases
+#    - docker_container_influxdb
+#    - docker_container_ldap
+#    - docker_container_postgresql
+#    - docker_container_mysql
+#    - docker_container_redis
+#
+#    - docker_container_grafana
+#    - docker_container_prometheus
+#    - docker_container_portainer
+#
+#    - docker_container_aria2
+#    - docker_container_firefly
+#    - docker_container_home
+#    - docker_container_nextcloud
+#    - docker_container_portainer
+#    - docker_container_wiki
+#
+#    # =======================================================
+#    # OTHER
+#    # =======================================================
+#
+#
+#  vars:
+#    disable_meta_dependencies: true
+#
+#    _dnsmasq_ip: 10.0.100.100
+#    _dnsmasq_hostname: dns
+#
+#    _reverseproxy_ip: 10.0.100.101
+#    _reverseproxy_hostname: tyvia
+#
+#    _postgres_ip: 10.0.100.10
+#    _mysql_ip: 10.0.100.11
+#
+#    _influxdb_ip: 10.0.100.12
+#
+#    _static_containers:
+#      - grafana
+#      - home
+#      - influxdb
+#      - ldap
+#      - postgresql
+#      - portainer
+#      - wiki
