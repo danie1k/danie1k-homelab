@@ -34,7 +34,8 @@
     - docker/monitoring/grafana
     - docker/monitoring/prometheus
     - docker/monitoring/prometheus_speedtest
-    - docker/monitoring/prometheus_uptime
+    # - docker/monitoring/prometheus_uptime
+    - docker/monitoring/uptime_kuma
 
 #    - docker_container_dns
 #    - docker_container_certbot

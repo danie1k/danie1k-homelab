@@ -1,0 +1,28 @@
+---
+# https://github.com/louislam/uptime-kuma
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: uptime-kuma
+    image: louislam/uptime-kuma:latest
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+
+    proxy:
+      - http_port: 3001
+
+    files:
+      - src: entrypoint.sh
+        dest: ''
+        mode: '0777'
+        force: true
+
+    volumes:
+      - [ '/data', '/app/data' ]
+      - [ '/entrypoint.sh', '/app/extra/entrypoint.sh', 'ro' ]
+
+    extra:
+      cpus: 0.5
+      memory: 512M
+      kernel_memory: 512M
