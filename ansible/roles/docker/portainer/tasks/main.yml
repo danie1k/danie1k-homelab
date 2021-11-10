@@ -4,8 +4,6 @@
   vars:
     name: portainer
     image: portainer/portainer-ce:alpine
-    networks:
-      - name: '{{ docker.internal_network_name }}'
     volumes:
       - [ '', '/data', 'rw' ]
       - '/var/run/docker.sock:/var/run/docker.sock'

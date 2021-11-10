@@ -23,6 +23,7 @@
     # =======================================================
     # DOCKER
     # =======================================================
+    - docker/portainer
     - docker/reverse_proxy
 
     - docker/database/influxdb
@@ -36,13 +37,11 @@
 #
 #    - docker_container_grafana
 #    - docker_container_prometheus
-#    - docker_container_portainer
 #
 #    - docker_container_aria2
 #    - docker_container_firefly
 #    - docker_container_home
 #    - docker_container_nextcloud
-#    - docker_container_portainer
 #    - docker_container_wiki
 #
 #    # =======================================================
@@ -60,5 +59,4 @@
 #      - grafana
 #      - home
 #      - ldap
-#      - portainer
 #      - wiki
