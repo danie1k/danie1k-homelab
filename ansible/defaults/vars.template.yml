@@ -6,6 +6,21 @@ unraid:
   homelab_dir: /boot/homelab  # A place where all persistent stuff will be stored
   python_venv_dir: /mnt/cache/system/python
 
+docker_config:
+  network:
+    external:
+      name: br3
+      parent: br3
+      ipam_config:
+        subnet:   # Subnet
+        iprange:  # must not overlap with DHCP pool
+        gateway:  # Gateway
+    internal:
+      name: internal
+      ipam_config:
+        subnet:   # Subnet
+        iprange:  # must not overlap with DHCP pool
+        gateway:  # Gateway
 
 # docker:
 #   container_defaults: # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html
@@ -22,11 +37,8 @@ unraid:
 #     memory_swap: 0       # The amount of memory this container is allowed to swap to disk
 #     memory_swappiness: 0 # https://docs.docker.com/config/containers/resource_constraints/#--memory-swappiness-details
 #
-#   external_network_name:
-#   external_network_parent: # The interface the traffic will physically go through on the Docker host (https://docs.docker.com/network/macvlan/)
-#   internal_network_name:
-#   syslog_address: udp://127.0.0.1:514
-#   volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
+#  syslog_address: udp://127.0.0.1:514
+#  volume_base: /mnt/cache/docker # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
 #
 #
 # apps:

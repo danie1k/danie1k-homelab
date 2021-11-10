@@ -6,10 +6,11 @@
 - assert:
     that: ['image is defined', 'image | length > 0']
     fail_msg: "Missing or empty 'image'"
-- assert:
-    that: ['networks is defined', 'networks | length > 0']
-    fail_msg: "Missing or empty 'networks'"
 
+- set_fact:  # noqa 502
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+  when: not (networks|default(false))
 
 # VOLUME(S)
 
@@ -98,7 +99,7 @@
 
     # https://github.com/traefik/traefik/issues/1254#issuecomment-299114960
     - set_fact:
-        _container_labels: '{{ _container_labels | combine({"traefik.docker.network": docker.internal_network_name}) }}'
+        _container_labels: '{{ _container_labels | combine({"traefik.docker.network": docker_config.network.internal.name}) }}'
 
   when: proxy is defined
 
