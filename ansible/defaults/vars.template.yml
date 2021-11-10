@@ -53,6 +53,8 @@ services:
     static_external_ip:
   loki:
     url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
+  mysql:
+    static_external_ip:
   postgresql:
     root_username: root
     root_password:

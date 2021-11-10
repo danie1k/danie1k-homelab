@@ -26,6 +26,7 @@
     - docker/reverse_proxy
 
     - docker/database/influxdb
+    - docker/database/mysql
     - docker/database/postgresql
 
 #    - docker_container_dns
@@ -33,7 +34,6 @@
 #
 #    # Databases
 #    - docker_container_ldap
-#    - docker_container_mysql
 #    - docker_container_redis
 #
 #    - docker_container_grafana
@@ -58,12 +58,9 @@
 #    _dnsmasq_ip: 10.0.100.100
 #    _dnsmasq_hostname: dns
 #
-#    _mysql_ip: 10.0.100.11
-#
 #    _static_containers:
 #      - grafana
 #      - home
 #      - ldap
-#      - postgresql
 #      - portainer
 #      - wiki
