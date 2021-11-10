@@ -1,5 +1,4 @@
 ---
-
 # CREATE DATABASE yourdbname;
 # CREATE USER youruser WITH ENCRYPTED PASSWORD 'yourpass';
 # GRANT ALL PRIVILEGES ON DATABASE yourdbname TO youruser;
@@ -7,7 +6,7 @@
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: postgres
-    image: clearlinux/postgres:11 # https://hub.docker.com/r/clearlinux/postgres
+    image: clearlinux/postgres:11  # https://hub.docker.com/r/clearlinux/postgres
     command: >-
       postgres
       -c log_connections=off
@@ -16,12 +15,17 @@
       -c log_statement=none
       -c logging_collector=off
     env:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: changeme
+      POSTGRES_USER: '{{ services.postgresql.root_username }}'
+      POSTGRES_PASSWORD: '{{ services.postgresql.root_password }}'
       PGDATA: /var/lib/pgsql/data
     networks:
-      - name: '{{ docker.external_network_name }}'
-        ipv4_address: '{{ _postgres_ip }}'
-      - name: '{{ docker.internal_network_name }}'
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: '{{ services.postgresql.static_external_ip }}'
+      - name: '{{ docker_config.network.internal.name }}'
     volumes:
       - [ '', '/var/lib/pgsql/data', 'rw' ]
+
+    extra:
+      cpus: 4
+      memory: 6G
+      kernel_memory: 8G

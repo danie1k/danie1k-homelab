@@ -26,13 +26,13 @@
     - docker/reverse_proxy
 
     - docker/database/influxdb
+    - docker/database/postgresql
 
 #    - docker_container_dns
 #    - docker_container_certbot
 #
 #    # Databases
 #    - docker_container_ldap
-#    - docker_container_postgresql
 #    - docker_container_mysql
 #    - docker_container_redis
 #
@@ -58,7 +58,6 @@
 #    _dnsmasq_ip: 10.0.100.100
 #    _dnsmasq_hostname: dns
 #
-#    _postgres_ip: 10.0.100.10
 #    _mysql_ip: 10.0.100.11
 #
 #    _static_containers:

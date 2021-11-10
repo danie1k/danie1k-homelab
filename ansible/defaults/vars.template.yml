@@ -53,6 +53,10 @@ services:
     static_external_ip:
   loki:
     url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
+  postgresql:
+    root_username: root
+    root_password:
+    static_external_ip:
   reverse_proxy:
     traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
     static_external_ip:
