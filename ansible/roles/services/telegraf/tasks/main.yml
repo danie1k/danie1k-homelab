@@ -1,18 +1,17 @@
 ---
-
 # Remember to manually create InfluxDB database first!
 # >>> CREATE DATABASE telegraf;
 # >>> CREATE RETENTION POLICY one_month ON telegraf DURATION 4w REPLICATION 1 DEFAULT;
 
-- set_fact:
-    telegraf_dir: '{{ unraid.homelab_dir }}/telegraf'
+- set_fact:  # noqa 502
+    _telegraf_dir: '{{ unraid.homelab_dir }}/telegraf'
 
 - name: Create directories
   ansible.builtin.file:
     path: '{{ item }}'
     state: directory
   with_list:
-    - '{{ telegraf_dir }}'
+    - '{{ _telegraf_dir }}'
 
 - name: Get latest release version number
   ansible.builtin.shell:
@@ -21,32 +20,34 @@
   register: version
   changed_when: false
 
-- set_fact:
-    latest_version_file_path: '{{ telegraf_dir }}/telegraf-{{ version.stdout | replace(".", "") }}'
+- set_fact:  # noqa 502
+    latest_version_file_path: '{{ _telegraf_dir }}/telegraf-{{ version.get("stdout", "unknown") | replace(".", "") }}'
 
 - block:
     - name: Download latest Telegraf release to /tmp
       ansible.builtin.unarchive:
-        src: 'https://dl.influxdata.com/telegraf/releases/telegraf-{{ version.stdout }}_linux_amd64.tar.gz'
-        remote_src: yes
+        # yamllint disable-line rule:line-length
+        src: 'https://dl.influxdata.com/telegraf/releases/telegraf-{{ version.get("stdout", "unknown") }}_linux_amd64.tar.gz'  # noqa 204
+        remote_src: true
         dest: /tmp
         creates: '{{ latest_version_file_path }}'
       register: _download
 
     - name: Copy Telegraf binary from /tmp to USB drive
       ansible.builtin.command:
-        cmd: "mv '/tmp/telegraf-{{ version.stdout }}/usr/bin/telegraf' '{{ latest_version_file_path }}'"
+        # yamllint disable-line rule:line-length
+        cmd: 'mv "/tmp/telegraf-{{ version.get("stdout", "unknown") }}/usr/bin/telegraf" "{{ latest_version_file_path }}"'  # noqa 204
         creates: '{{ latest_version_file_path }}'
       when: _download.changed
   always:
-    - ansible.builtin.file:
-        path: '/tmp/telegraf-{{ version.stdout }}'
+    - ansible.builtin.file:  # noqa 502
+        path: '/tmp/telegraf-{{ version.get("stdout", "unknown") }}'
         state: absent
 
 - name: Copy config files
   ansible.builtin.template:
     src: '{{ item }}'
-    dest: '{{ telegraf_dir }}/{{ item }}'
+    dest: '{{ _telegraf_dir }}/{{ item }}'
     force: true
   with_list:
     - idrac.toml
@@ -68,18 +69,18 @@
       idrac:
         autorestart: true
         autostart: true
-        command: /usr/bin/telegraf --config '{{ telegraf_dir }}/idrac.toml'
+        command: /usr/bin/telegraf --config '{{ _telegraf_dir }}/idrac.toml'
         killasgroup: true
         stopasgroup: true
       unraid:
         autorestart: true
         autostart: true
-        command: /usr/bin/telegraf --config '{{ telegraf_dir }}/unraid.toml'
+        command: /usr/bin/telegraf --config '{{ _telegraf_dir }}/unraid.toml'
         killasgroup: true
         stopasgroup: true
       weather:
         autorestart: true
         autostart: true
-        command: /usr/bin/telegraf --config '{{ telegraf_dir }}/weather.toml'
+        command: /usr/bin/telegraf --config '{{ _telegraf_dir }}/weather.toml'
         killasgroup: true
         stopasgroup: true

@@ -11,7 +11,7 @@
 
 [[outputs.influxdb]]
   # InfluxDB v1.x
-  urls = [ "{{ lab.services.influxdb_url }}" ]
+  urls = [ "{{ services.influxdb.url }}" ]
   database = "telegraf"
   skip_database_creation = true
 
@@ -24,7 +24,7 @@
 # https://grafana.com/grafana/dashboards/13689
 
 [[inputs.ipmi_sensor]]
-  servers = [ "{{ lab.idrac.ipmi_uri }}" ]
+  servers = [ "{{ idrac.ipmi_uri }}" ]
   interval = "30s"
   metric_version = 2
   path = "/usr/bin/ipmitool"
@@ -43,7 +43,7 @@
     replacement = "${YYYY}-${MM}-${DD} ${HH}:${mm}:${ss}"
 
 [[inputs.snmp]]
-  agents = [ "{{ lab.idrac.snmp_uri }}" ]
+  agents = [ "{{ idrac.snmp_uri }}" ]
   community = "public"
   name = "idrac-hosts"
   timeout = "15s"

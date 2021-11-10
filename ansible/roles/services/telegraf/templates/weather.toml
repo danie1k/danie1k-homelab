@@ -9,15 +9,15 @@ round_interval = true
 
 [[outputs.influxdb]]
 # InfluxDB v1.x
-urls = [ "{{ lab.services.influxdb_url }}" ]
+urls = [ "{{ services.influxdb.url }}" ]
 database = "weather"
 skip_database_creation = true
 
 [[inputs.http]]
   # https://github.com/influxdata/telegraf/blob/master/plugins/inputs/http/README.md
   urls = [
-    {% for city_id in apps.telegraf.openweathermap.cities %}
-    "https://api.openweathermap.org/data/2.5/weather?id={{ city_id }}&units=metric&appid={{ apps.telegraf.openweathermap.api_key }}",
+    {% for city_id in services.telegraf.openweathermap.cities %}
+    "https://api.openweathermap.org/data/2.5/weather?id={{ city_id }}&units=metric&appid={{ lab.services.telegraf.openweathermap.api_key }}",
     {% endfor %}
   ]
   method = "GET"
