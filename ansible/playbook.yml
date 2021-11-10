@@ -31,6 +31,7 @@
     - docker/database/postgresql
     - docker/database/redis
 
+    - docker/monitoring/grafana
     - docker/monitoring/prometheus
     - docker/monitoring/prometheus_speedtest
     - docker/monitoring/prometheus_uptime
@@ -38,8 +39,6 @@
 #    - docker_container_dns
 #    - docker_container_certbot
 #    - docker_container_ldap
-#
-#    - docker_container_grafana
 #
 #    - docker_container_aria2
 #    - docker_container_firefly
@@ -59,7 +58,6 @@
 #    _dnsmasq_hostname: dns
 #
 #    _static_containers:
-#      - grafana
 #      - home
 #      - ldap
 #      - wiki
