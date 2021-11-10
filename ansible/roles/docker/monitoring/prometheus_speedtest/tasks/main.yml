@@ -3,20 +3,19 @@
 
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
-    name: prometheus_speedtest
+    name: prometheus-speedtest
     image: miguelndecarvalho/speedtest-exporter:latest
     env:
-      SPEEDTEST_SERVER: '{{ apps.prometheus.speedtest.server }}'
+      SPEEDTEST_SERVER: '{{ services.prometheus.speedtest.server }}'
     networks:
-      - name: '{{ docker.external_network_name }}'
-      - name: '{{ docker.internal_network_name }}'
+      - name: '{{ docker_config.network.external.name }}'
+      - name: '{{ docker_config.network.internal.name }}'
     extra:
       cpus: 0.5
       memory: 1G
       kernel_memory: 1G
 
-- name: Add Speedtest to Prometheus Config
-  include_tasks: '{{ playbook_dir }}/dry/prometheus-config.yml'
+- include_tasks: ../../prometheus-config.yml
   vars:
     job_name: speedtest
     job:
@@ -24,4 +23,4 @@
       scrape_interval: 30m
       scrape_timeout: 60s
       static_configs:
-        - targets: ["prometheus_speedtest.{{ docker.internal_network_name }}:9798"]
+        - targets: [ 'prometheus-speedtest.{{ docker_config.network.internal.name }}:9798' ]

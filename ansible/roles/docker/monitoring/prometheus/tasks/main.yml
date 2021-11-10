@@ -1,5 +1,8 @@
 ---
 
+- set_fact:  # noqa 502
+    _port: 9090
+
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: prometheus
@@ -14,9 +17,7 @@
       --web.enable-admin-api
       --web.enable-lifecycle
       --web.external-url='https://prometheus.{{ lab_domain_name }}'
-      --web.listen-address='0.0.0.0:9090'
-    networks:
-      - name: '{{ docker.internal_network_name }}'
+      --web.listen-address='0.0.0.0:{{ _port }}'
     volumes:
       - [ '/data', '/prometheus', 'rw' ]
       - [ '/config', '/config', 'ro' ]
@@ -27,10 +28,10 @@
         force: false
 
     proxy:
-      - http_port: 9090
+      - http_port: '{{ _port }}'
 
     extra:
-      user: 99:100  # 'nobody'
+      user: '{{ docker_config.default_user }}'
       cpus: 2
       memory: 1G
       kernel_memory: 1G

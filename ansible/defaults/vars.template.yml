@@ -59,6 +59,11 @@ services:
     root_username: root
     root_password:
     static_external_ip:
+  prometheus:
+    blackbox:
+      uptime_targets: []
+    speedtest:
+      server: CHANGEME
   reverse_proxy:
     traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
     static_external_ip:
@@ -97,12 +102,6 @@ services:
 #     DB_DATABASE: CHANGEME
 #     DB_USERNAME: CHANGEME
 #     DB_PASSWORD: CHANGEME
-#   # docker_container_prometheus
-#   prometheus:
-#     blackbox:
-#       targets: []
-#     speedtest:
-#       server: CHANGEME
 #
 # lab:
 #   ldap:
