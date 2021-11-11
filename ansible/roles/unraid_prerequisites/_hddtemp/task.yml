@@ -27,13 +27,10 @@
     dest: '{{ unraid.homelab_dir }}/hddtemp/rc'
     force: true
 
-- name: Set up boot script
-  ansible.builtin.blockinfile:
-    content: |
-      logger 'Configuring hddtemp'
-
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: hddtemp
+    script: |
       fromdos < '{{ unraid.homelab_dir }}/hddtemp/rc' > /etc/rc.d/rc.hddtemp
       chmod +x /etc/rc.d/rc.hddtemp
       /etc/rc.d/rc.hddtemp start
-    dest: '{{ unraid.homelab_dir }}/boot.sh'  # unraid_prerequisites
-    marker: "# {mark} ANSIBLE_HDDTEMP"

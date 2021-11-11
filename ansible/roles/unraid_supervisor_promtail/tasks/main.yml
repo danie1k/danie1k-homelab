@@ -52,11 +52,10 @@
     dest: '{{ promtail_dir }}/syslog.conf'
     force: true
 
-- name: Set up boot script
-  ansible.builtin.blockinfile:
-    content: |
-      logger 'Configuring Promtail'
-
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Promtail
+    script: |
       if [ -f '{{ promtail_dir }}/syslog.conf' ]; then
         fromdos < '{{ promtail_dir }}/syslog.conf' > /etc/rsyslog.d/promtail.conf
         /etc/rc.d/rc.rsyslogd reload
@@ -64,8 +63,6 @@
 
       cp -vf '{{ latest_version_file_path }}' /usr/bin/promtail
       chmod +x /usr/bin/promtail
-    dest: '{{ unraid.homelab_dir }}/boot.sh'  # unraid_prerequisites
-    marker: "# {mark} ANSIBLE_PROMTAIL"
 
 - name: Set up Supervisord config
   include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'

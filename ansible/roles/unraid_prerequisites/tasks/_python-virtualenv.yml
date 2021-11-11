@@ -15,9 +15,8 @@
       && rm -f /var/tmp/get-pip.py
     creates: '{{ unraid.python_venv_dir }}/bin/pip'
 
-- name: Set up PATH on boot
-  ansible.builtin.blockinfile:
-    content: |
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Python virtualenv
+    script: |
       echo 'export PATH="{{ unraid.python_venv_dir }}/bin:${PATH}"' >> /root/.bash_profile
-    dest: '{{ unraid.homelab_dir }}/boot.sh'
-    marker: "# {mark} ANSIBLE_PYTHON_VIRTUALENV"

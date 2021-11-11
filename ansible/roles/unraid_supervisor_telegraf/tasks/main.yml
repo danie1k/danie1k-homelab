@@ -53,15 +53,12 @@
     - unraid.toml
     - weather.toml
 
-- name: Set up boot script
-  ansible.builtin.blockinfile:
-    content: |
-      logger 'Configuring Telegraf'
-
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Telegraf
+    script: |
       cp -vf '{{ latest_version_file_path }}' /usr/bin/telegraf
       chmod +x /usr/bin/telegraf
-    dest: '{{ unraid.homelab_dir }}/boot.sh'  # unraid_prerequisites
-    marker: "# {mark} ANSIBLE_TELEGRAF"
 
 - name: Set up Supervisord config
   include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'

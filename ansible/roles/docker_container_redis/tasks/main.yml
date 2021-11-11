@@ -3,11 +3,10 @@
 # https://redis.io/topics/admin
 
 - block:
-    - name: Set kernel settings in boot script
-      ansible.builtin.blockinfile:
-        content: "{{ settings | join('\n') }}"
-        dest: '{{ unraid.homelab_dir }}/boot.sh'
-        marker: "# {mark} ANSIBLE_DOCKER_REDIS"
+    - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+      vars:
+        name: Docker Redis
+        script: '{{ settings | join("\n") }}'
       register: _redis_kernel_settings_on_boot
     - name: Optimize kernel settings for Redis
       command: '{{ item }}'
