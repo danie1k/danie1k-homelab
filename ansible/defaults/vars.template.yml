@@ -48,6 +48,11 @@ idrac:
   ipmi_uri: user:password@lanplus(hostname_or_ip)  # For Telegraf's `inputs.ipmi_sensor`
 
 services:
+  bookstack:
+    mysql_host: 'mysql.{{ docker_config.network.internal.name }}:3306'
+    mysql_dbname:
+    mysql_user:
+    mysql_password:
   grafana:
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}:5432'
     postgres_dbname:
@@ -87,6 +92,12 @@ services:
     openweathermap:
       api_key: CHANGEME
       cities: []
+  wikijs:
+    postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
+    postgres_port: 5432
+    postgres_dbname:
+    postgres_user:
+    postgres_password:
 
 # docker:
 #   container_defaults: # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html

@@ -7,17 +7,11 @@
     name: wiki
     image: ghcr.io/linuxserver/bookstack:latest
     env:
-      PUID: '99' # UID of 'nobody'
-      PGID: '100' # GID of 'nobody'
       APP_URL: 'https://wiki.{{ lab_domain_name }}'
-      DB_HOST: mysql
-      DB_USER: bookstack
-      DB_PASS: _changeme_
-      DB_DATABASE: bookstack
-      UMASK: '000'
-    networks:
-      - name: '{{ docker.internal_network_name }}'
-#      - name: '{{ docker.external_network_name }}' # Because Wiki.js needs access the Internet sometimes
+      DB_HOST: '{{ services.bookstack.mysql_host }}'
+      DB_USER: '{{ services.bookstack.mysql_user }}'
+      DB_PASS: '{{ services.bookstack.mysql_password }}'
+      DB_DATABASE: '{{ services.bookstack.mysql_dbname }}'
     volumes:
       - [ '/bookstack', '/config', 'rw' ]
 
@@ -29,10 +23,10 @@
       memory: 2G
       kernel_memory: 3G
 
-- set_fact:
-    _nginx_config_file: '{{ docker.volume_base }}/wiki/bookstack/nginx/nginx.conf'
-    _nginx_site_config_file: '{{ docker.volume_base }}/wiki/bookstack/nginx/site-confs/default'
-    _php_config_file: '{{ docker.volume_base }}/wiki/bookstack/php/www2.conf'
+- set_fact:  # noqa 502
+    _nginx_config_file: '{{ unraid.docker_volume_base }}/wiki/bookstack/nginx/nginx.conf'
+    _nginx_site_config_file: '{{ unraid.docker_volume_base }}/wiki/bookstack/nginx/site-confs/default'
+    _php_config_file: '{{ unraid.docker_volume_base }}/wiki/bookstack/php/www2.conf'
 
 - name: "Wait for '{{ _nginx_config_file }}' file"
   wait_for:
@@ -45,7 +39,7 @@
     line: '{{ item[1] }}'
   with_list:
     - [ 'access_log /', 'access_log off;' ]
-    - [ 'error_log /',  'error_log /proc/1/fd/2 warn;' ]
+    - [ 'error_log /', 'error_log /proc/1/fd/2 warn;' ]
 
 - name: "Wait for '{{ _nginx_site_config_file }}' file"
   wait_for:

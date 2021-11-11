@@ -13,11 +13,11 @@ port: 3000
 # ---------------------------------------------------------------------
 db:
   type: postgres
-  host: postgres.{{ docker.internal_network_name }}
-  port: 5432
-  user: ???
-  pass: ???
-  db:   ???
+  host: '{{ services.wikijs.postgres_host }}'
+  port: '{{ services.wikijs.postgres_port }}'
+  user: '{{ services.wikijs.postgres_user }}'
+  pass: '{{ services.wikijs.postgres_password }}'
+  db: '{{ services.wikijs.postgres_dbname }}'
 
   ssl: false
   sslOptions:
@@ -33,9 +33,9 @@ ssl:
 # Database Pool Options
 # ---------------------------------------------------------------------
 # Refer to https://github.com/vincit/tarn.js for all possible options
-pool:
-  # min: 2
-  # max: 10
+# pool:
+#   min: 2
+#   max: 10
 
 # ---------------------------------------------------------------------
 # IP address the server should listen to
