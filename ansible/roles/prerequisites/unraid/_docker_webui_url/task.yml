@@ -1,0 +1,24 @@
+---
+
+- set_fact:
+    _directory: '{{ unraid.homelab_dir }}/docker_webui_url'
+    _patch_file: docker-webui-url.patch
+
+- name: Create directory for persistent files
+  ansible.builtin.file:
+    path: '{{ _directory }}'
+    state: directory
+
+- name: Copy file to persistent storage
+  ansible.builtin.copy:
+    src: '{{ role_path }}/_docker_webui_url/{{ _patch_file }}'
+    dest: '{{ _directory }}/{{ _patch_file }}'
+    force: true
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Docker WebUI URL
+    script: |
+      fromdos < '{{ _directory }}/{{ _patch_file }}' > /tmp/{{ _patch_file }}
+      patch /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php /tmp/{{ _patch_file }}
+      rm -f /tmp/{{ _patch_file }}

@@ -1,0 +1,17 @@
+--- DockerClient.php
++++ DockerClient.php
+@@ -286,10 +286,11 @@
+ 			$tmp['autostart'] = in_array($name, $autoStart);
+ 			$tmp['cpuset'] = $ct['CPUset'];
+ 			if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image);
++			$tmp['url'] = $this->getControlURL($ct, false);
+ 			if ($ct['Running']) {
+-				$port = &$ct['Ports'][0];
+-				$ip = ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : $port['IP']);
+-				$tmp['url'] = $ip ? (strpos($tmp['url'],$ip)!==false ? $tmp['url'] : $this->getControlURL($ct, $ip)) : $tmp['url'];
++				//$port = &$ct['Ports'][0];
++				//$ip = ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : $port['IP']);
++				//$tmp['url'] = $ip ? (strpos($tmp['url'],$ip)!==false ? $tmp['url'] : $this->getControlURL($ct, $ip)) : $tmp['url'];
+ 				$tmp['shell'] = $tmp['shell'] ?? $this->getTemplateValue($image, 'Shell');
+ 			}
+ 			$tmp['registry'] = $tmp['registry'] ?? $this->getTemplateValue($image, 'Registry');

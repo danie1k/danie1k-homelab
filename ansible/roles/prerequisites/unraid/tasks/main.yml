@@ -5,6 +5,7 @@
     - include_tasks: _python-virtualenv.yml
 
     - include_tasks: '{{ role_path }}/_docker_icons/task.yml'
+    - include_tasks: '{{ role_path }}/_docker_webui_url/task.yml'
     - include_tasks: '{{ role_path }}/_hddtemp/task.yml'
     - include_tasks: '{{ role_path }}/_supervisor/task.yml'
 
