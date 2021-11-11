@@ -1,5 +1,5 @@
-#!/bin/sh
-# Source: https://github.com/bastienwirtz/homer/blob/main/entrypoint.sh
+#!/bin/env sh
+# https://github.com/bastienwirtz/homer/blob/main/entrypoint.sh
 
 # Ensure default assets are present.
 while true; do echo n; done | cp -Ri /www/default-assets/* /www/assets/ &> /dev/null

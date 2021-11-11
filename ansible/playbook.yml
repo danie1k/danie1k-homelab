@@ -37,13 +37,14 @@
     # - docker/monitoring/prometheus_uptime
     - docker/monitoring/uptime_kuma
 
+    - docker/apps/home
+
 #    - docker_container_dns
 #    - docker_container_certbot
 #    - docker_container_ldap
 #
 #    - docker_container_aria2
 #    - docker_container_firefly
-#    - docker_container_home
 #    - docker_container_nextcloud
 #    - docker_container_wiki
 #
@@ -59,6 +60,5 @@
 #    _dnsmasq_hostname: dns
 #
 #    _static_containers:
-#      - home
 #      - ldap
 #      - wiki
