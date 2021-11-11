@@ -12,6 +12,13 @@
       - name: '{{ docker_config.network.internal.name }}'
   when: not (networks|default(false))
 
+# CONTAINER'S USER & GROUP
+
+- set_fact:  # noqa 502
+    default_user: '{{ user | default(docker_config["default_user"]) }}'
+    container_owner: '{{ (user | default(docker_config["default_user"])).split(":")[0] }}'
+    container_group: '{{ (user | default(docker_config["default_user"])).split(":")[1] }}'
+
 # VOLUME(S)
 
 - set_fact:
@@ -37,6 +44,9 @@
   ansible.builtin.copy:
     src: '{{ item.src }}'
     dest: '{{ _volume_base }}/{{ item.dest }}'
+    owner: '{{ container_owner }}'
+    group: '{{ container_group }}'
+    mode: '{{ item.mode | default("preserve") }}'
     force: '{{ item.force | default(false) }}'
   with_list: '{{ files | default([]) }}'
   when: any_volumes_to_create
@@ -44,6 +54,9 @@
   ansible.builtin.template:
     src: '{{ item.src }}'
     dest: '{{ _volume_base }}/{{ item.dest }}'
+    owner: '{{ container_owner }}'
+    group: '{{ container_group }}'
+    mode: '{{ item.mode | default("preserve") }}'
     force: '{{ item.force | default(false) }}'
   with_list: '{{ templates | default([]) }}'
   when: any_volumes_to_create
@@ -121,6 +134,16 @@
         max-file: '1'
 
 
+# ENV
+
+- set_fact:  # noqa 502
+    default_env:
+      PUID: '{{ container_owner }}'
+      PGID: '{{ container_group }}'
+      UMASK: '000'
+      TZ: '{{ docker_config.container_timezone }}'
+
+
 # FINAL CONTAINER PARAMS
 
 - set_fact:
@@ -146,7 +169,7 @@
 
       # Runtime Environment
       detach: true
-      env: '{{ env | default({}) }}'
+      env: '{{ (env | default({})) | combine(default_env) }}'
 
       restart_policy: unless-stopped
       volumes: '{{ container_volumes }}'

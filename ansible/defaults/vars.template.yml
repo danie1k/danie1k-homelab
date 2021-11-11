@@ -24,6 +24,8 @@ unraid:
       ssh_target: johndoe@example.com
 
 docker_config:
+  default_user: 99:100  # nobody
+  container_timezone: UTC
   network:
     external:
       name: br3
