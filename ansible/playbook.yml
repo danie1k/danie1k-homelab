@@ -37,6 +37,7 @@
     - docker/monitoring/uptime_kuma
 
     - docker/apps/home
+    - docker/apps/jellyfin
     - docker/apps/nextcloud
     - docker/apps/wiki
 

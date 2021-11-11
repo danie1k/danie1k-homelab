@@ -73,6 +73,9 @@ services:
   influxdb:
     url: 'http://<hostname_or_ip>:9091'   # wherever your InfluxDB instance is hosted
     static_external_ip:
+  jellyfin:
+    static_external_ip:
+    media_volumes: []
   loki:
     url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
   mysql:
