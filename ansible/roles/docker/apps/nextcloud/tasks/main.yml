@@ -4,14 +4,9 @@
   vars:
     name: nextcloud
     image: ghcr.io/linuxserver/nextcloud
-    env:
-      PUID: '99' # UID of 'nobody'
-      PGID: '100' # GID of 'nobody'
-      TZ: Europe/Warsaw
-      UMASK: '000'
     networks:
-      - name: '{{ docker.internal_network_name }}'
-      - name: '{{ docker.external_network_name }}' # Because Nextcloud needs access to the Internet
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'  # Because Nextcloud needs access to the Internet
     volumes:
       - [ '/config', '/config', 'rw' ]
       - /mnt/user/NextcloudData:/data:rw
@@ -24,10 +19,10 @@
       memory: 10G
       kernel_memory: 10G
 
-- set_fact:
-    _nginx_config_file: '{{ docker.volume_base }}/nextcloud/config/nginx/nginx.conf'
-    _nginx_site_config_file: '{{ docker.volume_base }}/nextcloud/config/nginx/site-confs/default'
-    _php_config_file: '{{ docker.volume_base }}/nextcloud/config/php/www2.conf'
+- set_fact:  # noqa 502
+    _nginx_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/nginx/nginx.conf'
+    _nginx_site_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/nginx/site-confs/default'
+    _php_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/php/www2.conf'
 
 - name: "Wait for '{{ _nginx_config_file }}' file"
   wait_for:
@@ -40,7 +35,7 @@
     line: '{{ item[1] }}'
   with_list:
     - [ 'access_log /', 'access_log off;' ]
-    - [ 'error_log /',  'error_log /proc/1/fd/2 warn;' ]
+    - [ 'error_log /', 'error_log /proc/1/fd/2 warn;' ]
 
 - name: "Wait for '{{ _nginx_site_config_file }}' file"
   wait_for:

@@ -60,6 +60,15 @@ services:
     url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
   mysql:
     static_external_ip:
+  nextcloud:
+    postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
+    postgres_port: 5432
+    postgres_dbname:
+    postgres_user:
+    postgres_password:
+    postgres_dbtableprefix:
+    redis_host: 'redis.{{ docker_config.network.internal.name }}'
+    redis_port: 6379
   postgresql:
     root_username: root
     root_password:

@@ -38,6 +38,7 @@
     - docker/monitoring/uptime_kuma
 
     - docker/apps/home
+    - docker/apps/nextcloud
 
 #    - docker_container_dns
 #    - docker_container_certbot
@@ -45,7 +46,6 @@
 #
 #    - docker_container_aria2
 #    - docker_container_firefly
-#    - docker_container_nextcloud
 #    - docker_container_wiki
 #
 #    # =======================================================
