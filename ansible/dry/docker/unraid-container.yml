@@ -65,7 +65,7 @@
 
 # LABELS
 - set_fact:  # noqa 502
-    _container_labels: '{{ (labels | default({})) | combine(docker.container_defaults.labels | default({})) }}'
+    _container_labels: '{{ (labels | default({})) | combine(docker_config.container_defaults.labels | default({})) }}'
 
 - block:
     # HTTP
@@ -176,7 +176,7 @@
       volumes: '{{ container_volumes }}'
 
 - set_fact:  # noqa 502
-    container_params: '{{ (docker.container_defaults | default({})) | combine(container_params) | combine(extra | default({})) }}'
+    container_params: '{{ (docker_config.container_defaults | default({})) | combine(container_params) | combine(extra | default({})) }}'
 
 - set_fact:  # noqa 502
     container_params: '{{ container_params | combine({"command": command}) }}'
