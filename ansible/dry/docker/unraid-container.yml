@@ -57,7 +57,7 @@
     - set_fact:
         _traefik_labels: >-
           {
-          'traefik.http.routers.{{ name }}-http-{{ _index }}.rule': 'Host(`{{ name }}.{{ lab.domain_name }}`)',
+          'traefik.http.routers.{{ name }}-http-{{ _index }}.rule': 'Host(`{{ name }}.{{ lab_domain_name }}`)',
           'traefik.http.routers.{{ name }}-http-{{ _index }}.service': '{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-http-{{ _index }}@docker{% endif %}',
           'traefik.http.services.{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-http-{{ _index }}{% endif %}.loadbalancer.server.port': '{{ item.http_port }}',
           {% if item.router is defined %}{% for _key, _value in item.router.items() %}
@@ -181,7 +181,7 @@
         <Icon>https://raw.githubusercontent.com/danie1k/danie1k-homelab/master/icons/{{ name }}.png</Icon>
         <Name>{{ name }}</Name>
         <Repository>{{ image }}</Repository>
-        <WebUI>https://{{ name }}.{{ lab.domain_name }}/</WebUI>
+        <WebUI>https://{{ name }}.{{ lab_domain_name }}/</WebUI>
       </Container>
     dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
 

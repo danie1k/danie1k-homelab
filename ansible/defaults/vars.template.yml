@@ -1,5 +1,7 @@
 ---
 
+lab_domain_name: example.com
+
 docker:
   container_defaults: # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html
     labels:
@@ -63,8 +65,6 @@ unraid_backups:
       remote_path: remote/path/
 
 lab:
-  domain_name: example.com
-
   idrac:
     snmp_uri: domain_or_ip:161                     # For Telegraf's `inputs.snmp`
     ipmi_uri: user:password@lanplus(domain_or_ip)  # For Telegraf's `inputs.ipmi_sensor`

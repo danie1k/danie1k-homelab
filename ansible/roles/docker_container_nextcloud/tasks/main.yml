@@ -50,7 +50,7 @@
   ansible.builtin.blockinfile:
     path: '{{ _nginx_site_config_file }}'
     block: |2+
-          server_name nextcloud.{{ lab.domain_name }};
+          server_name nextcloud.{{ lab_domain_name }};
 
     marker: "{mark}"
     marker_begin: "    listen 80;"

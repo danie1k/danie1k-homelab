@@ -15,7 +15,7 @@
 
 - name: Reload Prometheus
   uri:
-    url: 'https://prometheus.{{ lab.domain_name }}/-/reload'
+    url: 'https://prometheus.{{ lab_domain_name }}/-/reload'
     method: POST
     status_code: 200
   when: _prometheus_config.changed

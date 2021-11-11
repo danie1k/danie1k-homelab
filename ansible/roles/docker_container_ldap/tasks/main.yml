@@ -14,8 +14,8 @@
 
     # image: danie1k/homelab-ldap:0.1.1
     # env:
-    #   DOMAIN_NAME: '{{ lab.domain_name }}'
-    #   DOMAIN_NAME_DC: '{{ lab.domain_name.split(".") | first }}'
+    #   DOMAIN_NAME: '{{ lab_domain_name }}'
+    #   DOMAIN_NAME_DC: '{{ lab_domain_name.split(".") | first }}'
     #   LDAP_ROOT_USERNAME: root
     #   LDAP_ROOT_PASSWORD: '{{ lab.ldap_password }}'
     # proxy:

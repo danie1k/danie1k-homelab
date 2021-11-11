@@ -61,7 +61,7 @@ static_resources:
                     # {{ container_name | upper }}
                     ##
                     - name: {{ container_name }}
-                      domains: [ "{{ container_name }}.{{ lab.domain_name }}" ]
+                      domains: [ "{{ container_name }}.{{ lab_domain_name }}" ]
                       routes:
                         - match: { prefix: "/" }
                           route: { cluster: "CLUSTER_{{ container_name | upper }}" }

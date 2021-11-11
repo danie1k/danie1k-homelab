@@ -8,7 +8,7 @@
       - "'python /docker_network_monitor/monitor.py'"
       - "'haproxy -W -db -p /var/run/haproxy.pid -f /usr/local/etc/haproxy/haproxy.cfg'"
     env:
-      DOMAIN_NAME: '{{ lab.domain_name }}'
+      DOMAIN_NAME: '{{ lab_domain_name }}'
       HAPROXY_CONFIG_FILE: /usr/local/etc/haproxy/haproxy.cfg
       HAPROXY_PID_FILE: /var/run/haproxy.pid
       NETWORK_NAME: '{{ docker.internal_network_name }}'

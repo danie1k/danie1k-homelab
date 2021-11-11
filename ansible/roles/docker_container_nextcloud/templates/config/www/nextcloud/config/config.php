@@ -1,9 +1,9 @@
 <?php
 $CONFIG = array (
     'trusted_domains' => [
-        0 => 'nextcloud.{{ lab.domain_name }',
+        0 => 'nextcloud.{{ lab_domain_name }',
     ],
-    'overwrite.cli.url' => 'https://nextcloud.{{ lab.domain_name }}',
+    'overwrite.cli.url' => 'https://nextcloud.{{ lab_domain_name }}',
 
     # Redis
     # https://docs.nextcloud.com/server/stable/admin_manual/configuration_server/caching_configuration.html#id2

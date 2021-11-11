@@ -13,7 +13,7 @@
       --web.console.templates=/usr/share/prometheus/consoles
       --web.enable-admin-api
       --web.enable-lifecycle
-      --web.external-url='https://prometheus.{{ lab.domain_name }}'
+      --web.external-url='https://prometheus.{{ lab_domain_name }}'
       --web.listen-address='0.0.0.0:9090'
     networks:
       - name: '{{ docker.internal_network_name }}'

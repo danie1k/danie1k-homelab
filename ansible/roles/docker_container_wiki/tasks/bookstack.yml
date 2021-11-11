@@ -9,7 +9,7 @@
     env:
       PUID: '99' # UID of 'nobody'
       PGID: '100' # GID of 'nobody'
-      APP_URL: 'https://wiki.{{ lab.domain_name }}'
+      APP_URL: 'https://wiki.{{ lab_domain_name }}'
       DB_HOST: mysql
       DB_USER: bookstack
       DB_PASS: _changeme_
