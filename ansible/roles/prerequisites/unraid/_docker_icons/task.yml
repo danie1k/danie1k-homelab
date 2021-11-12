@@ -6,12 +6,12 @@
       docker.png: question.png
       docker-image.png: image.png
 
-- name: Create directory for persistent files
+- name: 'docker_icons : Create directory for persistent files'
   ansible.builtin.file:
     path: '{{ _directory }}'
     state: directory
 
-- name: Copy files to persistent storage
+- name: 'docker_icons : Copy files to persistent storage'
   ansible.builtin.copy:
     src: '{{ role_path }}/_docker_icons/{{ item }}'
     dest: '{{ _directory }}/{{ item }}'
@@ -21,7 +21,7 @@
     - docker-image.png
     - docker-image-icon.patch
 
-- name: Copy icons to persistent storage
+- name: 'docker_icons : Copy icons to persistent storage'
   ansible.builtin.copy:
     src: '{{ _directory }}/{{ item.key }}'
     remote_src: true

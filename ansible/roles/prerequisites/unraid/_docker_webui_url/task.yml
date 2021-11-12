@@ -4,12 +4,12 @@
     _directory: '{{ unraid.homelab_dir }}/docker_webui_url'
     _patch_file: docker-webui-url.patch
 
-- name: Create directory for persistent files
+- name: 'docker_webui_url: Create directory for persistent files'
   ansible.builtin.file:
     path: '{{ _directory }}'
     state: directory
 
-- name: Copy file to persistent storage
+- name: 'docker_webui_url: Copy file to persistent storage'
   ansible.builtin.copy:
     src: '{{ role_path }}/_docker_webui_url/{{ _patch_file }}'
     dest: '{{ _directory }}/{{ _patch_file }}'
