@@ -1,15 +1,18 @@
 ---
 
+- set_fact:  # noqa 502
+    _name: nextcloud
+
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
-    name: nextcloud
+    name: '{{ _name }}'
     image: ghcr.io/linuxserver/nextcloud
     networks:
       - name: '{{ docker_config.network.internal.name }}'
       - name: '{{ docker_config.network.external.name }}'  # Because Nextcloud needs access to the Internet
     volumes:
       - [ '/config', '/config', 'rw' ]
-      - /mnt/user/NextcloudData:/data:rw
+      - '{{ unraid.appdata_dir }}/{{ _name }}:/data:rw'
 
     proxy:
       - http_port: 80
@@ -20,9 +23,9 @@
       kernel_memory: 10G
 
 - set_fact:  # noqa 502
-    _nginx_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/nginx/nginx.conf'
-    _nginx_site_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/nginx/site-confs/default'
-    _php_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/php/www2.conf'
+    _nginx_config_file: '{{ unraid.services_data_dir }}/{{ _name }}/config/nginx/nginx.conf'
+    _nginx_site_config_file: '{{ unraid.services_data_dir }}/{{ _name }}/config/nginx/site-confs/default'
+    _php_config_file: '{{ unraid.services_data_dir }}/{{ _name }}/config/php/www2.conf'
 
 - name: "Wait for '{{ _nginx_config_file }}' file"
   wait_for:
@@ -45,7 +48,7 @@
   ansible.builtin.blockinfile:
     path: '{{ _nginx_site_config_file }}'
     block: |2+
-          server_name nextcloud.{{ lab_domain_name }};
+          server_name {{ _name }}.{{ lab_domain_name }};
 
     marker: "{mark}"
     marker_begin: "    listen 80;"

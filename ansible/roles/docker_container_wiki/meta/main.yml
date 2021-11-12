@@ -1,5 +1,0 @@
----
-
-dependencies:
-  - role: docker_internal_network
-  - role: docker_external_network
