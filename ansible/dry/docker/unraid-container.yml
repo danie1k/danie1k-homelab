@@ -35,13 +35,13 @@
     container_volumes: '{{ _volumes.results | map(attribute="ansible_facts") | map(attribute="volume") }}'
     any_volumes_to_create: '{{ true in (_any_volumes_to_create.results | map(attribute="ansible_facts") | map(attribute="item")) }}'
 
-- name: Create Container Volume persistent directory
+- name: 'dry/unraid-container : {{ name }} : Create Container Volume persistent directory'
   file:
     path: '{{ _volume_base }}'
     mode: '0774'
     state: directory
   when: any_volumes_to_create
-- name: Copy files to Container Volume
+- name: 'dry/unraid-container : {{ name }} : Copy files to Container Volume'
   ansible.builtin.copy:
     src: '{{ item.src }}'
     dest: '{{ _volume_base }}/{{ item.dest }}'
@@ -51,7 +51,7 @@
     force: '{{ item.force | default(false) }}'
   with_list: '{{ files | default([]) }}'
   when: any_volumes_to_create
-- name: Copy templates to Container Volume
+- name: 'dry/unraid-container : {{ name }} : Copy templates to Container Volume'
   ansible.builtin.template:
     src: '{{ item.src }}'
     dest: '{{ _volume_base }}/{{ item.dest }}'
@@ -189,7 +189,7 @@
 
 # PULL IMAGE
 
-- name: Pull Docker Image
+- name: 'dry/unraid-container : {{ name }} : Pull Docker Image'
   community.docker.docker_image:
     name: '{{ image }}'
     source: pull
@@ -198,7 +198,7 @@
 
 # CREATE CONTAINER
 
-- name: Create Dynamix Plugin container template
+- name: 'dry/unraid-container : {{ name }} : Create Dynamix Plugin container template'
   ansible.builtin.copy:
     content: |-
       <?xml version="1.0"?>
@@ -210,5 +210,5 @@
       </Container>
     dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
 
-- name: Spin up the Container
+- name: 'dry/unraid-container : {{ name }} : Spin up the Container'
   community.docker.docker_container: '{{ container_params }}'
