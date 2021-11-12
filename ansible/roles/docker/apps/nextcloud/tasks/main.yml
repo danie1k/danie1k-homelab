@@ -1,0 +1,68 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: nextcloud
+    image: ghcr.io/linuxserver/nextcloud
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'  # Because Nextcloud needs access to the Internet
+    volumes:
+      - [ '/config', '/config', 'rw' ]
+      - /mnt/user/NextcloudData:/data:rw
+
+    proxy:
+      - http_port: 80
+
+    extra:
+      cpus: 4
+      memory: 10G
+      kernel_memory: 10G
+
+- set_fact:  # noqa 502
+    _nginx_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/nginx/nginx.conf'
+    _nginx_site_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/nginx/site-confs/default'
+    _php_config_file: '{{ unraid.docker_volume_base }}/nextcloud/config/php/www2.conf'
+
+- name: "Wait for '{{ _nginx_config_file }}' file"
+  wait_for:
+    path: '{{ _nginx_config_file }}'
+    sleep: 1
+- name: Tweak Nginx logging config
+  ansible.builtin.lineinfile:
+    path: '{{ _nginx_config_file }}'
+    regexp: '{{ item[0] }}'
+    line: '{{ item[1] }}'
+  with_list:
+    - [ 'access_log /', 'access_log off;' ]
+    - [ 'error_log /', 'error_log /proc/1/fd/2 warn;' ]
+
+- name: "Wait for '{{ _nginx_site_config_file }}' file"
+  wait_for:
+    path: '{{ _nginx_site_config_file }}'
+    sleep: 1
+- name: Disable Nginx SSL
+  ansible.builtin.blockinfile:
+    path: '{{ _nginx_site_config_file }}'
+    block: |2+
+          server_name nextcloud.{{ lab_domain_name }};
+
+    marker: "{mark}"
+    marker_begin: "    listen 80;"
+    marker_end: "    # Add headers to serve security related headers"
+
+- name: "Wait for '{{ _php_config_file }}' file"
+  wait_for:
+    path: '{{ _php_config_file }}'
+    sleep: 1
+- name: Tweak PHP logging config
+  ansible.builtin.blockinfile:
+    path: '{{ _php_config_file }}'
+    marker: '; {mark} ANSIBLE MANAGED BLOCK'
+    insertafter: '; Edit this file to override'
+    block: |
+      [global]
+      error_log = /proc/1/fd/2
+      ; https://github.com/docker-library/php/pull/725#issuecomment-443540114
+      log_limit = 8192
+      log_level = error

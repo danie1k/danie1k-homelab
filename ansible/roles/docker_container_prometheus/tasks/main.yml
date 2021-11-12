@@ -1,5 +1,0 @@
----
-
-- include_tasks: prometheus.yml
-- include_tasks: speedtest.yml
-- include_tasks: uptime.yml

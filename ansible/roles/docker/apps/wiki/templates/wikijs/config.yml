@@ -1,0 +1,81 @@
+---
+# https://github.com/linuxserver/docker-wikijs/blob/master/root/defaults/config.yml
+
+# Full documentation + examples: https://docs.requarks.io/install
+
+# ---------------------------------------------------------------------
+# Port the server should listen to
+# ---------------------------------------------------------------------
+port: 3000
+
+# ---------------------------------------------------------------------
+# Database
+# ---------------------------------------------------------------------
+db:
+  type: postgres
+  host: '{{ services.wikijs.postgres_host }}'
+  port: '{{ services.wikijs.postgres_port }}'
+  user: '{{ services.wikijs.postgres_user }}'
+  pass: '{{ services.wikijs.postgres_password }}'
+  db: '{{ services.wikijs.postgres_dbname }}'
+
+  ssl: false
+  sslOptions:
+    auto: true
+
+# ---------------------------------------------------------------------
+# SSL/TLS Settings
+# ---------------------------------------------------------------------
+ssl:
+  enabled: false
+
+# ---------------------------------------------------------------------
+# Database Pool Options
+# ---------------------------------------------------------------------
+# Refer to https://github.com/vincit/tarn.js for all possible options
+# pool:
+#   min: 2
+#   max: 10
+
+# ---------------------------------------------------------------------
+# IP address the server should listen to
+# ---------------------------------------------------------------------
+bindIP: 0.0.0.0
+
+# ---------------------------------------------------------------------
+# Log Level
+# ---------------------------------------------------------------------
+# Possible values: error, warn, info (default), verbose, debug, silly
+logLevel: warn
+
+# ---------------------------------------------------------------------
+# Upload Limits
+# ---------------------------------------------------------------------
+# If you're using a reverse-proxy in front of Wiki.js, you must also
+# change your proxy upload limits!
+uploads:
+  # Maximum upload size in bytes per file (default: 5242880 (5 MB))
+  maxFileSize: 5242880
+  # Maximum file uploads per request (default: 10)
+  maxFiles: 10
+
+# ---------------------------------------------------------------------
+# Offline Mode
+# ---------------------------------------------------------------------
+# If your server cannot access the internet. Set to true and manually
+# download the offline files for sideloading.
+offline: false
+
+# ---------------------------------------------------------------------
+# High-Availability
+# ---------------------------------------------------------------------
+# Set to true if you have multiple concurrent instances running off the
+# same DB (e.g. Kubernetes pods / load balanced instances). Leave false
+# otherwise. You MUST be using PostgreSQL to use this feature.
+ha: false
+
+# ---------------------------------------------------------------------
+# Data Path
+# ---------------------------------------------------------------------
+# Writeable data path used for cache and temporary user uploads.
+dataPath: /data

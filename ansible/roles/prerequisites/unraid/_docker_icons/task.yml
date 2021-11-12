@@ -1,0 +1,42 @@
+---
+
+- set_fact:
+    _directory: '{{ unraid.homelab_dir }}/docker_icons'
+    icons:
+      docker.png: question.png
+      docker-image.png: image.png
+
+- name: Create directory for persistent files
+  ansible.builtin.file:
+    path: '{{ _directory }}'
+    state: directory
+
+- name: Copy files to persistent storage
+  ansible.builtin.copy:
+    src: '{{ role_path }}/_docker_icons/{{ item }}'
+    dest: '{{ _directory }}/{{ item }}'
+    force: true
+  with_list:
+    - docker.png
+    - docker-image.png
+    - docker-image-icon.patch
+
+- name: Copy icons to persistent storage
+  ansible.builtin.copy:
+    src: '{{ _directory }}/{{ item.key }}'
+    remote_src: true
+    dest: '/usr/local/emhttp/plugins/dynamix.docker.manager/images/{{ item.value }}'
+    force: true
+  with_dict: '{{ icons }}'
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Docker Icons
+    script: |
+      {% for key, value in icons.items() %}
+      cp -vf '{{ _directory }}/{{ key }}' '/usr/local/emhttp/plugins/dynamix.docker.manager/images/{{ value }}'
+      {% endfor %}
+
+      fromdos < '{{ _directory }}/docker-image-icon.patch' > /tmp/docker-image-icon.patch
+      patch /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerContainers.php /tmp/docker-image-icon.patch
+      rm -f /tmp/docker-image-icon.patch

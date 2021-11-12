@@ -1,0 +1,27 @@
+---
+# https://github.com/jimsalterjrs/sanoid
+# https://forums.unraid.net/topic/94549-sanoidsyncoid-zfs-snapshots-and-replication/
+
+- name: Check if Sanoid is installed
+  ansible.builtin.shell: which sanoid
+  changed_when: false
+
+- name: Copy Sanoid config to persistent storage
+  ansible.builtin.copy:
+    src: sanoid.conf
+    dest: '{{ unraid.homelab_dir }}/unraid_backups/sanoid.conf'
+    force: true
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Sanoid
+    script: |
+      mkdir -p /etc/sanoid/
+      fromdos < '{{ unraid.homelab_dir }}/unraid_backups/sanoid.conf' > /etc/sanoid/sanoid.conf
+
+      (
+        crontab -l 2>/dev/null
+        echo
+        echo "# Sanoid ZFS snapshot management"
+        echo "* * * * * /usr/local/sbin/sanoid --cron 1> /dev/null"
+      ) | crontab -

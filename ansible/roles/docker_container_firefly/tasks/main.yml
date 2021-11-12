@@ -12,7 +12,7 @@
       APP_ENV: heroku  # Hacky way to force https scheme
       APP_KEY: '{{ apps.firefly.APP_KEY }}'
       APP_NAME: Firefly
-      APP_URL: 'https://firefly.{{ lab.domain_name }}'
+      APP_URL: 'https://firefly.{{ lab_domain_name }}'
       DEFAULT_LANGUAGE: pl_PL
       TZ: Europe/Warsaw
       UMASK: '000'

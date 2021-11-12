@@ -1,0 +1,13 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: portainer
+    image: portainer/portainer-ce:alpine
+    volumes:
+      - [ '', '/data', 'rw' ]
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '/var/lib/docker/volumes:/var/lib/docker/volumes'
+
+    proxy:
+      - http_port: 9000

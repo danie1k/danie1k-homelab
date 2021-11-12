@@ -1,0 +1,32 @@
+---
+
+- set_fact:  # noqa 502
+    _file: /boot/config/plugins/rclone/.rclone.conf
+    _rclone_config_remote_name: default_remote
+
+- name: Removing existing rclone remote config
+  community.general.ini_file:
+    path: '{{ _file }}'
+    section: '{{ _rclone_config_remote_name }}'
+    state: absent
+
+- name: Configure rclone remote
+  community.general.ini_file:
+    path: '{{ _file }}'
+    section: '{{ _rclone_config_remote_name }}'
+    option: '{{ item.key }}'
+    value: >-
+      {% if item.value | type_debug == "bool" %}{{ item.value | string | lower }}{% else %}{{ item.value }}{% endif %}
+  with_dict: '{{ unraid.backups.rclone.remote }}'
+
+- name: Copy filters file
+  ansible.builtin.copy:
+    content: '{{ lookup("template", role_path ~ "/_rclone/filters.txt") }}'
+    dest: '{{ unraid.homelab_dir }}/unraid_backups/rclone-filters.txt'
+    force: true
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
+  vars:
+    name: rclone_offsite_backups
+    description: Offsite backups using rclone
+    script: '{{ lookup("template", role_path ~ "/_rclone/user-script.sh") }}'

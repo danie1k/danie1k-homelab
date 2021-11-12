@@ -1,41 +1,53 @@
 ---
 
-- assert:
+- assert:  # noqa 502
     that: ['name is defined', 'name | length > 0']
     fail_msg: "Missing or empty 'name'"
-- assert:
+- assert:  # noqa 502
     that: ['image is defined', 'image | length > 0']
     fail_msg: "Missing or empty 'image'"
-- assert:
-    that: ['networks is defined', 'networks | length > 0']
-    fail_msg: "Missing or empty 'networks'"
 
+- set_fact:  # noqa 502
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+  when: not (networks|default(false))
+
+# CONTAINER'S USER & GROUP
+
+- set_fact:  # noqa 502
+    default_user: '{{ user | default(docker_config["default_user"]) }}'
+    container_owner: '{{ (user | default(docker_config["default_user"])).split(":")[0] }}'
+    container_group: '{{ (user | default(docker_config["default_user"])).split(":")[1] }}'
 
 # VOLUME(S)
 
-- set_fact:
-    _volume_base: '{{ docker.volume_base }}/{{ name }}'
-- set_fact:
+- set_fact:  # noqa 502
+    _volume_base: '{{ unraid.docker_volume_base }}/{{ name }}'
+- set_fact:  # noqa 502
     volume: '{% if item is string %}{{ item }}{% else %}{{ _volume_base }}{{ item | join(":") }}{% endif %}'
   with_list: "{{ volumes | default([]) }}"
   register: _volumes
-- set_fact:
+- set_fact:  # noqa 502
     item: '{% if item is string %}false{% else %}true{% endif %}'
   with_list: "{{ volumes | default([]) }}"
   register: _any_volumes_to_create
-- set_fact:
+- set_fact:  # noqa 502
     container_volumes: '{{ _volumes.results | map(attribute="ansible_facts") | map(attribute="volume") }}'
     any_volumes_to_create: '{{ true in (_any_volumes_to_create.results | map(attribute="ansible_facts") | map(attribute="item")) }}'
 
 - name: Create Container Volume persistent directory
   file:
     path: '{{ _volume_base }}'
+    mode: '0774'
     state: directory
   when: any_volumes_to_create
 - name: Copy files to Container Volume
   ansible.builtin.copy:
     src: '{{ item.src }}'
     dest: '{{ _volume_base }}/{{ item.dest }}'
+    owner: '{{ container_owner }}'
+    group: '{{ container_group }}'
+    mode: '{{ item.mode | default("preserve") }}'
     force: '{{ item.force | default(false) }}'
   with_list: '{{ files | default([]) }}'
   when: any_volumes_to_create
@@ -43,21 +55,24 @@
   ansible.builtin.template:
     src: '{{ item.src }}'
     dest: '{{ _volume_base }}/{{ item.dest }}'
+    owner: '{{ container_owner }}'
+    group: '{{ container_group }}'
+    mode: '{{ item.mode | default("preserve") }}'
     force: '{{ item.force | default(false) }}'
   with_list: '{{ templates | default([]) }}'
   when: any_volumes_to_create
 
 
 # LABELS
-- set_fact:
-    _container_labels: '{{ (labels | default({})) | combine(docker.container_defaults.labels | default({})) }}'
+- set_fact:  # noqa 502
+    _container_labels: '{{ (labels | default({})) | combine(docker_config.container_defaults.labels | default({})) }}'
 
 - block:
     # HTTP
-    - set_fact:
+    - set_fact:  # noqa 502
         _traefik_labels: >-
           {
-          'traefik.http.routers.{{ name }}-http-{{ _index }}.rule': 'Host(`{{ name }}.{{ lab.domain_name }}`)',
+          'traefik.http.routers.{{ name }}-http-{{ _index }}.rule': 'Host(`{{ name }}.{{ lab_domain_name }}`)',
           'traefik.http.routers.{{ name }}-http-{{ _index }}.service': '{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-http-{{ _index }}@docker{% endif %}',
           'traefik.http.services.{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-http-{{ _index }}{% endif %}.loadbalancer.server.port': '{{ item.http_port }}',
           {% if item.router is defined %}{% for _key, _value in item.router.items() %}
@@ -71,11 +86,11 @@
       loop_control:
         index_var: _index
       register: _traefik_http
-    - set_fact:
+    - set_fact:  # noqa 502
         _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
 
     # TCP
-    - set_fact:
+    - set_fact:  # noqa 502
         _traefik_labels: >-
           {
           'traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.entrypoints': '{{ item.tcp_entrypoint }}',
@@ -93,26 +108,26 @@
       loop_control:
         index_var: _index
       register: _traefik_http
-    - set_fact:
+    - set_fact:  # noqa 502
         _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
 
     # https://github.com/traefik/traefik/issues/1254#issuecomment-299114960
-    - set_fact:
-        _container_labels: '{{ _container_labels | combine({"traefik.docker.network": docker.internal_network_name}) }}'
+    - set_fact:  # noqa 502
+        _container_labels: '{{ _container_labels | combine({"traefik.docker.network": docker_config.network.internal.name}) }}'
 
   when: proxy is defined
 
 
 # LOG DRIVER
 
-- set_fact:
+- set_fact:  # noqa 502
     _log_driver: '{{ log_driver | default("loki") }}'
     _log_driver_config:
       syslog:
-        syslog-address: '{{ docker.syslog_address }}'
+        syslog-address: '{{ services.syslog.address }}'
         tag: '{{ name }}.docker'
       loki:
-        loki-url: '{{ lab.services.loki_url }}'
+        loki-url: '{{ services.loki.url }}'
         loki-batch-size: '128'
         loki-external-labels: 'job=docker,container={{ name }},network={{ networks[0].name }}'
         # no-file: true
@@ -120,9 +135,19 @@
         max-file: '1'
 
 
+# ENV
+
+- set_fact:  # noqa 502
+    default_env:
+      PUID: '{{ container_owner }}'
+      PGID: '{{ container_group }}'
+      UMASK: '000'
+      TZ: '{{ docker_config.container_timezone }}'
+
+
 # FINAL CONTAINER PARAMS
 
-- set_fact:
+- set_fact:  # noqa 502
     container_params:
       image: '{{ image }}'
       container_default_behavior: no_defaults
@@ -145,19 +170,19 @@
 
       # Runtime Environment
       detach: true
-      env: '{{ env | default({}) }}'
+      env: '{{ (env | default({})) | combine(default_env) }}'
 
       restart_policy: unless-stopped
       volumes: '{{ container_volumes }}'
 
-- set_fact:
-    container_params: '{{ (docker.container_defaults | default({})) | combine(container_params) | combine(extra | default({})) }}'
+- set_fact:  # noqa 502
+    container_params: '{{ (docker_config.container_defaults | default({})) | combine(container_params) | combine(extra | default({})) }}'
 
-- set_fact:
+- set_fact:  # noqa 502
     container_params: '{{ container_params | combine({"command": command}) }}'
   when: command is defined
 
-- set_fact:
+- set_fact:  # noqa 502
     container_params: '{{ container_params | combine({"entrypoint": entrypoint}) }}'
   when: entrypoint is defined
 
@@ -181,7 +206,7 @@
         <Icon>https://raw.githubusercontent.com/danie1k/danie1k-homelab/master/icons/{{ name }}.png</Icon>
         <Name>{{ name }}</Name>
         <Repository>{{ image }}</Repository>
-        <WebUI>https://{{ name }}.{{ lab.domain_name }}/</WebUI>
+        <WebUI>https://{{ name }}.{{ lab_domain_name }}/</WebUI>
       </Container>
     dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
 

@@ -1,0 +1,26 @@
+---
+# https://grafana.com/docs/loki/v2.1.0/clients/promtail/configuration/
+# https://github.com/grafana/loki/blob/v2.1.0/cmd/promtail/promtail-local-config.yaml
+
+server:
+  grpc_listen_address: 0.0.0.0
+  grpc_listen_port: 9093
+  http_listen_address: 0.0.0.0
+  http_listen_port: 9094
+  log_level: warn
+
+clients:
+  - url: '{{ services.loki.url }}'
+
+# The positions block configures where Promtail will save a file indicating how far it has read into a file.
+positions:
+  filename: '{{ docker_volume_base }}/promtail/positions.yaml'
+
+scrape_configs:
+  - job_name: unraid
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          __path__: /var/log/*log
+          job: unraid

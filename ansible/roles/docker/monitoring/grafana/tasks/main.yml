@@ -1,0 +1,28 @@
+---
+# https://grafana.com/docs/grafana/latest/administration/configure-docker/
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: grafana
+    image: grafana/grafana:latest
+    env:
+      # https://grafana.com/docs/grafana/latest/administration/configuration/#configure-with-environment-variables
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: '{{ services.grafana.postgres_host }}'
+      GF_DATABASE_NAME: '{{ services.grafana.postgres_dbname }}'
+      GF_DATABASE_USER: '{{ services.grafana.postgres_user }}'
+      GF_DATABASE_PASSWORD: '{{ services.grafana.postgres_password }}'
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+
+    proxy:
+      - http_port: 3000
+
+    volumes:
+      - [ '', '/var/lib/grafana' ]
+
+    extra:
+      cpus: 0.5
+      memory: 512M
+      kernel_memory: 512M

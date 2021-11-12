@@ -1,0 +1,4 @@
+---
+
+# - include_tasks: wikijs.yml
+- include_tasks: bookstack.yml

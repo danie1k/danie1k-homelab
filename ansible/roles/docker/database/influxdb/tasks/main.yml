@@ -1,0 +1,25 @@
+---
+# docker exec -it influxdb influx -port 9091
+# CREATE DATABASE <db_name>;
+# CREATE RETENTION POLICY <name> ON <db_name> DURATION ___ REPLICATION 1 DEFAULT;
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: influxdb
+    image: influxdb:1.8-alpine
+    command: influxd -config /var/lib/influxdb/influxdb.conf
+    networks:
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: '{{ services.influxdb.static_external_ip }}'
+      - name: '{{ docker_config.network.internal.name }}'
+    volumes:
+      - [ '', '/var/lib/influxdb', 'rw' ]
+
+    files:
+      - src: influxdb.conf
+        dest: ''
+
+    extra:
+      cpus: 2
+      memory: 2G
+      kernel_memory: 4G

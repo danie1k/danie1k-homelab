@@ -1,0 +1,27 @@
+---
+
+- set_fact:  # noqa 502
+    _boot_script_path: '{{ unraid.homelab_dir }}/boot.sh'  # prerequisites/unraid
+
+- assert:  # noqa 502
+    that: ['name is defined', 'name | length > 0']
+    fail_msg: "Missing or empty 'name'"
+- assert:  # noqa 502
+    that: ['script is defined', 'script | length > 0']
+    fail_msg: "Missing or empty 'script'"
+
+- name: Backup current boot script
+  # https://github.com/ansible/ansible/issues/10591
+  ansible.builtin.shell:
+    cmd: >-
+      cp -v '{{ _boot_script_path }}' "{{ _boot_script_path }}.$(date +%Y-%m-%dT%H-%M-%S).bak"
+    warn: false
+
+- name: Update boot script
+  ansible.builtin.blockinfile:
+    block: |
+      logger 'Configuring {{ name }}'
+
+      {{ script }}
+    dest: '{{ _boot_script_path }}'
+    marker: '# {mark} ANSIBLE_{{ name | upper | replace(" ", "_") }}'

@@ -1,0 +1,36 @@
+---
+# https://savannah.nongnu.org/projects/hddtemp/
+
+- name: Create persistent extra packages directory on Flash drive
+  ansible.builtin.file:
+    path: '/boot/extra'
+    state: directory
+
+- name: Download hddtemp package
+  ansible.builtin.get_url:
+    url: https://packages.slackonly.com/pub/packages/current-x86_64/system/hddtemp/hddtemp-0.3beta15-x86_64-4_slonly.txz
+    dest: /boot/extra/hddtemp.txz
+
+- name: Install hddtemp package
+  ansible.builtin.shell:
+    cmd: installpkg /boot/extra/hddtemp.txz
+    creates: /usr/sbin/hddtemp
+
+- name: Create directory for persistent files
+  ansible.builtin.file:
+    path: '{{ unraid.homelab_dir }}/hddtemp'
+    state: directory
+
+- name: Copy Slackware rc file
+  ansible.builtin.copy:
+    content: '{{ lookup("template", role_path ~ "/_hddtemp/rc") }}'
+    dest: '{{ unraid.homelab_dir }}/hddtemp/rc'
+    force: true
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: hddtemp
+    script: |
+      fromdos < '{{ unraid.homelab_dir }}/hddtemp/rc' > /etc/rc.d/rc.hddtemp
+      chmod +x /etc/rc.d/rc.hddtemp
+      /etc/rc.d/rc.hddtemp start

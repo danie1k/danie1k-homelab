@@ -1,0 +1,29 @@
+---
+# https://docs.miguelndecarvalho.pt/projects/speedtest-exporter/
+
+- set_fact:  # noqa 502
+    _name: prometheus-speedtest
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: miguelndecarvalho/speedtest-exporter:latest
+    env:
+      SPEEDTEST_SERVER: '{{ services.prometheus.speedtest.server }}'
+    networks:
+      - name: '{{ docker_config.network.external.name }}'
+      - name: '{{ docker_config.network.internal.name }}'
+    extra:
+      cpus: 0.5
+      memory: 1G
+      kernel_memory: 1G
+
+- include_tasks: ../../prometheus-config.yml
+  vars:
+    job_name: speedtest
+    job:
+      metrics_path: /metrics
+      scrape_interval: 30m
+      scrape_timeout: 60s
+      static_configs:
+        - targets: [ '{{ _name }}.{{ docker_config.network.internal.name }}:9798' ]
