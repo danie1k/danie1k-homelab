@@ -1,7 +1,15 @@
 ---
 
 - set_fact:  # noqa 502
+    _slugified_name: '{{ name | lower | replace(" ", "_") }}'
     _boot_script_path: '{{ unraid.homelab_dir }}/boot.sh'  # prerequisites/unraid
+
+- shell: 'date +%Y-%m-%dT%H-%M-%S'  # noqa 502 305
+  register: tstamp
+  changed_when: false
+
+- set_fact:  # noqa 502
+    _boot_backup_file: '{{ _boot_script_path }}.{{ tstamp.get("stdout", "date") }}.{{ _slugified_name }}.bak'
 
 - assert:  # noqa 502
     that: ['name is defined', 'name | length > 0']
@@ -10,18 +18,25 @@
     that: ['script is defined', 'script | length > 0']
     fail_msg: "Missing or empty 'script'"
 
-- name: Backup current boot script
+- name: 'dry/boot : {{ name }} : Backup current boot script'
   # https://github.com/ansible/ansible/issues/10591
   ansible.builtin.shell:
-    cmd: >-
-      cp -v '{{ _boot_script_path }}' "{{ _boot_script_path }}.$(date +%Y-%m-%dT%H-%M-%S).bak"
+    cmd: cp -v '{{ _boot_script_path }}' '{{ _boot_backup_file }}'
     warn: false
+  changed_when: false
 
-- name: Update boot script
+- name: 'dry/boot : {{ name }} : Update boot script'
   ansible.builtin.blockinfile:
     block: |
       logger 'Configuring {{ name }}'
 
       {{ script }}
     dest: '{{ _boot_script_path }}'
-    marker: '# {mark} ANSIBLE_{{ name | upper | replace(" ", "_") }}'
+    marker: '# {mark} ANSIBLE_{{ _slugified_name | upper }}'
+  register: _boot_script_update
+
+- ansible.builtin.file:  # noqa 502 503
+    path: '{{ _boot_backup_file }}'
+    state: absent
+  changed_when: false
+  when: not _boot_script_update.changed
