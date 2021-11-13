@@ -1,0 +1,41 @@
+---
+
+- assert:  # noqa 502
+    that: ['parent_container_name is defined', 'parent_container_name | length > 0']
+    fail_msg: "Missing or empty 'parent_container_name'"
+
+- assert:  # noqa 502
+    that: ['"redis" not in parent_container_name|lower']
+    fail_msg: "Word 'redis' is forbidden in 'parent_container_name' variable"
+
+- set_fact:  # noqa 502
+    cpus: '{{ cpus | default("2") }}'
+    memory: '{{ memory | default("8G") }}'
+    maxconn: '{{ maxconn | default("1024") }}'
+
+- include_tasks: ./unraid-container.yml
+  vars:
+    webui: false
+    icon: redis
+    name: '{{ parent_container_name }}-redis'
+    service_data_dir: '{{ parent_container_name }}/redis'
+    image: redis:alpine
+
+    volumes:
+      - [ '/data', '/data', 'rw' ]
+      - [ '/redis.conf', '/usr/local/etc/redis/redis.conf', 'rw' ]
+
+    files:
+      - src: '{{ playbook_dir }}/dry/docker/files/redis.conf'
+        dest: ''
+        force: true
+
+    extra:
+      cpus: '{{ cpus }}'
+      memory: '{{ memory }}'
+      kernel_memory: '{{ memory }}'
+      sysctls:
+        net.core.somaxconn: '{{ maxconn }}'
+
+- set_fact:
+    redis_host: '{{ parent_container_name }}-redis.{{ docker_config.network.internal.name }}'

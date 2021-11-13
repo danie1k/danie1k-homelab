@@ -29,7 +29,6 @@
     - docker/database/influxdb
     - docker/database/mysql
     - docker/database/postgresql
-    - docker/database/redis
 
     - docker/monitoring/grafana
     - docker/monitoring/prometheus

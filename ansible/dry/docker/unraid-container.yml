@@ -1,214 +1,384 @@
 ---
 
-- assert:  # noqa 502
-    that: ['name is defined', 'name | length > 0']
+# Task arguments/params:
+#   name
+#   image
+#   (optional) command
+#   (optional) entrypoint
+#   (optional) env
+#   (optional) exposed_ports
+#   (optional) extra
+#   (optional) files
+#   (optional) icon
+#   (optional) labels
+#   (optional) networks
+#   (optional) proxy
+#   (optional) service_data_dir
+#   (optional) templates
+#   (optional) user
+
+
+- name: "dry/unraid-container : {{ name }} : Assert 'name'"
+  assert:
+    that: [ 'name | default("", true) | length > 0' ]
     fail_msg: "Missing or empty 'name'"
-- assert:  # noqa 502
-    that: ['image is defined', 'image | length > 0']
+
+- name: "dry/unraid-container : {{ name }} : Assert 'image'"
+  assert:
+    that: [ 'image | default("", true) | length > 0' ]
     fail_msg: "Missing or empty 'image'"
 
-- set_fact:  # noqa 502
-    networks:
+- name: 'dry/unraid-container : {{ name }} : Set defaults'
+  set_fact:
+    __default_labels: '{{ docker_config.container_defaults.labels | default({}, true) }}'
+    __default_networks:
       - name: '{{ docker_config.network.internal.name }}'
-  when: not (networks|default(false))
+    __container_facts: >-2
+      {
+        "name": "{{ name }}",
+        "image": "{{ image }}",
+        "icon": (
+          "https://raw.githubusercontent.com/danie1k/danie1k-homelab/master/icons/{{ icon | default(name, true) }}.png"
+        ),
+        "log_driver": "{{ log_driver | default("loki", true) }}",
+        "networks": {},
+        "exposed_ports": "{{ exposed_ports | default([], true) }}",
+        "container_group": "{{ (user | default(docker_config.default_user, true)).split(':')[1] }}",
+        "container_owner": "{{ (user | default(docker_config.default_user, true)).split(':')[0] }}",
+        "container_labels": {},
+        "default_user": "{{ user | default(docker_config.default_user, true) }}",
+        "service_data_dir": "{{ service_data_dir | default(name, true) }}",
+        "volume_base": "{{ unraid.services_data_dir }}/{{ service_data_dir | default(name, true) }}",
+        "webui": (
+          "{% if webui|default(1)|bool is not sameas false %}"
+          "{{ webui | default('https://' ~ name ~ '.' ~ lab_domain_name ~ '/') }}"
+          "{% endif %}"
+        ),
+      }
 
-# CONTAINER'S USER & GROUP
+# ENVIRONMENT VARIABLES
 
-- set_fact:  # noqa 502
-    default_user: '{{ user | default(docker_config["default_user"]) }}'
-    container_owner: '{{ (user | default(docker_config["default_user"])).split(":")[0] }}'
-    container_group: '{{ (user | default(docker_config["default_user"])).split(":")[1] }}'
-
-# VOLUME(S)
-
-- set_fact:  # noqa 502
-    _volume_base: '{{ unraid.docker_volume_base }}/{{ name }}'
-- set_fact:  # noqa 502
-    volume: '{% if item is string %}{{ item }}{% else %}{{ _volume_base }}{{ item | join(":") }}{% endif %}'
-  with_list: "{{ volumes | default([]) }}"
-  register: _volumes
-- set_fact:  # noqa 502
-    item: '{% if item is string %}false{% else %}true{% endif %}'
-  with_list: "{{ volumes | default([]) }}"
-  register: _any_volumes_to_create
-- set_fact:  # noqa 502
-    container_volumes: '{{ _volumes.results | map(attribute="ansible_facts") | map(attribute="volume") }}'
-    any_volumes_to_create: '{{ true in (_any_volumes_to_create.results | map(attribute="ansible_facts") | map(attribute="item")) }}'
-
-- name: 'dry/unraid-container : {{ name }} : Create Container Volume persistent directory'
-  file:
-    path: '{{ _volume_base }}'
-    mode: '0774'
-    state: directory
-  when: any_volumes_to_create
-- name: 'dry/unraid-container : {{ name }} : Copy files to Container Volume'
-  ansible.builtin.copy:
-    src: '{{ item.src }}'
-    dest: '{{ _volume_base }}/{{ item.dest }}'
-    owner: '{{ container_owner }}'
-    group: '{{ container_group }}'
-    mode: '{{ item.mode | default("preserve") }}'
-    force: '{{ item.force | default(false) }}'
-  with_list: '{{ files | default([]) }}'
-  when: any_volumes_to_create
-- name: 'dry/unraid-container : {{ name }} : Copy templates to Container Volume'
-  ansible.builtin.template:
-    src: '{{ item.src }}'
-    dest: '{{ _volume_base }}/{{ item.dest }}'
-    owner: '{{ container_owner }}'
-    group: '{{ container_group }}'
-    mode: '{{ item.mode | default("preserve") }}'
-    force: '{{ item.force | default(false) }}'
-  with_list: '{{ templates | default([]) }}'
-  when: any_volumes_to_create
-
+- name: 'dry/unraid-container : {{ name }} : Init environment variables'
+  set_fact:
+    __container_facts: >-2
+      {{
+        __container_facts
+        | combine({"environment": (env | default({}, true)) | combine({
+          "PUID": __container_facts.container_owner,
+          "PGID": __container_facts.container_group,
+          "UMASK": "000",
+          "TZ": docker_config.container_timezone | default("UTC", true)
+        }) })
+      }}
 
 # LABELS
-- set_fact:  # noqa 502
-    _container_labels: '{{ (labels | default({})) | combine(docker_config.container_defaults.labels | default({})) }}'
+
+- name: 'dry/unraid-container : {{ name }} : Init labels'
+  set_fact:  # noqa 502
+    __container_facts: >-2
+      {{
+        __container_facts
+        | combine({"container_labels": (labels | default({}, true)) | combine(__default_labels)})
+      }}
+
+
+# NETWORKS
+
+- name: 'dry/unraid-container : {{ name }} : Init networks'
+  set_fact:
+    __container_facts: >-2
+      {{
+        __container_facts
+        | combine({"networks": networks | default(__default_networks, true)})
+      }}
+
+# TRAEFIK LABLES
 
 - block:
+    - name: 'dry/unraid-container : {{ name }} : Traefik Docker Network label'
+      set_fact:
+        # https://github.com/traefik/traefik/issues/1254#issuecomment-299114960
+        __container_facts: >-2
+          {{
+            __container_facts
+            | combine({
+              "container_labels": (
+                __container_facts.container_labels
+                | combine({"traefik.docker.network": docker_config.network.internal.name})
+              )
+            })
+          }}
+
     # HTTP
-    - set_fact:  # noqa 502
-        _traefik_labels: >-
+    - name: 'dry/unraid-container : {{ name }} : Generate Traefik HTTP router labels'
+      set_fact:
+        _traefik_labels: >-2
           {
-          'traefik.http.routers.{{ name }}-http-{{ _index }}.rule': 'Host(`{{ name }}.{{ lab_domain_name }}`)',
-          'traefik.http.routers.{{ name }}-http-{{ _index }}.service': '{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-http-{{ _index }}@docker{% endif %}',
-          'traefik.http.services.{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-http-{{ _index }}{% endif %}.loadbalancer.server.port': '{{ item.http_port }}',
-          {% if item.router is defined %}{% for _key, _value in item.router.items() %}
-          'traefik.http.routers.{{ name }}-http-{{ _index }}.{{ _key }}': '{{ _value }}',
-          {% endfor %}{% endif %}
-          {% if item.service is mapping %}{% for _key, _value in item.service.items() %}
-          'traefik.http.services.{{ name }}-http-{{ _index }}.{{ _key }}': '{{ _value }}',
-          {% endfor %}{% endif %}
+            "traefik.http.routers.{{ name }}-http-{{ _index }}.rule": "Host(`{{ name }}.{{ lab_domain_name }}`)",
+            "traefik.http.routers.{{ name }}-http-{{ _index }}.service": (
+              "{% if 'service' in http_item and http_item.service is not mapping %}"
+                "{{ http_item.service }}"
+              "{% else %}"
+                "{{ name }}-http-{{ _index }}@docker"
+              "{% endif %}"
+            ),
+            (
+              "traefik.http.services."
+              "{% if 'service' in http_item and http_item.service is not mapping %}"
+                "{{ http_item.service }}"
+              "{% else %}"
+                "{{ name }}-http-{{ _index }}"
+              "{% endif %}.loadbalancer.server.port"
+            ): "{{ http_item.http_port }}",
+            {% if http_item.router is defined %}
+              {% for _key, _value in http_item.router.items() %}
+                "traefik.http.routers.{{ name }}-http-{{ _index }}.{{ _key }}": "{{ _value }}",
+              {% endfor %}
+            {% endif %}
+            {% if http_item.service is mapping %}
+              {% for _key, _value in http_item.service.items() %}
+                "traefik.http.services.{{ name }}-http-{{ _index }}.{{ _key }}": "{{ _value }}",
+              {% endfor %}
+            {% endif %}
           }
       with_items: "{{ proxy | community.general.json_query(\"[?http_port]\") }}"
       loop_control:
         index_var: _index
+        loop_var: http_item
       register: _traefik_http
-    - set_fact:  # noqa 502
-        _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
+    - name: 'dry/unraid-container : {{ name }} : Add Traefik HTTP labels to container facts'
+      set_fact:
+        __container_facts: >-2
+          {{
+            __container_facts
+            | combine({
+              "container_labels": (
+                __container_facts.container_labels
+                | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels"))
+              )
+            })
+          }}
 
     # TCP
-    - set_fact:  # noqa 502
-        _traefik_labels: >-
+    - name: 'dry/unraid-container : {{ name }} : Generate Traefik TCP router labels'
+      set_fact:
+        _traefik_labels: >-2
           {
-          'traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.entrypoints': '{{ item.tcp_entrypoint }}',
-          'traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.rule': 'HostSNI(`*`)',
-          'traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.service': '{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-tcp-{{ _index }}@docker{% endif %}',
-          'traefik.tcp.services.{% if 'service' in item and item.service is not mapping %}{{ item.service }}{% else %}{{ name }}-tcp-{{ _index }}{% endif %}.loadbalancer.server.port': '{{ item.tcp_port }}',
-          {% if item.router is defined %}{% for _key, _value in item.router.items() %}
-          'traefik.http.routers.{{ name }}-tcp-{{ _index }}.{{ _key }}': '{{ _value }}',
-          {% endfor %}{% endif %}
-          {% if item.service is mapping %}{% for _key, _value in item.service.items() %}
-          'traefik.http.services.{{ name }}-tcp-{{ _index }}.{{ _key }}': '{{ _value }}',
-          {% endfor %}{% endif %}
+            "traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.entrypoints": "{{ tcp_item.tcp_entrypoint }}",
+            "traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.rule": "HostSNI(`*`)",
+            "traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.service": (
+              "{% if 'service' in tcp_item and tcp_item.service is not mapping %}"
+                "{{ tcp_item.service }}"
+              "{% else %}"
+                "{{ name }}-tcp-{{ _index }}@docker"
+              "{% endif %}"
+            ),
+            (
+              "traefik.tcp.services."
+              "{% if 'service' in tcp_item and tcp_item.service is not mapping %}"
+                "{{ tcp_item.service }}"
+              "{% else %}"
+                "{{ name }}-tcp-{{ _index }}"
+              "{% endif %}.loadbalancer.server.port"
+            ): "{{ tcp_item.tcp_port }}",
+            {% if tcp_item.router is defined %}
+              {% for _key, _value in tcp_item.router.items() %}
+                "traefik.http.routers.{{ name }}-tcp-{{ _index }}.{{ _key }}": "{{ _value }}",
+              {% endfor %}
+            {% endif %}
+            {% if tcp_item.service is mapping %}
+              {% for _key, _value in tcp_item.service.items() %}
+                "traefik.http.services.{{ name }}-tcp-{{ _index }}.{{ _key }}": "{{ _value }}",
+              {% endfor %}
+            {% endif %}
           }
       with_items: "{{ proxy | community.general.json_query(\"[?tcp_port]\") }}"
       loop_control:
         index_var: _index
+        loop_var: tcp_item
       register: _traefik_http
-    - set_fact:  # noqa 502
-        _container_labels: '{{ _container_labels | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels")) }}'
+    - name: 'dry/unraid-container : {{ name }} : Add Traefik TCP labels to container facts'
+      set_fact:
+        __container_facts: >-2
+          {{
+            __container_facts
+            | combine({
+              "container_labels": (
+                __container_facts.container_labels
+                | combine(_traefik_http.results | map(attribute="ansible_facts") | map(attribute="_traefik_labels"))
+              )
+            })
+          }}
 
-    # https://github.com/traefik/traefik/issues/1254#issuecomment-299114960
-    - set_fact:  # noqa 502
-        _container_labels: '{{ _container_labels | combine({"traefik.docker.network": docker_config.network.internal.name}) }}'
-
-  when: proxy is defined
-
+  when: proxy | default(false, true)
 
 # LOG DRIVER
 
-- set_fact:  # noqa 502
-    _log_driver: '{{ log_driver | default("loki") }}'
-    _log_driver_config:
+- name: 'dry/unraid-container : {{ name }} : Init log driver choices'
+  set_fact:
+    __log_driver_config:
       syslog:
         syslog-address: '{{ services.syslog.address }}'
         tag: '{{ name }}.docker'
       loki:
         loki-url: '{{ services.loki.url }}'
         loki-batch-size: '128'
-        loki-external-labels: 'job=docker,container={{ name }},network={{ networks[0].name }}'
+        loki-external-labels: 'job=docker,container={{ name }},network={{ __container_facts.networks[0].name }}'
         # no-file: true
         max-size: '1m'
         max-file: '1'
 
+# VOLUMES
 
-# ENV
+- name: 'dry/unraid-container : {{ name }} : Init volumes'
+  set_fact:
+    volume: >-
+      {% if item is string %}{{ item }}{% else %}{{ __container_facts.volume_base }}{{ item | join(":") }}{% endif %}
+  with_list: "{{ volumes | default([], true) }}"
+  register: _volumes
 
-- set_fact:  # noqa 502
-    default_env:
-      PUID: '{{ container_owner }}'
-      PGID: '{{ container_group }}'
-      UMASK: '000'
-      TZ: '{{ docker_config.container_timezone }}'
-
+- name: 'dry/unraid-container : {{ name }} : Add volumes to container facts'
+  set_fact:
+    __container_facts: >-2
+      {{
+        __container_facts
+        | combine({"container_volumes": (_volumes.results | map(attribute="ansible_facts") | map(attribute="volume"))})
+        | combine({"any_volumes_to_create": (
+            (volumes | default([], true) | length > 0)
+            or (files | default([], true) | length > 0)
+            or (templates | default([], true) | length > 0)
+        )})
+      }}
 
 # FINAL CONTAINER PARAMS
 
-- set_fact:  # noqa 502
-    container_params:
-      image: '{{ image }}'
+- name: 'dry/unraid-container : {{ name }} : Finalize container params'
+  set_fact:
+    __container_params:
+      image: '{{ __container_facts.image }}'
       container_default_behavior: no_defaults
 
       # Naming
-      name: '{{ name }}'
-      hostname: '{{ name }}'
-      labels: '{{ _container_labels }}'
+      name: '{{ __container_facts.name }}'
+      hostname: '{{ __container_facts.name }}'
+      labels: '{{ __container_facts.container_labels }}'
 
       # Logging
-      log_driver: '{{ _log_driver }}'
-      log_options: '{{ _log_driver_config[_log_driver] | default({}) }}'
+      log_driver: '{{ __container_facts.log_driver }}'
+      log_options: '{{ __log_driver_config[__container_facts.log_driver] | default({}, true) }}'
 
       # Networking
-      exposed_ports: '{{ ports | default([]) }}'
-      network_mode: '{{ networks[0].name }}'
-      networks: '{{ networks }}'
+      exposed_ports: '{{ __container_facts.exposed_ports }}'
+      network_mode: '{{ __container_facts.networks[0].name }}'
+      networks: '{{ __container_facts.networks }}'
       networks_cli_compatible: true
       purge_networks: true
 
       # Runtime Environment
       detach: true
-      env: '{{ (env | default({})) | combine(default_env) }}'
+      env: '{{ __container_facts.environment }}'
 
       restart_policy: unless-stopped
-      volumes: '{{ container_volumes }}'
+      volumes: '{{ __container_facts.container_volumes }}'
 
-- set_fact:  # noqa 502
-    container_params: '{{ (docker_config.container_defaults | default({})) | combine(container_params) | combine(extra | default({})) }}'
+- name: "dry/unraid-container : {{ name }} : Container's 'extra' params"
+  set_fact:
+    __container_params: >-2
+      {{
+        (docker_config.container_defaults | default({}, true))
+        | combine(__container_params)
+        | combine(extra | default({}, true))
+      }}
 
-- set_fact:  # noqa 502
-    container_params: '{{ container_params | combine({"command": command}) }}'
-  when: command is defined
+- name: "dry/unraid-container : {{ name }} : Container's command"
+  set_fact:
+    __container_params: '{{ __container_params | combine({"command": command}) }}'
+  when: command | default(false, true)
 
-- set_fact:  # noqa 502
-    container_params: '{{ container_params | combine({"entrypoint": entrypoint}) }}'
-  when: entrypoint is defined
+- name: "dry/unraid-container : {{ name }} : Container's entrypoint"
+  set_fact:  # noqa 502
+    __container_params: '{{ __container_params | combine({"entrypoint": entrypoint}) }}'
+  when: entrypoint | default(false, true)
 
+# CREATE DIRECTORIES & FILES
+
+- name: 'dry/unraid-container : {{ name }} : Create Container Volume persistent directory'
+  file:
+    path: '{{ __container_facts.volume_base }}'
+    mode: '0774'
+    owner: '{{ __container_facts.container_owner }}'
+    group: '{{ __container_facts.container_group }}'
+    state: directory
+  when: __container_facts.any_volumes_to_create
+- name: 'dry/unraid-container : {{ name }} : Copy files to Container Volume'
+  ansible.builtin.copy:
+    src: '{{ file_item.src }}'
+    dest: '{{ __container_facts.volume_base }}/{{ file_item.dest }}'
+    owner: '{{ __container_facts.container_owner }}'
+    group: '{{ __container_facts.container_group }}'
+    mode: '{{ file_item.mode | default("preserve") }}'
+    force: '{{ file_item.force | default(false) }}'
+  with_list: '{{ files | default([], true) }}'
+  loop_control:
+    loop_var: file_item
+  when: __container_facts.any_volumes_to_create
+- name: 'dry/unraid-container : {{ name }} : Copy templates to Container Volume'
+  ansible.builtin.template:
+    src: '{{ template_item.src }}'
+    dest: '{{ __container_facts.volume_base }}/{{ template_item.dest }}'
+    owner: '{{ __container_facts.container_owner }}'
+    group: '{{ __container_facts.container_group }}'
+    mode: '{{ template_item.mode | default("preserve") }}'
+    force: '{{ template_item.force | default(false) }}'
+  with_list: '{{ templates | default([], true) }}'
+  loop_control:
+    loop_var: template_item
+  when: __container_facts.any_volumes_to_create
+
+# INTEGRATION WITH UNRAID DYNAMIX PLUGIN
+
+- name: 'dry/unraid-container : {{ name }} : Create Dynamix Plugin container template'
+  ansible.builtin.copy:
+    content: |2
+      <?xml version="1.0"?>
+      <Container version="2">
+        <Icon>{{ __container_facts.icon }}</Icon>
+        <Name>{{ __container_facts.name }}</Name>
+        <Repository>{{ __container_facts.image }}</Repository>
+        {% if __container_facts.webui %}<WebUI>{{ __container_facts.webui }}</WebUI>{% endif %}
+      </Container>
+    dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
 
 # PULL IMAGE
 
 - name: 'dry/unraid-container : {{ name }} : Pull Docker Image'
   community.docker.docker_image:
-    name: '{{ image }}'
+    name: '{{ __container_facts.image }}'
     source: pull
     state: present
 
-
-# CREATE CONTAINER
-
-- name: 'dry/unraid-container : {{ name }} : Create Dynamix Plugin container template'
-  ansible.builtin.copy:
-    content: |-
-      <?xml version="1.0"?>
-      <Container version="2">
-        <Icon>https://raw.githubusercontent.com/danie1k/danie1k-homelab/master/icons/{{ name }}.png</Icon>
-        <Name>{{ name }}</Name>
-        <Repository>{{ image }}</Repository>
-        <WebUI>https://{{ name }}.{{ lab_domain_name }}/</WebUI>
-      </Container>
-    dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
+# RUN CONTAINER
 
 - name: 'dry/unraid-container : {{ name }} : Spin up the Container'
-  community.docker.docker_container: '{{ container_params }}'
+  community.docker.docker_container: '{{ __container_params }}'
+
+# UNSET FACTS
+
+- name: "dry/unraid-container : {{ name }} : Unset task's facts"
+  set_fact:
+    _volumes:
+    command:
+    entrypoint:
+    env:
+    exposed_ports:
+    extra:
+    files:
+    icon:
+    image:
+    labels:
+    name:
+    networks:
+    proxy:
+    service_data_dir:
+    templates:
+    user:
