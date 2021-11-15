@@ -1,0 +1,84 @@
+---
+
+- set_fact:  # noqa 502
+    _name: authentik
+    _http_port: '9000'
+    _version: '2021.10.4'
+
+# REDIS
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/redis.yml'
+  vars:
+    parent_container_name: '{{ _name }}'
+
+# MAIN SERVER
+
+- set_fact:  # noqa 502
+    _base_env:
+      AUTHENTIK_HOST: 'http://{{ _name }}.{{ docker_config.network.internal.name }}:{{ _http_port }}'
+      AUTHENTIK_SECRET_KEY: '{{ services.authentik.authentik_secret_key }}'
+      AUTHENTIK_REDIS__HOST: '{{ redis_host }}'
+      AUTHENTIK_LOG_LEVEL: warning
+      AUTHENTIK_POSTGRESQL__HOST: '{{ services.authentik.postgres_host }}'
+      AUTHENTIK_POSTGRESQL__PORT: '{{ services.authentik.postgres_port }}'
+      AUTHENTIK_POSTGRESQL__NAME: '{{ services.authentik.postgres_dbname }}'
+      AUTHENTIK_POSTGRESQL__USER: '{{ services.authentik.postgres_user }}'
+      AUTHENTIK_POSTGRESQL__PASSWORD: '{{ services.authentik.postgres_password }}'
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: 'goauthentik.io/server:{{ _version }}'
+    command: server
+    env: '{{ _base_env }}'
+    volumes:
+      - [ '/{{ _name }}/media', '/media', 'rw' ]
+      - [ '/{{ _name }}/custom-templates', '/templates', 'rw' ]
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    proxy:
+      - http_port: '{{ _http_port }}'
+
+    extra:
+      cpus: 4
+      memory: 4G
+      kernel_memory: 4G
+
+# WORKER
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}-worker'
+    icon: '{{ _name }}'
+    webui: false
+    image: 'goauthentik.io/server:{{ _version }}'
+    command: worker
+    env: '{{ _base_env }}'
+    volumes:
+      - [ '/{{ _name }}/backups', '/backups', 'rw' ]
+      - [ '/{{ _name }}/media', '/media', 'rw' ]
+      - [ '/{{ _name }}/custom-templates', '/templates', 'rw' ]
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+## LDAP
+#
+#- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+#  vars:
+#    name: '{{ _name }}-ldap'
+#    icon: '{{ _name }}'
+#    webui: false
+#    image: 'goauthentik.io/ldap:{{ _version }}'
+#    networks:
+#      - name: '{{ docker_config.network.internal.name }}'
+#      - name: '{{ docker_config.network.external.name }}'
+#        ipv4_address: '{{ services.ldap.static_external_ip }}'
+#    env: >-2
+#      {{ _base_env | combine({
+#          "AUTHENTIK_INSECURE": services.authentik.ldap.insecure,
+#          "AUTHENTIK_TOKEN": services.authentik.ldap.token,
+#      }) }}
+#
+#    extra:
+#      cpus: 0.5
+#      memory: 512M
+#      kernel_memory: 512M

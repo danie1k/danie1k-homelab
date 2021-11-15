@@ -60,6 +60,17 @@ idrac:
   ipmi_uri: user:password@lanplus(hostname_or_ip)  # For Telegraf's `inputs.ipmi_sensor`
 
 services:
+  authentik:
+    # https://goauthentik.io/docs/installation/configuration
+    authentik_secret_key:
+    postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
+    postgres_port: 5432
+    postgres_dbname:
+    postgres_user:
+    postgres_password:
+    ldap:
+      insecure: 'true'
+      token:
   bookstack:
     mysql_host: 'mysql.{{ docker_config.network.internal.name }}:3306'
     mysql_dbname:
@@ -79,6 +90,8 @@ services:
   jellyfin:
     static_external_ip:
     media_volumes: []
+  #ldap:
+  #  static_external_ip:
   loki:
     url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
   mysql:
@@ -131,15 +144,3 @@ services:
 #     DB_DATABASE: CHANGEME
 #     DB_USERNAME: CHANGEME
 #     DB_PASSWORD: CHANGEME
-#
-# lab:
-#   ldap:
-#     baseDN: dc=example,dc=com
-#     groups:
-#       - name: root
-#         unixid: 1
-#     users:
-#       - name: root
-#         unixid: 1
-#         primarygroup: 1
-#         passsha256: "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2" # echo -n 'root' | openssl dgst -sha256

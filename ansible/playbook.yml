@@ -25,6 +25,7 @@
     # =======================================================
     - docker/portainer
     - docker/reverse_proxy
+    - docker/sso
 
     - docker/database/influxdb
     - docker/database/mysql
