@@ -1,0 +1,47 @@
+---
+# https://www.collaboraoffice.com/code/quick-tryout-nextcloud-docker/
+
+- set_fact:  # noqa 502
+    _name: collabora
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: collabora/code
+    webui: false
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+    env:
+      # https://www.collaboraoffice.com/code/nginx-reverse-proxy/
+      extra_params: '--o:ssl.enable=false --o:ssl.termination=true'
+
+    proxy:
+      - http_port: 9980
+
+    extra:
+      cpus: 4
+      memory: 6G
+      kernel_memory: 8G
+
+- name: Install Collabora for Nextcloud
+  include_tasks: '{{ playbook_dir }}/dry/docker/exec.yml'
+  vars:
+    container_name: nextcloud
+    ignore_errors: true
+    commands:
+      - occ --no-ansi --no-interaction --no-warnings app:install richdocuments
+
+- name: Configure Collabora for Nextcloud
+  include_tasks: '{{ playbook_dir }}/dry/docker/exec.yml'
+  vars:
+    container_name: nextcloud
+    ignore_errors: false
+    commands:
+      - occ --no-warnings config:app:set richdocuments disable_certificate_verification --value=''
+      - occ --no-warnings config:app:set richdocuments doc_format      --value='ooxml'
+      - occ --no-warnings config:app:set richdocuments external_apps   --value=''
+      - occ --no-warnings config:app:set richdocuments public_wopi_url --value='https://{{ _name }}.{{ lab_domain_name }}'
+      - occ --no-warnings config:app:set richdocuments types           --value='prevent_group_restriction'
+      - occ --no-warnings config:app:set richdocuments wopi_url        --value='https://{{ _name }}.{{ lab_domain_name }}'
+      - occ --no-warnings config:app:set richdocuments enabled         --value='yes'
