@@ -65,6 +65,9 @@ services:
     mysql_dbname:
     mysql_user:
     mysql_password:
+  diagrams:
+    keystore_pass:
+    key_pass:
   grafana:
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}:5432'
     postgres_dbname:

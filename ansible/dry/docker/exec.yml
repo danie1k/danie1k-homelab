@@ -24,7 +24,7 @@
     that:
       - _container_info.exists
       - _container_info.container.State.Running
-    fail_msg: "Docker Containner '{{ container_name }}' does no exitst or is not running"
+    fail_msg: "Docker Containner '{{ container_name }}' does not exist or is not running"
 
 - name: 'dry/docker-exec : {{ container_name}} : Run command(s)'
   community.docker.docker_container_exec:

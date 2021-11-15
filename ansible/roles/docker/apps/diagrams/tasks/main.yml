@@ -1,0 +1,29 @@
+---
+# https://github.com/jgraph/docker-drawio
+
+- set_fact:  # noqa 502
+    _name: diagrams
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: jgraph/drawio:alpine
+    env:
+      LETS_ENCRYPT_ENABLED: 'false'
+      KEYSTORE_PASS: '{{ services.diagrams.keystore_pass }}'
+      KEY_PASS: '{{ services.diagrams.key_pass }}'
+
+    proxy:
+      - http_port: 8080
+
+# https://github.com/jgraph/docker-drawio/blob/dev/nextcloud/after-install.sh
+- name: Install Draw.io for Nextcloud
+  include_tasks: '{{ playbook_dir }}/dry/docker/exec.yml'
+  vars:
+    container_name: nextcloud
+    ignore_errors: true
+    commands:
+      # https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/caching_configuration.html#id2
+      # https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/occ_command.html
+      - occ --no-ansi --no-interaction --no-warnings app:install drawio
+      - occ --no-warnings config:app:set drawio DrawioUrl --value='https://{{ _name }}.{{ lab_domain_name }}/'
