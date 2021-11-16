@@ -44,6 +44,8 @@
     - docker/apps/office
     - docker/apps/wiki
 
+    - docker/servarr/lidarr
+
 #    - docker_container_aria2
 #    - docker_container_firefly
 #
