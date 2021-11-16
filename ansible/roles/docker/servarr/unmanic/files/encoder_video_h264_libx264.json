@@ -1,0 +1,11 @@
+{
+  "advanced": true,
+  "max_muxing_queue_size": 2048,
+  "crf": 23,
+  "preset": "slow",
+  "main_options": "",
+  "advanced_options": "-vf scale=-1:'min(720,ih)'",
+  "custom_options": "-crf 23 -preset medium -c:a aac -q:a 100",
+  "keep_container": false,
+  "dest_container": "mp4"
+}

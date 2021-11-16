@@ -1,0 +1,40 @@
+---
+
+- set_fact:  # noqa 502
+    _volumes:
+      - [ '/config', '/config' ]
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: unmanic
+    image: josh5/unmanic:latest
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+    volumes: '{{ _volumes|list + services.servarr.library_volumes|list }}'
+
+    # Some default settings
+    files:
+      # https://trac.ffmpeg.org/wiki/Scaling
+      # https://superuser.com/questions/73529/how-to-convert-wmv-to-mp4
+      - src: encoder_video_h264_libx264.json
+        dest: 'config/.unmanic/userdata/encoder_video_h264_libx264/settings.json'
+        force: false
+
+    proxy:
+      - http_port: 8888
+
+    extra:
+      cpus: 6
+      cpuset_cpus: 17,18,19,37,38,39
+      memory: 4G
+      kernel_memory: 4G
+
+      # Mitigate "set_mempolicy: Operation not permitted" error when trying to convert .mov -> h265 mp4
+      #privileged: true
+
+      # https://www.youtube.com/watch?v=S4fcR4s15OI
+      mounts:
+        - type: tmpfs
+          target: /tmp/unmanic  # Hardcoded in unmanic's source code
+          tmpfs_size: 21474836480 # 20 GB

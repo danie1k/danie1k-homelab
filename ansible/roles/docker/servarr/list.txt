@@ -1,0 +1,38 @@
+https://wiki.servarr.com/
+------------------------------------------------------------------------------
+
+Bazarr
+  A companion application to Sonarr and Radarr that manages and downloads subtitles based on your requirements.
+  https://www.bazarr.media/
+
+Jackett
+  API Support for your favorite torrent trackers.
+  https://github.com/Jackett/Jackett
+
+Lidarr
+  Music collection manager for Usenet and BitTorrent users.
+  https://lidarr.audio/
+
+Prowlarr
+  Indexer manager/proxy built on the popular arr .net/reactjs base stack to integrate with your various PVR apps.
+  https://prowlarr.com
+
+Radarr
+  https://radarr.video/
+  Movie collection manager for Usenet and BitTorrent users.
+
+Readarr
+  eBook collection manager for Usenet and BitTorrent users.
+  https://readarr.com/
+
+Sonarr
+  Sonarr is a PVR for Usenet and BitTorrent users.
+  https://sonarr.tv/
+
+Tdarr
+  Distributed Transcoding System.
+  https://tdarr.io/
+
+Unmanic
+  Tool for optimising file library.
+  https://github.com/Unmanic/unmanic

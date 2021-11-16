@@ -46,6 +46,7 @@
 
     - docker/servarr/lidarr
     - docker/servarr/tdarr
+    #- docker/servarr/unmanic
 
 #    - docker_container_aria2
 #    - docker_container_firefly
