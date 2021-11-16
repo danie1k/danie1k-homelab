@@ -1,0 +1,41 @@
+---
+
+# Task arguments/params:
+#   container_name
+#   commands
+#   (optional) ignore_errors
+
+- name: "dry/docker-exec : Assert 'container_name'"
+  assert:
+    that: [ 'container_name | default("", true) | length > 0' ]
+    fail_msg: "Missing or empty 'container_name'"
+
+- name: "dry/docker-exec : Assert 'commands'"
+  assert:
+    that: [ 'commands | default([], true) | length > 0' ]
+    fail_msg: "Missing or empty 'commands'"
+
+- name: 'dry/docker-exec : {{ container_name}} : Get container information'
+  community.docker.docker_container_info:
+    name: '{{ container_name }}'
+  register: _container_info
+
+- assert:  # noqa 502
+    that:
+      - _container_info.exists
+      - _container_info.container.State.Running
+    fail_msg: "Docker Containner '{{ container_name }}' does no exitst or is not running"
+
+- name: 'dry/docker-exec : {{ container_name}} : Run command(s)'
+  community.docker.docker_container_exec:
+    container: '{{ container_name }}'
+    command: '{{ docker_exec_command }}'
+  ignore_errors: '{{ ignore_errors | default(0, true) | bool }}'
+  with_list: '{{ commands }}'
+  loop_control:
+    loop_var: docker_exec_command
+
+- name: "dry/docker-exec : {{ container_name }} : Unset task's facts"
+  set_fact:
+    container_name:
+    ignore_errors:
