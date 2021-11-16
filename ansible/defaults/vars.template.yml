@@ -4,7 +4,6 @@ lab_domain_name: example.com
 
 unraid:
   homelab_dir: /boot/homelab  # A place where all persistent stuff will be stored
-  appdata_dir: /mnt/user/appdata
   services_data_dir: /mnt/cache/services  # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
   python_venv_dir: /mnt/cache/system/python
   tls_storage_dir: /mnt/cache/system/tls
@@ -79,6 +78,7 @@ services:
   mysql:
     static_external_ip:
   nextcloud:
+    data_dir: /mnt/user/appdata/nextcloud/data
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
     postgres_port: 5432
     postgres_dbname:
