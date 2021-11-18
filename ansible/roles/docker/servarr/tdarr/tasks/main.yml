@@ -1,0 +1,76 @@
+---
+# https://tdarr.io/docs/installation/docker
+
+
+- set_fact:  # noqa 502
+    _name: tdarr
+- set_fact:  # noqa 502
+    _ramdisk_path: '/tmp/tmpfs-{{ _name }}'
+- set_fact:  # noqa 502
+    _env:
+      serverIP: '{{ _name }}.{{ docker_config.network.internal.name }}'
+      serverPort: '8266'
+    _gid: '{{ docker_config.default_user.split(":")[1] }}'
+    _uid: '{{ docker_config.default_user.split(":")[0] }}'
+    # both the Server and the Node need to have access to the same media and transcode cache paths
+    _volumes_base:
+      - [ '/configs', '/app/configs' ]
+      - [ '/logs', '/app/logs' ]
+      - [ '/server', '/app/server' ]
+      - '{{ _ramdisk_path }}:/tmp/cache:rw'
+
+- name: Create ramdisk
+  ansible.posix.mount:
+    boot: true
+    fstype: tmpfs
+    opts: 'size=20G,uid={{ _uid }},gid={{ _gid }}'
+    path: '{{ _ramdisk_path }}'
+    src: tmpfs
+    state: mounted
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: haveagitgat/tdarr:latest
+    env: '{{ _env }}'
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+    service_data_dir: '{{ _name }}'
+    volumes: '{{ _volumes_base|list + services.servarr.library_volumes|list }}'
+
+    proxy:
+      - http_port: 8265
+
+    extra:
+      cpus: 1
+      memory: 1G
+      kernel_memory: 1G
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}_node-{{ tdarr_node_idx }}'
+    image: haveagitgat/tdarr_node:latest
+    icon: '{{ _name }}'
+    webui: false
+    env: >-2
+      {{ _env | combine({
+           "nodeID": (_name ~ "_node-" ~ tdarr_node_idx),
+           "nodeIP": (_name ~ "_node-" ~ tdarr_node_idx ~ "." ~ docker_config.network.internal.name),
+      }) }}
+    service_data_dir: '{{ _name }}'
+    volumes: '{{ _volumes_base|list + services.servarr.library_volumes|list }}'
+
+    extra:
+      cpus: '{{ services.servarr.tdarr.nodes_cpuset_cpus[tdarr_node_idx]|length }}'
+      cpuset_cpus: '{{ services.servarr.tdarr.nodes_cpuset_cpus[tdarr_node_idx] | join(",") }}'
+      memory: 4G
+      kernel_memory: 4G
+
+      # Mitigate "set_mempolicy: Operation not permitted" error when trying to convert .mov -> h265 mp4
+      #privileged: true
+
+  loop: '{{ range(services.servarr.tdarr.nodes_count)|list }}'
+  loop_control:
+    loop_var: _lorem_ipsum
+    index_var: tdarr_node_idx

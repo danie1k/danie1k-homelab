@@ -120,6 +120,14 @@ services:
     static_external_ip:
   servarr:
     library_volumes: []
+    tdarr:
+      nodes_count: 1
+      nodes_cpuset_cpus:  # Example for machine with 40 cores
+        0: [ 18, 19, 38, 39 ]
+        1: [ 16, 17, 36, 37 ]
+        2: [ 14, 15, 34, 35 ]
+        3: [ 12, 13, 32, 33 ]
+        4: [ 10, 11, 30, 31 ]
   syslog:
     address: 'udp://<hostname_or_ip>:514'
   telegraf:
