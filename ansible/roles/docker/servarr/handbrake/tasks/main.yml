@@ -1,0 +1,28 @@
+---
+# https://github.com/jlesage/docker-handbrake
+
+- set_fact:  # noqa 502
+    _volumes:
+      - [ '/config', '/config' ]
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: handbrake
+    image: jlesage/handbrake:latest
+    volumes: '{{ _volumes|list + services.servarr.library_volumes|list }}'
+
+    proxy:
+      - http_port: 5800
+
+    extra:
+      cpus: 6
+      cpuset_cpus: 17,18,19,37,38,39
+      memory: 4G
+      kernel_memory: 4G
+      privileged: true
+
+      # https://www.youtube.com/watch?v=S4fcR4s15OI
+      mounts:
+        - type: tmpfs
+          target: /output
+          tmpfs_size: 21474836480 # 20 GB

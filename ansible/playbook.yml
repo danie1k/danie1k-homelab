@@ -45,6 +45,8 @@
     - docker/apps/wiki
 
     - docker/servarr/lidarr
+    # Media transcoders
+    - docker/servarr/handbrake
     - docker/servarr/tdarr
     #- docker/servarr/unmanic
 
