@@ -8,7 +8,7 @@
 - name: Copy blackbox exporter config file
   ansible.builtin.copy:
     src: blackbox_exporter.yml
-    dest: '{{ unraid.docker_volume_base }}/prometheus/config/blackbox_exporter.yml'
+    dest: '{{ unraid.services_data_dir }}/prometheus/config/blackbox_exporter.yml'
     force: true
 
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
@@ -24,7 +24,7 @@
       - name: '{{ docker_config.network.external.name }}'
       - name: '{{ docker_config.network.internal.name }}'
     volumes:
-      - '{{ unraid.docker_volume_base }}/prometheus/config:/config:ro'
+      - '{{ unraid.services_data_dir }}/prometheus/config:/config:ro'
 
     extra:
       cpus: 0.5

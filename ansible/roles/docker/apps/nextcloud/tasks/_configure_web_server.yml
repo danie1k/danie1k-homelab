@@ -1,37 +1,18 @@
 ---
 
-# https://github.com/linuxserver/docker-wikijs
-
-- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
-  vars:
-    name: wiki
-    image: ghcr.io/linuxserver/bookstack:latest
-    env:
-      APP_URL: 'https://wiki.{{ lab_domain_name }}'
-      DB_HOST: '{{ services.bookstack.mysql_host }}'
-      DB_USER: '{{ services.bookstack.mysql_user }}'
-      DB_PASS: '{{ services.bookstack.mysql_password }}'
-      DB_DATABASE: '{{ services.bookstack.mysql_dbname }}'
-    volumes:
-      - [ '/bookstack', '/config', 'rw' ]
-
-    proxy:
-      - http_port: 80
-
-    extra:
-      cpus: 2
-      memory: 2G
-      kernel_memory: 3G
+- set_fact:  # noqa 502
+    _name: nextcloud
 
 - set_fact:  # noqa 502
-    _nginx_config_file: '{{ unraid.docker_volume_base }}/wiki/bookstack/nginx/nginx.conf'
-    _nginx_site_config_file: '{{ unraid.docker_volume_base }}/wiki/bookstack/nginx/site-confs/default'
-    _php_config_file: '{{ unraid.docker_volume_base }}/wiki/bookstack/php/www2.conf'
+    _nginx_config_file: '{{ unraid.services_data_dir }}/{{ _name }}/config/nginx/nginx.conf'
+    _nginx_site_config_file: '{{ unraid.services_data_dir }}/{{ _name }}/config/nginx/site-confs/default'
+    _php_config_file: '{{ unraid.services_data_dir }}/{{ _name }}/config/php/www2.conf'
 
 - name: "Wait for '{{ _nginx_config_file }}' file"
   wait_for:
     path: '{{ _nginx_config_file }}'
     sleep: 1
+
 - name: Tweak Nginx logging config
   ansible.builtin.lineinfile:
     path: '{{ _nginx_config_file }}'
@@ -45,20 +26,22 @@
   wait_for:
     path: '{{ _nginx_site_config_file }}'
     sleep: 1
+
 - name: Disable Nginx SSL
-  ansible.builtin.lineinfile:
+  ansible.builtin.blockinfile:
     path: '{{ _nginx_site_config_file }}'
-    regexp: '{{ item }}'
-    state: absent
-  with_list:
-    - 'listen 443 ssl'
-    - 'ssl_certificate_key'
-    - 'ssl_certificate'
+    block: |2+
+          server_name {{ _name }}.{{ lab_domain_name }};
+
+    marker: "{mark}"
+    marker_begin: "    listen 80;"
+    marker_end: "    # Add headers to serve security related headers"
 
 - name: "Wait for '{{ _php_config_file }}' file"
   wait_for:
     path: '{{ _php_config_file }}'
     sleep: 1
+
 - name: Tweak PHP logging config
   ansible.builtin.blockinfile:
     path: '{{ _php_config_file }}'

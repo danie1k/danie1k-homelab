@@ -27,7 +27,7 @@
       programs = {{ [name ~ '-'] | product(programs.keys()) | map('join') | join(',') }}
   when: 'programs.keys() | length > 1'
 
-- name: Create Supervisord config file
+- name: 'dry/supervisor : {{ name }} : Create Supervisord config file'
   ansible.builtin.copy:
     content: "{{ config_programs }}\n\n{{ config_group }}"
     dest: '{{ unraid.homelab_dir }}/supervisord/supervisor.d/{{ name }}.conf'  # `prerequisites/unraid`

@@ -1,12 +1,12 @@
 ---
 # http://supervisord.org/
 
-- name: Install Supervisord
+- name: 'supervisor : Install Supervisord'
   ansible.builtin.shell:
     cmd: '{{ unraid.python_venv_dir }}/bin/python -m pip install supervisor'
     creates: '{{ unraid.python_venv_dir }}/bin/supervisord'
 
-- name: Create directories for persistent files
+- name: 'supervisor : Create directories for persistent files'
   ansible.builtin.file:
     path: '{{ item }}'
     state: directory
@@ -14,7 +14,7 @@
     - '{{ unraid.homelab_dir }}/supervisord'
     - '{{ unraid.homelab_dir }}/supervisord/supervisor.d'
 
-- name: Copy files
+- name: 'supervisor : Copy files'
   ansible.builtin.copy:
     content: '{{ lookup("template", role_path ~ "/_supervisor/" ~ item) }}'
     dest: '{{ unraid.homelab_dir }}/supervisord/{{ item }}'
@@ -23,7 +23,7 @@
     - 'rc'
     - 'supervisord.conf'
 
-- name: Install User Scripts
+- name: 'supervisor : Install User Scripts'
   include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
   vars:
     name: 'supervisord_{{ item }}'

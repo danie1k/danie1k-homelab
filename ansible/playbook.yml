@@ -29,7 +29,6 @@
     - docker/database/influxdb
     - docker/database/mysql
     - docker/database/postgresql
-    - docker/database/redis
 
     - docker/monitoring/grafana
     - docker/monitoring/prometheus
@@ -41,23 +40,8 @@
     - docker/apps/nextcloud
     - docker/apps/wiki
 
-#    - docker_container_dns
-#    - docker_container_certbot
-#    - docker_container_ldap
-#
 #    - docker_container_aria2
 #    - docker_container_firefly
 #
-#    # =======================================================
-#    # OTHER
-#    # =======================================================
-#
-#
 #  vars:
 #    disable_meta_dependencies: true
-#
-#    _dnsmasq_ip: 10.0.100.100
-#    _dnsmasq_hostname: dns
-#
-#    _static_containers:
-#      - ldap

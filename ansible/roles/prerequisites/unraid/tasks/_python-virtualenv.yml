@@ -1,12 +1,12 @@
 ---
 # Python is needed by Ansible to work, so no need to check if Python is installed in unRAID
 
-- name: Set up Python3 virtual environment  # noqa 305
+- name: 'python-virtualenv : Set up Python3 virtual environment'  # noqa 305
   shell:
     cmd: 'python3 -m venv --copies "{{ unraid.python_venv_dir }}"'
     creates: '{{ unraid.python_venv_dir }}'
 
-- name: Install pip in virtual environment
+- name: 'python-virtualenv : Install pip in virtual environment'
   ansible.builtin.shell:
     cmd: >-
       curl https://bootstrap.pypa.io/get-pip.py -o /var/tmp/get-pip.py

@@ -8,7 +8,7 @@
     path: '{{ item }}'
     state: directory
   with_list:
-    - '{{ docker_volume_base }}/promtail'
+    - '{{ unraid.services_data_dir }}/promtail'
     - '{{ _promtail_dir }}'
 
 - name: Get latest release version number

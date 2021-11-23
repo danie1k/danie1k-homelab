@@ -1,28 +1,4 @@
 ---
-# https://github.com/bastienwirtz/homer
 
-- set_fact:  # noqa 502
-    _port: '8080'
-
-- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
-  vars:
-    name: home
-    image: b4bz/homer:latest
-    env:
-      PORT: '{{ _port }}'
-    log_driver: local
-    volumes:
-      - [ '', '/www/assets', 'rw' ]
-      - [ '/entrypoint.sh', '/entrypoint.sh', 'ro' ]
-
-    files:
-      - src: entrypoint.sh
-        dest: ''
-
-    proxy:
-      - http_port: '{{ _port }}'
-
-    extra:
-      cpus: 0.5
-      memory: 128M
-      kernel_memory: 128M
+- include_tasks: ./_heimdall.yml
+#- include_tasks: ./_homer.yml
