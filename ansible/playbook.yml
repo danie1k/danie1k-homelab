@@ -37,11 +37,13 @@
     # - docker/monitoring/prometheus_uptime
     - docker/monitoring/uptime_kuma
 
+    - docker/apps/aria2
     - docker/apps/diagrams
     - docker/apps/home
     - docker/apps/jellyfin
     - docker/apps/nextcloud
     - docker/apps/office
+    - docker/apps/torrent
     - docker/apps/wiki
 
     - docker/servarr/lidarr
@@ -50,7 +52,6 @@
     - docker/servarr/tdarr
     #- docker/servarr/unmanic
 
-#    - docker_container_aria2
 #    - docker_container_firefly
 #
 #  vars:

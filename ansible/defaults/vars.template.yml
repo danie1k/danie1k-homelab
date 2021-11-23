@@ -60,6 +60,11 @@ idrac:
   ipmi_uri: user:password@lanplus(hostname_or_ip)  # For Telegraf's `inputs.ipmi_sensor`
 
 services:
+  aria2:
+    aria2_rpc_secret: 123qwerty
+    ariang_http_auth: admin:admin
+    static_external_ip:
+    volumes: []
   authentik:
     # https://goauthentik.io/docs/installation/configuration
     authentik_secret_key:
@@ -134,6 +139,9 @@ services:
     openweathermap:
       api_key: CHANGEME
       cities: []
+  torrent:
+    static_external_ip:
+    volumes: []
   wikijs:
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
     postgres_port: 5432
@@ -142,11 +150,6 @@ services:
     postgres_password:
 
 # apps:
-#   # docker_container_aria2
-#   aria2:
-#     aria2_rpc_secret: loremipsum
-#     ariang_auth: username:password
-#     volumes: []
 #   # docker_container_firefly
 #   firefly:
 #     # https://docs.firefly-iii.org/firefly-iii/installation/docker/

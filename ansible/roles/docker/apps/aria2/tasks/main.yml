@@ -1,0 +1,33 @@
+---
+
+- set_fact:  # noqa 502
+    _name: aria2
+    _volumes:
+      - [ '/config', '/config', 'rw' ]
+      - [ '/80-patch-configure-aria2.sh', '/etc/cont-init.d/80-patch-configure-aria2.sh' ]
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: danie1k/aria2-ariang:rolling
+    env:
+      aria2Secret: '{{ services.aria2.aria2_rpc_secret }}'
+      AUTH: '{{ services.aria2.ariang_http_auth }}'
+    networks:
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: 10.0.100.104
+      - name: '{{ docker_config.network.internal.name }}'
+    volumes: '{{ _volumes|list + services.aria2.volumes|list }}'
+
+    files:
+      - src: 80-patch-configure-aria2.sh
+        dest: ''
+
+    proxy:
+      - http_port: 8080
+
+    labels:
+      # Aria2 RPC Address: https://<_name>.<lab_domain_name>/jsonrpc
+      traefik.http.routers.aria2-eighteight.rule: "Host(`{{ _name }}.{{ lab_domain_name }}`) && Path(`/jsonrpc`)"
+      traefik.http.routers.aria2-eighteight.service: "{{ _name }}-rpc@docker"
+      traefik.http.services.aria2-rpc.loadbalancer.server.port: "6800"

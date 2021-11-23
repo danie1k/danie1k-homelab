@@ -1,0 +1,20 @@
+---
+# https://docs.linuxserver.io/images/docker-deluge
+
+- set_fact: # noqa 502
+    _volumes:
+      - [ '/config', '/config', 'rw' ]
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: torrent
+    image: lscr.io/linuxserver/deluge
+    icon: deluge
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: '{{ services.torrent.static_external_ip }}'
+    volumes: '{{ _volumes|list + services.torrent.volumes|list }}'
+
+    proxy:
+      - http_port: 8112
