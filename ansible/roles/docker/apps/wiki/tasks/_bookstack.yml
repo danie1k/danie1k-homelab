@@ -1,10 +1,15 @@
 ---
 # https://github.com/linuxserver/docker-wikijs
 
+- set_fact:  # noqa 502
+    _name: wiki
+    _config_dir_name: bookstack
+
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
-    name: wiki
+    name: '{{ _name }}'
     image: ghcr.io/linuxserver/bookstack:latest
+    icon: bookstack
     env:
       APP_URL: 'https://wiki.{{ lab_domain_name }}'
       DB_HOST: '{{ services.bookstack.mysql_host }}'
@@ -12,7 +17,7 @@
       DB_PASS: '{{ services.bookstack.mysql_password }}'
       DB_DATABASE: '{{ services.bookstack.mysql_dbname }}'
     volumes:
-      - [ '/bookstack', '/config', 'rw' ]
+      - [ '/{{ _config_dir_name }}', '/config', 'rw' ]
 
     proxy:
       - http_port: 80
@@ -23,9 +28,11 @@
       kernel_memory: 3G
 
 - set_fact:  # noqa 502
-    _nginx_config_file: '{{ unraid.services_data_dir }}/wiki/bookstack/nginx/nginx.conf'
-    _nginx_site_config_file: '{{ unraid.services_data_dir }}/wiki/bookstack/nginx/site-confs/default'
-    _php_config_file: '{{ unraid.services_data_dir }}/wiki/bookstack/php/www2.conf'
+    _bookstack_host_config_dir: '{{ unraid.services_data_dir }}/{{ _name }}/{{ _config_dir_name }}'
+- set_fact:  # noqa 502
+    _nginx_config_file: '{{ _bookstack_host_config_dir }}/nginx/nginx.conf'
+    _nginx_site_config_file: '{{ _bookstack_host_config_dir }}/nginx/site-confs/default'
+    _php_config_file: '{{ _bookstack_host_config_dir }}/php/www2.conf'
 
 - name: "Wait for '{{ _nginx_config_file }}' file"
   wait_for:

@@ -5,6 +5,7 @@
   vars:
     name: wiki
     image: linuxserver/wikijs:latest
+    icon: wikijs
     networks:
       - name: '{{ docker_config.network.internal.name }}'
       - name: '{{ docker_config.network.external.name }}'  # Because Wiki.js needs access the Internet sometimes
