@@ -12,6 +12,7 @@
       GF_DATABASE_NAME: '{{ services.grafana.postgres_dbname }}'
       GF_DATABASE_USER: '{{ services.grafana.postgres_user }}'
       GF_DATABASE_PASSWORD: '{{ services.grafana.postgres_password }}'
+    log_driver: local  # Cannot view Grafana's logs through Grafana when its down
     networks:
       - name: '{{ docker_config.network.internal.name }}'
       - name: '{{ docker_config.network.external.name }}'
@@ -26,3 +27,4 @@
       cpus: 0.5
       memory: 512M
       kernel_memory: 512M
+      user: '{{ docker_config.default_user }}'
