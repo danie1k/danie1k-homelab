@@ -13,7 +13,7 @@
     networks:
       - name: '{{ docker_config.network.internal.name }}'
       - name: '{{ docker_config.network.external.name }}'
-        ipv4_address: '{{ services.torrent.static_external_ip }}'
+        ipv4_address: '{{ services.torrent.static_ip }}'
     volumes: '{{ _volumes|list + services.torrent.volumes|list }}'
 
     proxy:

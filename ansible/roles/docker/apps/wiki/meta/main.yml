@@ -2,5 +2,4 @@
 
 dependencies:  # noqa 701
   - role: prerequisites/unraid
-  - role: prerequisites/docker_internal_network
-  - role: prerequisites/docker_external_network
+  - role: prerequisites/docker_networks

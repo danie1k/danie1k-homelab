@@ -10,7 +10,7 @@
     command: influxd -config /var/lib/influxdb/influxdb.conf
     networks:
       - name: '{{ docker_config.network.external.name }}'
-        ipv4_address: '{{ services.influxdb.static_external_ip }}'
+        ipv4_address: '{{ services.influxdb.static_ip }}'
       - name: '{{ docker_config.network.internal.name }}'
     volumes:
       - [ '', '/var/lib/influxdb', 'rw' ]

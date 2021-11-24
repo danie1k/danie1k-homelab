@@ -13,8 +13,9 @@
     env:
       JELLYFIN_PublishedServerUrl: '{{ services.jellyfin.static_external_ip }}'
     networks:
+      - name: '{{ docker_config.network.iot.name }}'  # IOT net, due to DLNA
+        ipv4_address: '{{ services.jellyfin.static_ip }}'
       - name: '{{ docker_config.network.external.name }}'
-        ipv4_address: '{{ services.jellyfin.static_external_ip }}'
     volumes: '{{ _volumes|list + services.jellyfin.media_volumes_mapping|list }}'
 
     extra:

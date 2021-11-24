@@ -20,7 +20,7 @@
       PGDATA: /var/lib/pgsql/data
     networks:
       - name: '{{ docker_config.network.external.name }}'
-        ipv4_address: '{{ services.postgresql.static_external_ip }}'
+        ipv4_address: '{{ services.postgresql.static_ip }}'
       - name: '{{ docker_config.network.internal.name }}'
     volumes:
       - [ '', '/var/lib/pgsql/data', 'rw' ]

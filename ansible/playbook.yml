@@ -10,8 +10,7 @@
     # Prerequisites
     # =======================================================
     - prerequisites/unraid
-    - prerequisites/docker_external_network
-    - prerequisites/docker_internal_network
+    - prerequisites/docker_networks
 
     # =======================================================
     # UNRAID

@@ -48,6 +48,13 @@ docker_config:
         subnet:   # Subnet
         iprange:  # must not overlap with DHCP pool
         gateway:  # Gateway
+    iot:
+      name: iot
+      parent: br2
+      ipam_config:
+        subnet:   # Subnet
+        iprange:  # must not overlap with DHCP pool
+        gateway:  # Gateway
     internal:
       name: internal
       ipam_config:
@@ -63,7 +70,7 @@ services:
   aria2:
     aria2_rpc_secret: 123qwerty
     ariang_http_auth: admin:admin
-    static_external_ip:
+    static_ip:
     volumes: []
   authentik:
     # https://goauthentik.io/docs/installation/configuration
@@ -91,16 +98,16 @@ services:
     postgres_password:
   influxdb:
     url: 'http://<hostname_or_ip>:9091'   # wherever your InfluxDB instance is hosted
-    static_external_ip:
+    static_ip:
   jellyfin:
-    static_external_ip:
+    static_ip:
     media_volumes: []
   #ldap:
-  #  static_external_ip:
+  #  static_ip:
   loki:
     url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
   mysql:
-    static_external_ip:
+    static_ip:
   nextcloud:
     data_dir: /mnt/user/appdata/nextcloud/data
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
@@ -111,10 +118,12 @@ services:
     postgres_dbtableprefix:
     redis_host: 'redis.{{ docker_config.network.internal.name }}'
     redis_port: 6379
+  portainer:
+    business_license_key: false  # optional
   postgresql:
     root_username: root
     root_password:
-    static_external_ip:
+    static_ip:
   prometheus:
     blackbox:
       uptime_targets: []
@@ -122,7 +131,7 @@ services:
       server: CHANGEME
   reverse_proxy:
     traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
-    static_external_ip:
+    static_ip:
   servarr:
     library_volumes: []
     tdarr:
@@ -140,7 +149,7 @@ services:
       api_key: CHANGEME
       cities: []
   torrent:
-    static_external_ip:
+    static_ip:
     volumes: []
   wikijs:
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}'

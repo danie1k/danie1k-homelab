@@ -71,7 +71,7 @@
 #    networks:
 #      - name: '{{ docker_config.network.internal.name }}'
 #      - name: '{{ docker_config.network.external.name }}'
-#        ipv4_address: '{{ services.ldap.static_external_ip }}'
+#        ipv4_address: '{{ services.ldap.static_ip }}'
 #    env: >-2
 #      {{ _base_env | combine({
 #          "AUTHENTIK_INSECURE": services.authentik.ldap.insecure,

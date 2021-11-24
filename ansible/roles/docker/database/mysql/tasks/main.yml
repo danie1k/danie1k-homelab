@@ -13,7 +13,7 @@
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     networks:
       - name: '{{ docker_config.network.external.name }}'
-        ipv4_address: '{{ services.mysql.static_external_ip }}'
+        ipv4_address: '{{ services.mysql.static_ip }}'
       - name: '{{ docker_config.network.internal.name }}'
     volumes:
       - [ '', '/config', 'rw' ]

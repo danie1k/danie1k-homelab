@@ -1,4 +1,4 @@
 ---
 
 dependencies:  # noqa 701
-  - role: prerequisites/docker_internal_network
+  - role: prerequisites/docker_networks

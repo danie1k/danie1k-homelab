@@ -1,0 +1,6 @@
+---
+
+- block:
+    - include_tasks: ./_bridge.yml
+    - include_tasks: ./_macvlan.yml
+  when: not (disable_meta_dependencies|default(false))
