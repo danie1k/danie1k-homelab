@@ -1,6 +1,8 @@
 ---
+# https://docs.linuxserver.io/images/docker-jellyfin
 
 - set_fact:  # noqa 502
+    _name: jellyfin
     _volumes:
       - [ '/config', '/config', 'rw' ]
       - [ '/vc', '/opt/vc/lib', 'rw' ]
@@ -8,8 +10,9 @@
 
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
-    name: jellyfin
+    name: '{{ _name }}'
     image: lscr.io/linuxserver/jellyfin:latest
+    webui: 'http://{{ _name }}.{{ lab_domain_name }}:8096/'
     env:
       JELLYFIN_PublishedServerUrl: '{{ services.jellyfin.static_external_ip }}'
     networks:

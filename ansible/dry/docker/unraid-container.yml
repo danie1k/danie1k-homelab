@@ -17,6 +17,7 @@
 #   (optional) templates
 #   (optional) user
 #   (optional) volumes
+#   (optional) webui
 
 
 - name: "dry/unraid-container : {{ name }} : Assert 'name'"
@@ -51,7 +52,7 @@
         "service_data_dir": "{{ service_data_dir | default(name, true) }}",
         "volume_base": "{{ unraid.services_data_dir }}/{{ service_data_dir | default(name, true) }}",
         "webui": (
-          "{% if webui|default(1)|bool is not sameas false %}"
+          "{% if webui|default('false') != 'false' and webui|default('')|length > 0 %}"
           "{{ webui | default('https://' ~ name ~ '.' ~ lab_domain_name ~ '/') }}"
           "{% endif %}"
         ),
@@ -386,3 +387,4 @@
     templates:
     user:
     volumes:
+    webui:
