@@ -3,6 +3,7 @@
 # Task arguments/params:
 #   container_name
 #   commands
+#   (optional) commit
 #   (optional) ignore_errors
 
 - name: "dry/docker-exec : Assert 'container_name'"
@@ -35,7 +36,16 @@
   loop_control:
     loop_var: docker_exec_command
 
+- name: Commit container's changes to its image
+  ansible.builtin.shell:
+    cmd: >-
+      docker commit
+      "$(docker ps -qf 'name={{ container_name }}')"
+      "$(docker inspect --format='{% raw %}{{.Config.Image}}{% endraw %}' "{{ container_name }}")"
+  when: commit|bool
+
 - name: "dry/docker-exec : {{ container_name }} : Unset task's facts"
   set_fact:
+    commit:
     container_name:
     ignore_errors:

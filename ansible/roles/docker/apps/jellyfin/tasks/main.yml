@@ -12,9 +12,9 @@
   vars:
     name: '{{ _name }}'
     image: lscr.io/linuxserver/jellyfin:latest
-    webui: 'http://{{ _name }}.{{ lab_domain_name }}:8096/'
+    webui: 'https://{{ _name }}.{{ lab_domain_name }}/web/index.html'
     env:
-      JELLYFIN_PublishedServerUrl: '{{ services.jellyfin.static_external_ip }}'
+      JELLYFIN_PublishedServerUrl: '{{ _name }}.{{ lab_domain_name }}'
     networks:
       - name: '{{ docker_config.network.iot.name }}'  # IOT net, due to DLNA
         ipv4_address: '{{ services.jellyfin.static_ip }}'
@@ -33,4 +33,15 @@
       mounts:
         - type: tmpfs
           target: /tmp
-          tmpfs_size: 21474836480  # 20 GB
+          tmpfs_size: 10737418240  # 20 GB
+
+
+- name: Allow non-root user to bind to tcp port < 1024  # https://unix.stackexchange.com/a/10737
+  include_tasks: '{{ playbook_dir }}/dry/docker/exec.yml'
+  vars:
+    container_name: '{{ _name }}'
+    commit: true
+    commands:
+      - apt-get update
+      - apt-get install -y --no-upgrade --no-install-recommends libcap2-bin
+      - setcap cap_net_bind_service=ep /usr/lib/jellyfin/bin/jellyfin
