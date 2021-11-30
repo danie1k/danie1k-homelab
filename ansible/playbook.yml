@@ -23,6 +23,7 @@
     # DOCKER
     # =======================================================
     - docker/portainer
+    - docker/registry
     - docker/reverse_proxy
     - docker/sso
 

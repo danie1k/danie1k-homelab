@@ -132,6 +132,8 @@ services:
       uptime_targets: []
     speedtest:
       server: CHANGEME
+  registry:
+    http_secret:
   reverse_proxy:
     traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
     static_ip:

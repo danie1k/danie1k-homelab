@@ -1,0 +1,77 @@
+---
+
+- set_fact:
+    _name: docker-registry
+    _storage_path: /mnt/user/services/registry/registry
+
+- name: Persistent registry storage on non-cache drive
+  file:
+    path: '{{ _storage_path }}'
+    mode: '0774'
+    owner: '{{ docker_config.default_user.split(":")[0] }}'
+    group: '{{ docker_config.default_user.split(":")[1] }}'
+    state: directory
+
+# https://docs.docker.com/registry/configuration
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: registry:2
+    icon: _docker
+    webui: false
+    env:
+      REGISTRY_HTTP_SECRET: '{{ services.registry.http_secret }}'
+    volumes:
+      - [ '/config.yml', '/etc/docker/registry/config.yml' ]
+      - '/mnt/user/services/registry/registry:/var/lib/registry:rw'
+
+    files:
+      - src: nginx.conf
+        dest: ''
+        force: true
+    templates:
+      - src: config.yml
+        dest: ''
+        force: true
+
+    extra:
+      cpus: 2
+      memory: 1G
+      kernel_memory: 1G
+      user: '{{ docker_config.default_user }}'
+
+# https://docs.docker.com/registry/garbage-collection/
+
+- name: Install User Script
+  include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
+  vars:
+    name: '{{ _name }}-garbage-collect'
+    description: Docker Registry garbage collection
+    script: |
+      #!/bin/sh
+      docker exec {{ _name }} registry garbage-collect /etc/docker/registry/config.yml
+
+# https://github.com/Joxit/docker-registry-ui
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: docker
+    image: joxit/docker-registry-ui:latest
+    icon: _docker
+    env:
+      DELETE_IMAGES: 'true'
+      NGINX_PROXY_PASS_URL: 'http://{{ _name }}.{{ docker_config.network.internal.name }}:5000'
+      REGISTRY_TITLE: '{{ lab_domain_name }}'
+      SINGLE_REGISTRY: 'true'
+      SHOW_CONTENT_DIGEST: 'true'
+    volumes:
+      - '{{ unraid.services_data_dir }}/{{ _name }}/nginx.conf:/etc/nginx/nginx.conf:ro'
+
+    proxy:
+      - http_port: 80
+
+    extra:
+      cpus: 2
+      memory: 1G
+      kernel_memory: 1G

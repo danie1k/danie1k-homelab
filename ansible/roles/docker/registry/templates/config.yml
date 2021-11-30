@@ -1,0 +1,28 @@
+---
+# https://docs.docker.com/registry/configuration/
+version: 0.1
+
+log:
+  accesslog:
+    disabled: true
+  level: warn
+  formatter: text
+
+storage:
+  delete:
+    enabled: true
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+    Access-Control-Allow-Origin: ['http://docker.{{ docker_config.network.internal.name }}']
+    Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
+    Access-Control-Allow-Headers: ['Authorization', 'Accept']
+    Access-Control-Max-Age: [1728000]
+    Access-Control-Allow-Credentials: [true]
+    Access-Control-Expose-Headers: ['Docker-Content-Digest']
