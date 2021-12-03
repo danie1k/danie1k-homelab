@@ -1,0 +1,14 @@
+---
+
+- set_fact:  # noqa 502
+    _name: anime-catalog
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: 'docker.{{ lab_domain_name }}/{{ _name }}:20211203-02'
+    icon: anime
+    log_driver: local
+
+    proxy:
+      - http_port: 4321

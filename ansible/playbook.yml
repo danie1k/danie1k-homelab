@@ -46,6 +46,8 @@
     - docker/apps/torrent
     - docker/apps/wiki
 
+    - docker/own_apps/anime_catalog
+
     - docker/servarr/lidarr
     # Media transcoders
     - docker/servarr/handbrake
