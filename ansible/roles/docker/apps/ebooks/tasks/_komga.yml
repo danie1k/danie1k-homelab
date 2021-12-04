@@ -1,0 +1,21 @@
+---
+
+- set_fact:  # noqa 502
+    _name: komga
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: ebooks
+    image: gotson/komga:latest
+    icon: '{{ _name }}'
+    volumes:
+      - [ '/{{ _name }}', '/config', 'rw' ]
+      - '{{ services.ebooks.library_volume }}:/data'
+
+    proxy:
+      - http_port: 8080
+
+    extra:
+      user: '{{ docker_config.default_user }}'
+      memory: 2G
+      kernel_memory: 2G

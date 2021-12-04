@@ -1,0 +1,4 @@
+---
+
+#- include_tasks: ./_kavita.yml
+- include_tasks: ./_komga.yml
