@@ -11,37 +11,34 @@
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: '{{ _name }}'
-    image: lscr.io/linuxserver/jellyfin:latest
-    webui: 'https://{{ _name }}.{{ lab_domain_name }}/web/index.html'
+    image: 'linuxserver/jellyfin:latest'
+    icon: '{{ _name }}'
     env:
-      JELLYFIN_PublishedServerUrl: '{{ _name }}.{{ lab_domain_name }}'
+      JELLYFIN_PublishedServerUrl: '{{ services.jellyfin.static_ip }}'
     networks:
+      # WARNING! Jellyfin breaks down completely if connected to >1 network!
       - name: '{{ docker_config.network.iot.name }}'  # IOT net, due to DLNA
         ipv4_address: '{{ services.jellyfin.static_ip }}'
-      - name: '{{ docker_config.network.external.name }}'
     volumes: '{{ _volumes|list + services.jellyfin.media_volumes_mapping|list }}'
+
+    files:
+      - src: custom-cont-init.d
+        dest: config/
+        force: true
+      - src: custom-services.d
+        dest: config/
+        force: true
 
     extra:
       cpus: 4
       memory: 5G
       kernel_memory: 7G
 
-      # Remove healthcheck from container
-      healthcheck:
-        test: [ "NONE" ]
+      dns_servers:
+        - '{{ docker_config.network.iot.ipam_config.gateway }}'  # IOT net gateway
+
       # https://www.youtube.com/watch?v=S4fcR4s15OI
       mounts:
         - type: tmpfs
           target: /tmp
-          tmpfs_size: 10737418240  # 20 GB
-
-
-- name: Allow non-root user to bind to tcp port < 1024  # https://unix.stackexchange.com/a/10737
-  include_tasks: '{{ playbook_dir }}/dry/docker/exec.yml'
-  vars:
-    container_name: '{{ _name }}'
-    commit: true
-    commands:
-      - apt-get update
-      - apt-get install -y --no-upgrade --no-install-recommends libcap2-bin
-      - setcap cap_net_bind_service=ep /usr/lib/jellyfin/bin/jellyfin
+          tmpfs_size: 10737418240  # 10 GB
