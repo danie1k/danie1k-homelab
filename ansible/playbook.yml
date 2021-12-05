@@ -26,6 +26,7 @@
     - docker/registry
     - docker/reverse_proxy
     - docker/sso
+    - docker/static
 
     - docker/database/influxdb
     - docker/database/mysql
