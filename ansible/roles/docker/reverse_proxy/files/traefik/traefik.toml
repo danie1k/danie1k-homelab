@@ -9,7 +9,7 @@
 
   [providers.file]
     filename = "/config/dynamic.toml"
-    watch = true
+    watch = false
 
 # https://doc.traefik.io/traefik/routing/entrypoints/
 [entryPoints]
