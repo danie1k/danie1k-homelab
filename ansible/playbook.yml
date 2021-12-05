@@ -30,6 +30,7 @@
     - docker/database/influxdb
     - docker/database/mysql
     - docker/database/postgresql
+    - docker/database/sqlitebrowser
 
     - docker/monitoring/grafana
     - docker/monitoring/prometheus
