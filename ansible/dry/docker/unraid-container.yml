@@ -35,6 +35,7 @@
     __default_labels: '{{ docker_config.container_defaults.labels | default({}, true) }}'
     __default_networks:
       - name: '{{ docker_config.network.internal.name }}'
+    __default_webui: 'https://{{ name }}.{{ lab_domain_name }}/'
     __container_facts: >-2
       {
         "name": "{{ name }}",
@@ -51,11 +52,6 @@
         "default_user": "{{ user | default(docker_config.default_user, true) }}",
         "service_data_dir": "{{ service_data_dir | default(name, true) }}",
         "volume_base": "{{ unraid.services_data_dir }}/{{ service_data_dir | default(name, true) }}",
-        "webui": (
-          "{% if webui|default(False)|string|lower != 'false' and webui|default('')|string|length > 0 %}"
-          "{{ webui | default('https://' ~ name ~ '.' ~ lab_domain_name ~ '/') }}"
-          "{% endif %}"
-        ),
       }
 
 # ENVIRONMENT VARIABLES
@@ -84,6 +80,18 @@
         __container_facts
         | combine({"container_labels": (labels | default({}, true)) | combine(__default_labels)})
       }}
+
+# WEB UI
+
+- name: 'dry/unraid-container : {{ name }} : Init Web UI url'
+  set_fact:
+    __container_facts: >-2
+      {{
+        __container_facts | combine({
+          "webui": "{{ webui | default(__default_webui) }}",
+        })
+      }}
+  when: (webui|default(None) == None) or (webui is string and len(webui) > 0)
 
 
 # NETWORKS
@@ -349,7 +357,7 @@
         <Icon>{{ __container_facts.icon }}</Icon>
         <Name>{{ __container_facts.name }}</Name>
         <Repository>{{ __container_facts.image }}</Repository>
-        {% if __container_facts.webui %}<WebUI>{{ __container_facts.webui }}</WebUI>{% endif %}
+        {% if __container_facts.webui|default(False) %}<WebUI>{{ __container_facts.webui }}</WebUI>{% endif %}
       </Container>
     dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
 
