@@ -41,6 +41,7 @@
     - docker/monitoring/uptime_kuma
 
     - docker/apps/aria2
+    - docker/apps/changedetection
     - docker/apps/diagrams
     - docker/apps/ebooks
     - docker/apps/home

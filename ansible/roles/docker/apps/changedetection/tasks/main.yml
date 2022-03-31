@@ -1,0 +1,17 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: changedetection
+    image: dgtlmoon/changedetection.io:latest
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+    volumes:
+      - [ '', '/datastore', 'rw' ]
+
+    proxy:
+      - http_port: 5000
+
+    extra:
+      user: '{{ docker_config.default_user }}'
