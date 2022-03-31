@@ -139,6 +139,14 @@ services:
   reverse_proxy:
     traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
     static_ip:
+  scrutiny:
+    drives: []
+      # - /dev/sda
+    log_level: WARN  # https://github.com/sirupsen/logrus#level-logging=
+    notify:
+      # Testing notifications: curl -x POST http://hostname/api/health/notify
+      level: warn  # 'warn' or 'error'
+      urls: []  # https://containrrr.dev/shoutrrr/services/overview/
   servarr:
     library_volumes: []
     tdarr:

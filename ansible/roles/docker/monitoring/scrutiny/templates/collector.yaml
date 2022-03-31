@@ -1,0 +1,14 @@
+# https://github.com/AnalogJ/scrutiny/blob/master/example.collector.yaml
+version: 1
+
+host:
+  id: ''
+
+devices:
+
+log:
+  file: ''
+  level: {{ services.scrutiny.log_level }}
+
+api:
+  endpoint: http://127.0.0.1:{{ _port }}

@@ -1,0 +1,22 @@
+# https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml
+version: 1
+
+web:
+  listen:
+    port: {{ _port }}
+    host: 0.0.0.0
+  database:
+    location: /config/scrutiny.db
+  src:
+    frontend:
+      path: /app/scrutiny-web
+
+log:
+  file: ''
+  level: {{ services.scrutiny.log_level }}
+
+{% if services.scrutiny.notify.urls | list | length > 0 %}
+notify:
+  level: {{ services.scrutiny.notify.level }}
+  urls: {{ services.scrutiny.notify.urls }}
+{% endif %}

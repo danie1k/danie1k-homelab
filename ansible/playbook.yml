@@ -37,6 +37,7 @@
     - docker/monitoring/prometheus
     - docker/monitoring/prometheus_speedtest
     # - docker/monitoring/prometheus_uptime
+    - docker/monitoring/scrutiny
     - docker/monitoring/uptime_kuma
 
     - docker/apps/aria2
