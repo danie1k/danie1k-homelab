@@ -1,0 +1,8 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: var log size
+    script: |
+      # Increase size of /var/log (https://forums.unraid.net/topic/41848-solved-my-log-is-full-how-to-clear-it/)
+      mount -o remount,size=1G /var/log

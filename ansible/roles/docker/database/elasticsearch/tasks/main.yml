@@ -57,14 +57,3 @@
         - 'nofile:65535:65535'
         # https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docker.html#_disable_swapping
         - 'memlock:-1:-1'
-
-# https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docker.html#docker-prod-prerequisites
-- block:
-    - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
-      vars:
-        name: Docker ElasticSearch
-        script: 'sysctl -w vm.max_map_count=262144'
-      register: _elastic_kernel_settings_on_boot
-    - name: Optimize kernel settings for Redis
-      command: 'sysctl -w vm.max_map_count=262144'
-      when: _elastic_kernel_settings_on_boot.changed

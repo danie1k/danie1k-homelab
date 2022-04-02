@@ -1,0 +1,8 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Install Dasel
+    script: |
+      cp /boot/homelab/dasel_linux_amd64 /usr/bin/dasel
+      chmod +x /usr/bin/dasel
