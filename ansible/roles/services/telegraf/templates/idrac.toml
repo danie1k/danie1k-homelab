@@ -24,7 +24,7 @@
 # https://grafana.com/grafana/dashboards/13689
 
 [[inputs.ipmi_sensor]]
-  servers = [ "{{ idrac.ipmi_uri }}" ]
+  servers = [ "{{ idrac.username }}:{{ idrac.password }}@lanplus({{ idrac.host }})" ]
   interval = "30s"
   metric_version = 2
   path = "/usr/bin/ipmitool"
@@ -43,7 +43,7 @@
     replacement = "${YYYY}-${MM}-${DD} ${HH}:${mm}:${ss}"
 
 [[inputs.snmp]]
-  agents = [ "{{ idrac.snmp_uri }}" ]
+  agents = [ "{{ idrac.host }}:161" ]
   community = "public"
   name = "idrac-hosts"
   timeout = "15s"

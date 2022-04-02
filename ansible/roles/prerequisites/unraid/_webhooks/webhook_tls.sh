@@ -33,4 +33,10 @@ do
   ln -rsfv ./${fname} "{{ unraid.tls_storage_dir }}/${fname}"
 done
 
+
+# https://www.dell.com/support/kbdoc/en-us/000120158/dell-poweredge-how-to-import-an-externally-created-custom-certificate-and-private-key-into-the-idrac
+racadm -r '{{ idrac.host }}' -u '{{ idrac.username }}' -p '{{ idrac.password }}' sslkeyupload  -t 1 -f ./privkey.pem
+racadm -r '{{ idrac.host }}' -u '{{ idrac.username }}' -p '{{ idrac.password }}' sslcertupload -t 1 -f ./cert.pem
+racadm -r '{{ idrac.host }}' -u '{{ idrac.username }}' -p '{{ idrac.password }}' racreset soft
+
 docker restart traefik &

@@ -70,8 +70,9 @@ docker_config:
         gateway:  # Gateway
 
 idrac:
-  snmp_uri: hostname_or_ip:161                     # For Telegraf's `inputs.snmp`
-  ipmi_uri: user:password@lanplus(hostname_or_ip)  # For Telegraf's `inputs.ipmi_sensor`
+  host:
+  username:
+  password:
 
 services:
   aria2:

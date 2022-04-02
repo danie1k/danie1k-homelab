@@ -1,0 +1,12 @@
+---
+# https://www.dell.com/support/home/pl-pl/drivers/driversdetails?driverid=0992n
+# https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=dell-idractools
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Install Dell tools
+    script: |
+      cp -vf /boot/homelab/dell/idracadm7 /usr/bin/racadm
+      cp -vf /boot/homelab/dell/libargtable2.so.0.1.8 /usr/lib64/libargtable2.so.0
+
+      chmod +x /usr/bin/racadm
