@@ -24,6 +24,10 @@ unraid:
     rsync:
       ssh_key: /etc/ssh/ssh_host_rsa_key
       ssh_target: johndoe@example.com
+  webhooks:
+    tls:
+      pfsense_hostname:
+      cert_descr:
 
 docker_config:
   # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html

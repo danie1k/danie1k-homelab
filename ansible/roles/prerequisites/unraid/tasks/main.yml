@@ -12,5 +12,6 @@
     - include_tasks: '{{ role_path }}/_docker_webui_url/task.yml'
     - include_tasks: '{{ role_path }}/_hddtemp/task.yml'
     - include_tasks: '{{ role_path }}/_supervisor/task.yml'
+    - include_tasks: '{{ role_path }}/_webhooks/task.yml'
 
   when: not (disable_meta_dependencies|default(false))

@@ -1,0 +1,16 @@
+--- rc.nginx
++++ rc.nginx
+@@ -256,6 +256,13 @@
+ 	    location = /robots.txt {
+ 	        allow all;
+ 	    }
++ 	    #
++ 	    # webhook plugin, no auth needed
++ 	    #
++	    location = /plugins/webhooks.php {
++                include fastcgi_params;
++	        allow all;
++	    }
+ 	    #
+ 	    # proxy update.htm and logging.htm scripts to emhttpd listening on local socket
+ 	    #
