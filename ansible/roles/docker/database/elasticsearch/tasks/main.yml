@@ -1,0 +1,70 @@
+---
+# https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docker.html
+# https://github.com/d8sychain/docker-elasticsearch
+
+# $ docker exec -it elasticsearch elasticsearch-setup-passwords interactive
+
+- set_fact:  # noqa 502
+    _name: elasticsearch
+    _memory: 8  # in GB
+    _path_data: /usr/share/elasticsearch/data
+    _path_logs: /var/log/elasticsearch
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.2
+    webui: false
+    env:
+      path.data: '{{ _path_data }}'
+      path.logs: '{{ _path_logs }}'
+      # https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docker.html#_disable_swapping
+      bootstrap.memory_lock: 'true'
+      # https://www.elastic.co/guide/en/elasticsearch/reference/7.17/bootstrap-checks.html#single-node-discovery
+      discovery.type: single-node
+      # https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docker.html#docker-set-heap-size
+      ES_JAVA_OPTS: '-Xms{{ (_memory*0.5) | round | int }}g -Xmx{{ (_memory*0.5) | round | int }}g'
+    networks:
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: '{{ services.elasticsearch.static_ip }}'
+      - name: '{{ docker_config.network.internal.name }}'
+        aliases: [ '{{ _name }}.{{ lab_domain_name }}' ]
+    volumes:
+      - [ '/config', '/usr/share/elasticsearch/config', 'rw' ]
+      - [ '/data', '{{ _path_data }}', 'rw' ]
+      - [ '/logs', '{{ _path_logs }}', 'rw' ]
+
+    files:
+      - src: '{{ role_path }}/files/'
+        dest: config/
+        force: true
+    templates:
+      - src: elasticsearch.yml
+        dest: config/elasticsearch.yml
+        force: true
+      - src: jvm.options
+        dest: config/jvm.options
+        force: true
+
+    extra:
+      cpus: 4
+      memory: '{{ _memory }}G'
+      kernel_memory: '{{ (_memory*1.5) | round | int }}G'
+      user: '{{ docker_config.default_user }}'
+
+      ulimits:
+        # https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docker.html#_increase_ulimits_for_nofile_and_nproc
+        - 'nofile:65535:65535'
+        # https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docker.html#_disable_swapping
+        - 'memlock:-1:-1'
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docker.html#docker-prod-prerequisites
+- block:
+    - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+      vars:
+        name: Docker ElasticSearch
+        script: 'sysctl -w vm.max_map_count=262144'
+      register: _elastic_kernel_settings_on_boot
+    - name: Optimize kernel settings for Redis
+      command: 'sysctl -w vm.max_map_count=262144'
+      when: _elastic_kernel_settings_on_boot.changed

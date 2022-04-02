@@ -96,6 +96,8 @@ services:
     key_pass:
   ebooks:
     library_volume:
+  elasticsearch:
+    static_ip:
   grafana:
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}:5432'
     postgres_dbname:

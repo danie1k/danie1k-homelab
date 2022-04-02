@@ -1,0 +1,11 @@
+cluster.name: {{ _name }}.{{ lab_domain_name }}
+node.name: node-01
+network.host: 0.0.0.0
+
+discovery.type: single-node
+
+path.data: {{ _path_data }}
+path.logs: {{ _path_logs }}
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/7.17/configuring-stack-security.html
+xpack.security.enabled: true

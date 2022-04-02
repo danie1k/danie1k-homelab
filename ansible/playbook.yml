@@ -28,6 +28,7 @@
     - docker/sso
     - docker/static
 
+    - docker/database/elasticsearch
     - docker/database/influxdb
     - docker/database/mysql
     - docker/database/postgresql
