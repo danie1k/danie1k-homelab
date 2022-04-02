@@ -19,7 +19,7 @@
     icon: redis
     name: '{{ parent_container_name }}-redis'
     service_data_dir: '{{ parent_container_name }}/redis'
-    image: redis:alpine
+    image: '{{ redis_image | default("redis:alpine") }}'
 
     volumes:
       - [ '/data', '/data', 'rw' ]
@@ -34,6 +34,7 @@
       cpus: '{{ cpus }}'
       memory: '{{ memory }}'
       kernel_memory: '{{ memory }}'
+      user: '{{ docker_config.default_user }}'
       sysctls:
         net.core.somaxconn: '{{ maxconn }}'
 

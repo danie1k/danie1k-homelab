@@ -168,6 +168,14 @@ services:
   torrent:
     static_ip:
     volumes: []
+  tubearchivist:
+    elasticsearch:
+      user: elastic
+      password:
+    storage:
+      downloaded_videos: /mnt/user/change/me
+    username: tubearchivist
+    password: verysecret
   wikijs:
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
     postgres_port: 5432

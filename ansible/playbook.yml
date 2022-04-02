@@ -50,6 +50,7 @@
     - docker/apps/nextcloud
     - docker/apps/office
     - docker/apps/torrent
+    - docker/apps/tubearchivist
     - docker/apps/wiki
 
     - docker/own_apps/anime_catalog

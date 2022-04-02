@@ -62,10 +62,16 @@
       {{
         __container_facts
         | combine({"environment": (env | default({}, true)) | combine({
+          "HOST_UID": __container_facts.container_owner,
           "PUID": __container_facts.container_owner,
           "USER_ID": __container_facts.container_owner,
-          "PGID": __container_facts.container_group,
+          "USR_ID": __container_facts.container_owner,
+
           "GROUP_ID": __container_facts.container_group,
+          "GRP_ID": __container_facts.container_group,
+          "HOST_GID": __container_facts.container_group,
+          "PGID": __container_facts.container_group,
+
           "UMASK": "000",
           "TZ": docker_config.container_timezone | default("UTC", true)
         }) })

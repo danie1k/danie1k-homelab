@@ -1,0 +1,55 @@
+---
+# https://github.com/bbilly1/tubearchivist/
+
+# $ docker exec -it elasticsearch elasticsearch-setup-passwords interactive
+
+- set_fact:  # noqa 502
+    _name: tube
+    _port: 8000
+
+# REDIS
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/redis.yml'
+  vars:
+    redis_image: redislabs/rejson:latest
+    parent_container_name: '{{ _name }}'
+
+# MAIN SERVER
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: bbilly1/tubearchivist:latest
+    icon: tubearchivist
+    env:
+      # ElasticSearch -- ansible/roles/docker/database/elasticsearch
+      ES_URL: 'http://elasticsearch.{{ lab_domain_name }}:9200'
+      ELASTIC_USER: '{{ services.tubearchivist.elasticsearch.username }}'
+      ELASTIC_PASSWORD: '{{ services.tubearchivist.elasticsearch.password }}'
+      # Redis
+      REDIS_HOST: '{{ redis_host }}'
+      # Tube Archivist
+      TA_USERNAME: '{{ services.tubearchivist.username }}'
+      TA_PASSWORD: '{{ services.tubearchivist.password }}'
+      TA_PORT: '{{ _port | string }}'
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+
+    volumes:
+      - [ '/uwsgi.ini', '/app/uwsgi.ini', 'ro' ]
+      - [ '/cache', '/cache', 'rw' ]
+      - '{{ services.tubearchivist.storage.downloaded_videos }}:/youtube:rw'
+
+    files:
+      - src: uwsgi.ini
+        dest: ''
+        force: true
+
+    proxy:
+      - http_port: '{{ _port }}'
+
+    extra:
+      cpus: 4
+      memory: 2G
+      kernel_memory: 2G
