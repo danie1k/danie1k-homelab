@@ -1,27 +1,28 @@
 ---
 
 - set_fact:
-    _directory: '{{ unraid.homelab_dir }}/docker_icons'
+    _directory: '{{ unraid.homelab_dir }}/docker_improvements'
     icons:
       docker.png: question.png
       docker-image.png: image.png
 
-- name: 'docker_icons : Create directory for persistent files'
+- name: 'docker_improvements : Create directory for persistent files'
   ansible.builtin.file:
     path: '{{ _directory }}'
     state: directory
 
-- name: 'docker_icons : Copy files to persistent storage'
+- name: 'docker_improvements : Copy files to persistent storage'
   ansible.builtin.copy:
-    src: '{{ role_path }}/_docker_icons/{{ item }}'
+    src: '{{ role_path }}/_docker_improvements/{{ item }}'
     dest: '{{ _directory }}/{{ item }}'
     force: true
   with_list:
     - docker.png
     - docker-image.png
     - docker-image-icon.patch
+    - docker-webui-url.patch
 
-- name: 'docker_icons : Copy icons to persistent storage'
+- name: 'docker_improvements : Copy icons to persistent storage'
   ansible.builtin.copy:
     src: '{{ _directory }}/{{ item.key }}'
     remote_src: true
@@ -31,11 +32,16 @@
 
 - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
-    name: Docker Icons
+    name: Install Docker Improvements
     script: |
+      # Icons
       {% for key, value in icons.items() %}
       cp -vf '{{ _directory }}/{{ key }}' '/usr/local/emhttp/plugins/dynamix.docker.manager/images/{{ value }}'
       {% endfor %}
 
       fromdos < '{{ _directory }}/docker-image-icon.patch' > '{{ unraid.boot_tmp_dir }}'/docker-image-icon.patch
       patch --verbose /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerContainers.php '{{ unraid.boot_tmp_dir }}'/docker-image-icon.patch
+
+      # WebUI URL
+      fromdos < '{{ _directory }}/docker-webui-url.patch' > '{{ unraid.boot_tmp_dir }}'/docker-webui-url.patch
+      patch --verbose /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php '{{ unraid.boot_tmp_dir }}'/docker-webui-url.patch

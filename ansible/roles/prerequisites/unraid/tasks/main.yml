@@ -10,8 +10,7 @@
     - include_tasks: _slow-down-fans.yml
     - include_tasks: _sysctl.yml
 
-    - include_tasks: _docker_icons/task.yml
-    - include_tasks: _docker_webui_url/task.yml
+    - include_tasks: _docker_improvements/task.yml
     - include_tasks: _hddtemp/task.yml
     - include_tasks: _scripts/main.yml
     - include_tasks: _supervisor/task.yml
