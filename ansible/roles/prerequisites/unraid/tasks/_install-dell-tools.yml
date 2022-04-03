@@ -9,4 +9,4 @@
       cp -vf /boot/homelab/dell/idracadm7 /usr/bin/racadm
       cp -vf /boot/homelab/dell/libargtable2.so.0.1.8 /usr/lib64/libargtable2.so.0
 
-      chmod +x /usr/bin/racadm
+      chmod -v +x /usr/bin/racadm

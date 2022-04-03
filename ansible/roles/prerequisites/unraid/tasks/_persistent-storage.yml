@@ -1,25 +1,63 @@
 ---
 
-- name: 'persistent-storage: Create storage directory for persistent files'
-  ansible.builtin.file:
-    path: '{{ unraid.homelab_dir }}'
-    state: directory
+- set_fact:
+    _global_env_variables: |2
+      HOMELAB_DIR={{ unraid.homelab_dir }}
+      SERVICES_DATA_DIR={{ unraid.services_data_dir }}
+      PYTHON_VENV_DIR={{ unraid.python_venv_dir }}
+      TLS_STORAGE_DIR={{ unraid.tls_storage_dir }}
 
-- name: 'persistent-storage: Create homelab boot shell script file for unRAID start up'
+      IDRAC_HOST={{ idrac.host }}
+      IDRAC_USERNAME={{ idrac.username }}
+      IDRAC_PASSWORD={{ idrac.password }}
+
+- name: 'persistent-storage : write .env file'
+  ansible.builtin.copy:
+    content: '{{ _global_env_variables }}'
+    dest: '{{ unraid.dotenv }}'
+    force: true
+
+- name: 'persistent-storage : Create storage directories'
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+  with_list:
+    - '{{ unraid.homelab_dir }}'
+    - '{{ unraid.scripts_dir }}'
+
+- name: 'persistent-storage : Create homelab boot shell script file for unRAID start up'
   ansible.builtin.copy:
     content: |
       #!/bin/bash
     dest: '{{ unraid.homelab_dir }}/boot.sh'
     force: false
 
-- name: 'persistent-storage: Install homelab boot shell script in /boot/config/go'
+- name: 'persistent-storage : Install homelab boot shell script in /boot/config/go'
   ansible.builtin.blockinfile:
     content: |
-      if [ -f "{{ unraid.homelab_dir }}/boot.sh" ]; then
-        logger 'Starting {{ unraid.homelab_dir }}/boot.sh'
-        fromdos < "{{ unraid.homelab_dir }}/boot.sh" > /var/tmp/ansible_homelab_boot.sh
-        chmod +x /var/tmp/ansible_homelab_boot.sh
-        /var/tmp/ansible_homelab_boot.sh
+      if [ -f '{{ unraid.dotenv}}' ]; then
+        export $(cat '{{ unraid.dotenv }}' {% raw %}| grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}'){% endraw %}{{''}}
+
+        cat '{{ unraid.dotenv }}' >> /etc/environment
       fi
+
+      shopt -s nullglob
+      mkdir -p '{{ unraid.boot_tmp_dir }}'
+
+      function cleanup() {
+        rm -rf '{{ unraid.boot_tmp_dir }}'/*
+        shopt -u nullglob
+      }
+      trap cleanup EXIT
+
+      for fname in '{{ unraid.scripts_dir }}'/boot_*.sh
+      do
+        tmp_fname="{{ unraid.boot_tmp_dir }}/$(basename "${fname}")"
+        fromdos < "${fname}" > "${tmp_fname}"
+        chmod +x "${tmp_fname}"
+        /bin/bash "${tmp_fname}"
+      done
+
+      shopt -u nullglob
     dest: /boot/config/go
     marker: "# {mark} ANSIBLE_HOMELAB"

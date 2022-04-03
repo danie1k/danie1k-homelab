@@ -4,5 +4,5 @@
   vars:
     name: Install Dasel
     script: |
-      cp /boot/homelab/dasel_linux_amd64 /usr/bin/dasel
-      chmod +x /usr/bin/dasel
+      cp -fv /boot/homelab/dasel_linux_amd64 /usr/bin/dasel
+      chmod -v +x /usr/bin/dasel

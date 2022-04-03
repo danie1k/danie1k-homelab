@@ -29,8 +29,8 @@
 
 - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
-    name: hddtemp
+    name: hddtemp service
     script: |
       fromdos < '{{ unraid.homelab_dir }}/hddtemp/rc' > /etc/rc.d/rc.hddtemp
-      chmod +x /etc/rc.d/rc.hddtemp
+      chmod -v +x /etc/rc.d/rc.hddtemp
       /etc/rc.d/rc.hddtemp start

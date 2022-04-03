@@ -14,9 +14,9 @@
 
 - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
-    name: Sanoid
+    name: Configure Sanoid
     script: |
-      mkdir -p /etc/sanoid/
+      mkdir -pv /etc/sanoid/
       fromdos < '{{ unraid.homelab_dir }}/unraid_backups/sanoid.conf' > /etc/sanoid/sanoid.conf
 
       (

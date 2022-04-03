@@ -3,11 +3,11 @@
 - block:
     - include_tasks: _persistent-storage.yml
 
-    - include_tasks: _install_dasel.yml
-    - include_tasks: _install_dell_tools.yml
-    - include_tasks: _log_dir_size.yml
+    - include_tasks: _install-dasel.yml
+    - include_tasks: _install-dell-tools.yml
+    - include_tasks: _log-dir-size.yml
     - include_tasks: _python-virtualenv.yml
-    - include_tasks: _slow_down_fans.yml
+    - include_tasks: _slow-down-fans.yml
     - include_tasks: _sysctl.yml
 
     - include_tasks: '{{ role_path }}/_docker_icons/task.yml'

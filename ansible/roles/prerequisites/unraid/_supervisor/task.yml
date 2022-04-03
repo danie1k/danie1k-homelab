@@ -30,9 +30,8 @@
     description: '{{ item | capitalize }} Supervisord daemon'
     script: |
       #!/bin/sh
-      fromdos < '{{ unraid.homelab_dir }}/supervisord/rc' > /tmp/rc.supervisord
-      /bin/sh /tmp/rc.supervisord {{ item }}
-      rm -f /tmp/rc.supervisord
+      fromdos < '{{ unraid.homelab_dir }}/supervisord/rc' > '{{ unraid.boot_tmp_dir }}'/rc.supervisord
+      /bin/sh '{{ unraid.boot_tmp_dir }}'/rc.supervisord {{ item }}
   with_list:
     - restart
     - start

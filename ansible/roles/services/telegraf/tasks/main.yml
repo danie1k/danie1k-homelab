@@ -59,7 +59,7 @@
     name: Telegraf
     script: |
       cp -vf '{{ latest_version_file_path }}' /usr/bin/telegraf
-      chmod +x /usr/bin/telegraf
+      chmod -v +x /usr/bin/telegraf
 
 - name: Set up Supervisord config
   include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'

@@ -62,7 +62,7 @@
         /etc/rc.d/rc.rsyslogd reload
       fi
       cp -vf '{{ latest_version_file_path }}' /usr/bin/promtail
-      chmod +x /usr/bin/promtail
+      chmod -v +x /usr/bin/promtail
 
 - include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'
   vars:

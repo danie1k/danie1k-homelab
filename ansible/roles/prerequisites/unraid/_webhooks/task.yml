@@ -22,9 +22,8 @@
   vars:
     name: Add webhook to nginx
     script: |
-      fromdos < '{{ _directory }}/rc.nginx.patch' > /tmp/rc.nginx.patch
-      patch /etc/rc.d/rc.nginx /tmp/rc.nginx.patch
-      rm -f /tmp/rc.nginx.patch
+      fromdos < '{{ _directory }}/rc.nginx.patch' > '{{ unraid.boot_tmp_dir }}'/rc.nginx.patch
+      patch --verbose /etc/rc.d/rc.nginx '{{ unraid.boot_tmp_dir }}'/rc.nginx.patch
 
       fromdos < '{{ _directory }}/webhook.php' > /usr/local/emhttp/plugins/webhook.php
 

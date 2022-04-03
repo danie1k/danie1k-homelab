@@ -37,6 +37,5 @@
       cp -vf '{{ _directory }}/{{ key }}' '/usr/local/emhttp/plugins/dynamix.docker.manager/images/{{ value }}'
       {% endfor %}
 
-      fromdos < '{{ _directory }}/docker-image-icon.patch' > /tmp/docker-image-icon.patch
-      patch /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerContainers.php /tmp/docker-image-icon.patch
-      rm -f /tmp/docker-image-icon.patch
+      fromdos < '{{ _directory }}/docker-image-icon.patch' > '{{ unraid.boot_tmp_dir }}'/docker-image-icon.patch
+      patch --verbose /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerContainers.php '{{ unraid.boot_tmp_dir }}'/docker-image-icon.patch

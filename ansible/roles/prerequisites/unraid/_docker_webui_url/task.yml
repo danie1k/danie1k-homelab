@@ -19,6 +19,5 @@
   vars:
     name: Docker WebUI URL
     script: |
-      fromdos < '{{ _directory }}/{{ _patch_file }}' > /tmp/{{ _patch_file }}
-      patch /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php /tmp/{{ _patch_file }}
-      rm -f /tmp/{{ _patch_file }}
+      fromdos < '{{ _directory }}/{{ _patch_file }}' > '{{ unraid.boot_tmp_dir }}'/{{ _patch_file }}
+      patch --verbose /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php '{{ unraid.boot_tmp_dir }}'/{{ _patch_file }}

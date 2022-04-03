@@ -4,6 +4,9 @@ lab_domain_name: example.com
 
 unraid:
   homelab_dir: /boot/homelab  # A place where all persistent stuff will be stored
+  scripts_dir: /boot/homelab/_scripts
+  boot_tmp_dir: /tmp/homelab_boot
+  dotenv: /boot/homelab/.env
   services_data_dir: /mnt/cache/services  # If you'll use `/mnt/user/`, you might face issues with symlinks, for example: https://gitlab.com/gitlab-org/gitlab-development-kit/-/issues/20
   python_venv_dir: /mnt/cache/system/python
   tls_storage_dir: /mnt/cache/system/tls
