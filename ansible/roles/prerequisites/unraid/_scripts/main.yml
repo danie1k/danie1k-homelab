@@ -6,6 +6,7 @@
       - reattach_docker_networks.sh
       - slow_down_idrac_fans.sh
       - update_idrac_tls.sh
+      - zfs_mount.sh
 
 - name: 'scripts : Copy files to persistent storage'
   ansible.builtin.template:

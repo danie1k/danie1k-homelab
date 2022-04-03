@@ -32,6 +32,21 @@ unraid:
       pfsense_hostname:
       cert_descr:
 
+zfs:
+  chown: 99:100  # nobody
+  mountpoint: /opt/zfs
+  pool_name:
+  encrypted_dataset_name:
+  nfs_share:
+    datasets: []
+    options:
+      - all_squash
+      - anonuid=99  # nobody
+      - anongid=100  # nobody
+      - async
+      - no_subtree_check
+      - root_squash
+
 docker_config:
   # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html
   container_defaults:
