@@ -1,0 +1,20 @@
+--- rc.docker
++++ rc.docker
+@@ -428,6 +428,8 @@
+ start)
+   start_docker
+   start_network
++  echo "REATTACH DOCKER NETWORKS..."
++  /bin/bash /usr/bin/reattach_docker_networks.sh 1>/dev/null 2>&1
+   start_containers 1>/dev/null 2>&1 &
+   disown
+   ;;
+@@ -446,6 +448,8 @@
+   sleep 1
+   start_docker
+   start_network
++  echo "REATTACH DOCKER NETWORKS..."
++  /bin/bash /usr/bin/reattach_docker_networks.sh 1>/dev/null 2>&1
+   start_containers 1>/dev/null 2>&1 &
+   disown
+   ;;

@@ -3,8 +3,9 @@
 - set_fact:  # noqa 502
     _scripts:
       - get_tls_from_pfsense.sh
-      - update_idrac_tls.sh
+      - reattach_docker_networks.sh
       - slow_down_idrac_fans.sh
+      - update_idrac_tls.sh
 
 - name: 'scripts : Copy files to persistent storage'
   ansible.builtin.template:

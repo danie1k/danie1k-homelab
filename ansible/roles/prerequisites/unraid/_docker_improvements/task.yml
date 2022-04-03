@@ -21,6 +21,7 @@
     - docker-image.png
     - docker-image-icon.patch
     - docker-webui-url.patch
+    - reattach-docker-networks.patch
 
 - name: 'docker_improvements : Copy icons to persistent storage'
   ansible.builtin.copy:
@@ -41,6 +42,10 @@
 
       fromdos < '{{ _directory }}/docker-image-icon.patch' > '{{ unraid.boot_tmp_dir }}'/docker-image-icon.patch
       patch --verbose /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerContainers.php '{{ unraid.boot_tmp_dir }}'/docker-image-icon.patch
+
+      # Reattach Docker Networks
+      fromdos < '{{ _directory }}/reattach-docker-networks.patch' > '{{ unraid.boot_tmp_dir }}'/reattach-docker-networks.patch
+      patch --verbose /etc/rc.d/rc.docker '{{ unraid.boot_tmp_dir }}'/reattach-docker-networks.patch
 
       # WebUI URL
       fromdos < '{{ _directory }}/docker-webui-url.patch' > '{{ unraid.boot_tmp_dir }}'/docker-webui-url.patch
