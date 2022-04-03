@@ -7,7 +7,7 @@
   changed_when: false
 
 - name: Copy Sanoid config to persistent storage
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: sanoid.conf
     dest: '{{ unraid.homelab_dir }}/unraid_backups/sanoid.conf'
     force: true
