@@ -3,12 +3,12 @@
 - set_fact:
     _directory: '{{ unraid.homelab_dir }}/webhooks'
 
-- name: 'webhooks: Create directory for persistent files'
+- name: 'webhooks : Create directory for persistent files'
   ansible.builtin.file:
     path: '{{ _directory }}'
     state: directory
 
-- name: 'webhooks: Copy file to persistent storage'
+- name: 'webhooks : Copy files to persistent storage'
   ansible.builtin.template:
     src: '{{ role_path }}/_webhooks/{{ item }}'
     dest: '{{ _directory }}/{{ item }}'
@@ -16,7 +16,7 @@
   with_list:
     - rc.nginx.patch
     - webhook.php
-    - webhook_tls.sh
+    - webhook_handler.sh
 
 - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
@@ -26,5 +26,6 @@
       patch --verbose /etc/rc.d/rc.nginx '{{ unraid.boot_tmp_dir }}'/rc.nginx.patch
 
       fromdos < '{{ _directory }}/webhook.php' > /usr/local/emhttp/plugins/webhook.php
+      fromdos < '{{ _directory }}/webhook_handler.sh' > /usr/local/emhttp_webhook_handler.sh
 
       /etc/rc.d/rc.nginx restart
