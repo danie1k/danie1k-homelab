@@ -16,4 +16,6 @@
     - include_tasks: _supervisor/task.yml
     - include_tasks: _webhooks/task.yml
 
+    - include_tasks: _zfs/task.yml
+
   when: not (disable_meta_dependencies | bool | default(false))

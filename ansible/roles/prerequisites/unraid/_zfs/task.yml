@@ -1,0 +1,13 @@
+---
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: ZFS scrub schedule
+    script: |
+      (
+        crontab -l 2>/dev/null
+        echo
+        echo "# ZFS scrub"
+        echo "{{ zfs.scrub_cron_expression }} zpool scrub {{ zfs.pool_name }}"
+      ) | crontab -
+  when: zfs.scrub_cron_expression | length > 0

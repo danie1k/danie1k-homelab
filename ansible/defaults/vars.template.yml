@@ -46,6 +46,7 @@ zfs:
       - async
       - no_subtree_check
       - root_squash
+  scrub_cron_expression:
 
 docker_config:
   # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html
