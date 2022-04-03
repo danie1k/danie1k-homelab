@@ -28,21 +28,21 @@
     [entryPoints.https.http.tls]
 
   # TCP
-  [entryPoints.tcp1]
-    address = ":9091/tcp"
-  [entryPoints.tcp2]
-    address = ":9092/tcp"
-  [entryPoints.tcp3]
-    address = ":9093/tcp"
-  [entryPoints.tcp4]
-    address = ":9094/tcp"
-  [entryPoints.tcp5]
-    address = ":9095/tcp"
-  [entryPoints.tcp6]
-    address = ":9096/tcp"
-  [entryPoints.tcp7]
-    address = ":9097/tcp"
-  [entryPoints.tcp8]
-    address = ":9098/tcp"
-  [entryPoints.tcp9]
-    address = ":9099/tcp"
+  # [entryPoints.tcp1]
+  #   address = ":9091/tcp"
+  # [entryPoints.tcp2]
+  #   address = ":9092/tcp"
+  # [entryPoints.tcp3]
+  #   address = ":9093/tcp"
+  # [entryPoints.tcp4]
+  #   address = ":9094/tcp"
+  # [entryPoints.tcp5]
+  #   address = ":9095/tcp"
+  # [entryPoints.tcp6]
+  #   address = ":9096/tcp"
+  # [entryPoints.tcp7]
+  #   address = ":9097/tcp"
+  # [entryPoints.tcp8]
+  #   address = ":9098/tcp"
+  # [entryPoints.tcp9]
+  #   address = ":9099/tcp"
