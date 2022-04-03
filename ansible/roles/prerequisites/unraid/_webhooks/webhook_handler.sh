@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [ -f '{{ unraid.dotenv}}' ]; then
+  export $(cat '{{ unraid.dotenv }}' {% raw %}| grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}'){% endraw %}{{''}}
+fi
+
 readonly ACTION="${1}"
 
 if [[ "${ACTION}" == "tls" ]]
