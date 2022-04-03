@@ -16,6 +16,7 @@
     # UNRAID
     # =======================================================
     - unraid/backups
+    - services/influxdb_1.8
     - services/promtail
     - services/telegraf
 
@@ -29,7 +30,6 @@
     - docker/static
 
     - docker/database/elasticsearch
-    - docker/database/influxdb
     - docker/database/mysql
     - docker/database/postgresql
     - docker/database/sqlitebrowser
