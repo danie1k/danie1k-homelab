@@ -1,0 +1,42 @@
+---
+# https://github.com/vladgh/docker_base_images/tree/main/minidlna
+
+- set_fact:  # noqa 502
+    _minidlna_log_types:
+      - artwork
+      - database
+      - general
+      - http
+      - inotify
+      - metadata
+      - scanner
+      - ssdp
+      - tivo
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: dlna
+    image: vladgh/minidlna:latest
+    env:
+      FORCE_SCAN: 'false'
+      FORCE_REBUILD: 'false'
+      # https://manpages.ubuntu.com/manpages/bionic/man5/minidlna.conf.5.html
+      MINIDLNA_DB_DIR: /minidlna/cache
+      MINIDLNA_INOTIFY: 'no'
+      MINIDLNA_LOG_DIR: /minidlna/logs
+      MINIDLNA_LOG_LEVEL: '{{ _minidlna_log_types | join("=" ~ services.dlna.log_level ~ ",") }}={{services.dlna.log_level}}'
+      # TODO: MINIDLNA_MEDIA_DIR_...
+      MINIDLNA_NETWORK_INTERFACE: eth0
+      # https://sudonull.com/post/131557-Correctly-configure-the-DLNA-server-for-Samsung-TVs
+      MINIDLNA_NOTIFY_INTERVAL: '10000'
+    networks:
+      - name: '{{ docker_config.network.iot.name }}'
+        ipv4_address: '{{ services.dlna.static_ip }}'
+
+    volumes:
+      # TODO
+
+    extra:
+      cpus: 4
+      memory: 5G
+      kernel_memory: 7G

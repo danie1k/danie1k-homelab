@@ -1,8 +1,0 @@
-#!/usr/bin/with-contenv bash
-set -e
-
-cp -vf /config/custom-services.d/nginx-files/default /etc/nginx/sites-enabled/default
-cp -vf /config/custom-services.d/nginx-files/nginx.conf /etc/nginx/nginx.conf
-
-exec 2>&1
-exec nginx

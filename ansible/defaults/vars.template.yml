@@ -118,6 +118,10 @@ services:
   diagrams:
     keystore_pass:
     key_pass:
+  dlna:
+    log_level:
+    static_ip:
+    media_volumes: []
   ebooks:
     library_volume:
   elasticsearch:
