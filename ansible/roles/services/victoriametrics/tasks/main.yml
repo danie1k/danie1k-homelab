@@ -1,0 +1,45 @@
+---
+
+- set_fact:
+    homelab_storage_dir_name: victoriametrics
+    vm_log_level: WARN  # INFO, WARN, ERROR, FATAL, PANIC
+    vm_storage_dir: /opt/zfs/victoriametrics
+    zfs_dataset_name: zfs/victoriametrics
+
+- include_tasks: '{{ playbook_dir }}/dry/github_release_downloader.yml'
+  vars:
+    repository_name: VictoriaMetrics/VictoriaMetrics
+    files_to_download:
+      - victoria-metrics-amd64-{version}.tar.gz
+      - vmutils-amd64-{version}.tar.gz
+    files_to_install:
+      victoria-metrics-prod: victoria_metrics
+      vmagent-prod: vmagent
+      vmalert-prod: vmalert
+      vmauth-prod: vmauth
+      vmbackup-prod: vmbackup
+      vmctl-prod: vmctl
+      vmrestore-prod: vmrestore
+    install_on_boot: true
+
+- name: Copy files to persistent storage
+  ansible.builtin.copy:
+    src: rc.victoriametrics
+    dest: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/rc.victoriametrics'
+    force: true
+
+- name: Copy templates to persistent storage
+  ansible.builtin.template:
+    src: victoriametrics.conf.sh
+    dest: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/victoriametrics.conf.sh'
+    force: true
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Start VictoriaMetrics
+    script: |
+      fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/rc.victoriametrics' > /etc/rc.d/rc.victoriametrics
+      fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/victoriametrics.conf.sh' > /etc/victoriametrics.conf.sh
+      chmod -v +x /etc/rc.d/rc.victoriametrics
+
+      /etc/rc.d/rc.victoriametrics start

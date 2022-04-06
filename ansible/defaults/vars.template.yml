@@ -135,8 +135,13 @@ services:
     postgres_user:
     postgres_password:
   influxdb:
-    url: 'http://<hostname_or_ip>:9091'   # wherever your InfluxDB instance is hosted
     static_ip:
+    ingest:
+      https: true  # boolean
+      port:
+        http: 9091
+        rpc: 9092
+      url: 'https://<static_ip>:9091'   # wherever your InfluxDB instance is hosted
   jellyfin:
     static_ip:
     media_volumes: []
@@ -207,6 +212,17 @@ services:
       downloaded_videos: /mnt/user/change/me
     username: tubearchivist
     password: verysecret
+  victoriametrics:
+    ingest:
+      https: true  # boolean
+      port:
+        http:     8428
+        graphite: 2003  # empty = disabled
+        opentsdb: 4242  # empty = disabled
+    prometheus:
+      # Prometheus config file with 'scrape_configs'
+      # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
+      config_file_path:
   wikijs:
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
     postgres_port: 5432

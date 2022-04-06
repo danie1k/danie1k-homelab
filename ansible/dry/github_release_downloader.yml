@@ -1,0 +1,73 @@
+---
+
+- assert:  # noqa 502
+    that:
+      - repository_name
+      - files_to_download
+      - install_on_boot
+    fail_msg: "Missing required var(s)"
+
+- name: Get the latest release version number
+  ansible.builtin.shell:
+    cmd: 'curl -s https://api.github.com/repos/{{ repository_name }}/releases/latest | jq -r .tag_name'
+    warn: false
+  register: latest_release
+  changed_when: false
+
+- set_fact:  # noqa 502
+    version: '{{ latest_release.get("stdout", "unknown") }}'
+
+- assert:  # noqa 502
+    that:
+      - version != 'unknown'
+      - version | length > 0
+    fail_msg: "Unable to get latest release version from GitHub. {{ latest_release.stderr }}"
+
+- name: Create temporary directory
+  ansible.builtin.file:
+    path: '/tmp/install-{{ homelab_storage_dir_name }}'
+    state: directory
+  register: tempdir
+
+- block:
+    - name: Download release file(s)
+      ansible.builtin.unarchive:
+        # yamllint disable-line rule:line-length
+        src: 'https://github.com/{{ repository_name }}/releases/download/{{ version }}/{{ item.replace("{version}", version) }}'  # noqa 204
+        remote_src: true
+        dest: '{{ tempdir.path }}'
+        creates: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ version }}'
+      with_list: '{{ files_to_download | list }}'
+
+    - name: Create permanent storage directory
+      ansible.builtin.file:
+        path: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ version }}'
+        state: directory
+
+    - name: "Move binaries from '{{ tempdir.path }}' to USB drive"
+      ansible.builtin.command:
+        cmd: "mv -fv '{{ tempdir.path }}/{{ item.key }}' '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ version }}/{{ item.value }}'"
+        creates: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ version }}/{{ item.value }}'
+      with_dict: '{{ files_to_install }}'
+
+  rescue:
+    - ansible.builtin.file:
+        path: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ version }}'
+        state: absent
+
+- name: Remove temporary directory
+  ansible.builtin.file:
+    path: '{{ tempdir.path }}'
+    state: absent
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: 'Install {{ homelab_storage_dir_name }} binaries'
+    script: |
+      {% for item in files_to_install.values() %}
+      cp -vf '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ version }}/{{ item }}' '/usr/bin/{{ item }}'
+      {% endfor %}
+      {% for item in files_to_install.values() %}
+      chmod -v +x '/usr/bin/{{ item }}'
+      {% endfor %}
+  when: install_on_boot | bool

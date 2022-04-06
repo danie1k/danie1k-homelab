@@ -3,6 +3,7 @@
 - hosts: unraid
   gather_facts: false
   vars_files:
+    - defaults/ips_and_ports.yml
     - defaults/vars.yml
 
   roles:
@@ -20,6 +21,7 @@
     - services/loki
     - services/promtail
     - services/telegraf
+    - services/victoriametrics
 
     # =======================================================
     # DOCKER

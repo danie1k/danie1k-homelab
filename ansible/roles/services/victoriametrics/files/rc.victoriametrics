@@ -1,0 +1,98 @@
+#!/bin/sh
+
+DAEMON=/usr/bin/victoria_metrics
+CONFIG=/etc/victoriametrics.conf.sh
+
+STARTUP_TIME=7
+SHUTDOWN_TIME=3
+
+ZFS_DATASET_NAME='{{ zfs_dataset_name }}'
+
+
+victoriametrics_start() {
+  if ! zfs mount | grep "${ZFS_DATASET_NAME}" >/dev/null 2>&1
+  then
+    zfs mount "${ZFS_DATASET_NAME}" >/dev/null 2>&1
+  fi
+
+  source $CONFIG
+
+  # https://unix.stackexchange.com/questions/124455/linux-how-to-redirect-stdout-stderr-to-logger
+  exec $DAEMON -envflag.enable -envflag.prefix=VM__ 2>&1 | logger --tag "victoriametrics" &
+}
+
+victoriametrics_pid() {
+  if victoriametrics_status
+  then
+    pgrep -a -f /usr/bin/victoria_metrics | grep '/usr/bin/victoria_metrics' | grep -v 'grep' | awk '{print $1}'
+  else
+    return 1
+  fi
+}
+
+victoriametrics_status() {
+  pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep'  >/dev/null 2>&1
+  if [ $? -eq 0 ]
+  then
+    return 0
+  else
+    return 1
+  fi
+}
+
+victoriametrics_stop() {
+  # SIGHUP = hot reload
+  # SIGTERM = gracefully exit
+  kill -s 15 $(victoriametrics_pid)
+}
+
+
+case "$1" in
+  'start')
+    victoriametrics_status && {
+      echo -n "Already running. "
+      exit 0
+    } || {
+      echo -n "Starting... "
+      victoriametrics_start
+      sleep $STARTUP_TIME
+    }
+    victoriametrics_status && echo "DONE [PID: $(victoriametrics_pid)]" || echo "ERROR"
+    ;;
+  'status')
+    victoriametrics_status && echo "DONE [PID: $(victoriametrics_pid)]" || echo "STOPPED"
+    ;;
+  'stop')
+    victoriametrics_status && {
+      echo -n "Stopping... "
+      victoriametrics_stop
+      sleep $SHUTDOWN_TIME
+      victoriametrics_status && echo "Failed" || echo "Success"
+    } || {
+      echo "Not Running..."
+      exit 1
+    }
+    ;;
+  'restart')
+    victoriametrics_status && {
+      echo -n "Stopping... "
+      victoriametrics_stop
+      sleep $SHUTDOWN_TIME
+      victoriametrics_status && {
+        echo "Failed"
+        exit 1
+      } || echo "Success"
+    } || {
+      echo "Not Running..."
+      exit 1
+    }
+
+    echo -n "Starting... "
+    victoriametrics_start
+    sleep $STARTUP_TIME
+    victoriametrics_status && echo "DONE [PID: $(cat $PIDFILE)]" || echo "ERROR"
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    ;;
+esac
