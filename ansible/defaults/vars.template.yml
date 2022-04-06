@@ -74,6 +74,9 @@ docker_config:
         subnet:   # Subnet
         iprange:  # must not overlap with DHCP pool
         gateway:  # Gateway
+        aux_addresses:
+          # https://blog.oddbit.com/post/2018-03-12-using-docker-macvlan-networks/
+          host:  # Reserved IP address of the unRAID
     iot:
       name: iot
       parent: br2

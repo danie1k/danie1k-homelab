@@ -22,9 +22,19 @@
     internal: false
     ipam_config: [ '{{ docker_config.network.external.ipam_config }}' ]
     ipam_driver: default
-    labels:
-      ManagedBy: Ansible
+    labels: '{{ docker_config.container_defaults.labels | default({}, true) }}'
   when: docker_external_network_stat.get('rc', 1) > 0
+
+- name: Enable traffic between 'external network and unRAID
+  # https://blog.oddbit.com/post/2018-03-12-using-docker-macvlan-networks/
+  include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: 'Net between {{ docker_config.network.external.name }} and unraid'
+    script: |
+      ip link add {{ docker_config.network.external.name }}_bridge link {{ docker_config.network.external.parent }} type macvlan mode bridge
+      ip addr add {{ docker_config.network.external.ipam_config.aux_addresses.host }}/32' dev {{ docker_config.network.external.name }}_bridge
+      ip link set {{ docker_config.network.external.name }}_bridge up
+      ip route add {{ docker_config.network.external.ipam_config.iprange }} dev {{ docker_config.network.external.name }}_bridge
 
 
 - name: Check if 'iot' Docker Network exists
@@ -44,6 +54,5 @@
     internal: false
     ipam_config: [ '{{ docker_config.network.iot.ipam_config }}' ]
     ipam_driver: default
-    labels:
-      ManagedBy: Ansible
+    labels: '{{ docker_config.container_defaults.labels | default({}, true) }}'
   when: docker_iot_network_stat.get('rc', 1) > 0

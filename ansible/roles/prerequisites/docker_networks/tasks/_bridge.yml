@@ -12,6 +12,5 @@
     internal: true
     ipam_config: [ '{{ docker_config.network.internal.ipam_config }}' ]
     ipam_driver: default
-    labels:
-      ManagedBy: Ansible
+    labels: '{{ docker_config.container_defaults.labels | default({}, true) }}'
     scope: local
