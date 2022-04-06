@@ -37,3 +37,5 @@ do
   # https://docs.microsoft.com/en-us/answers/questions/613333/loading-certificatepfx-with-password-in-linux-does.html
   chmod 755 ./${fname} "{{ unraid.tls_storage_dir }}/${fname}"  # !!!!!!!!!!!!!!!!!!!!!
 done
+
+echo "cacert = {{ unraid.tls_storage_dir }}/fullchain.pem" > /root/.curlrc
