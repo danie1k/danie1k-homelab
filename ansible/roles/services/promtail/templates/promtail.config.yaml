@@ -4,23 +4,23 @@
 
 server:
   grpc_listen_address: 0.0.0.0
-  grpc_listen_port: 9093
+  grpc_listen_port: {{ services.promtail.ingest.port.grpc }}
   http_listen_address: 0.0.0.0
-  http_listen_port: 9094
-  log_level: warn
+  http_listen_port: {{ services.promtail.ingest.port.http }}
+  log_level: {{ services.promtail.log_level }}
 
 clients:
-  - url: '{{ services.loki.url }}'
+  - url: '{{ services.loki.ingest.url }}'
 
 # The positions block configures where Promtail will save a file indicating how far it has read into a file.
 positions:
-  filename: '{{ unraid.services_data_dir }}/promtail/positions.yaml'
+  filename: '{{ promtail_positions_filename }}'
 
 scrape_configs:
   - job_name: unraid
     static_configs:
       - targets:
-          - localhost
+          - 127.0.0.1
         labels:
           __path__: /var/log/*log
           job: unraid

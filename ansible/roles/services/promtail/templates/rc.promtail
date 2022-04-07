@@ -1,0 +1,87 @@
+#!/bin/sh
+
+DAEMON=/usr/bin/promtail
+CONFIG=/etc/promtail.config.yaml
+
+STARTUP_TIME=5
+SHUTDOWN_TIME=3
+
+
+promtail_start() {
+  # https://unix.stackexchange.com/questions/124455/linux-how-to-redirect-stdout-stderr-to-logger
+  exec $DAEMON -config.file $CONFIG | logger --tag "promtail" &
+}
+
+promtail_pid() {
+  if promtail_status
+  then
+    pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep' | awk '{print $1}'
+  else
+    return 1
+  fi
+}
+
+promtail_status() {
+  pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep' >/dev/null 2>&1
+  if [ $? -eq 0 ]
+  then
+    return 0
+  else
+    return 1
+  fi
+}
+
+promtail_stop() {
+  kill -s 15 $(promtail_pid)
+}
+
+
+case "$1" in
+  'start')
+    promtail_status && {
+      echo -n "Already running. "
+      exit 0
+    } || {
+      echo -n "Starting... "
+      promtail_start
+      sleep $STARTUP_TIME
+    }
+    promtail_status && echo "DONE [PID: $(promtail_pid)]" || echo "ERROR"
+    ;;
+  'status')
+    promtail_status && echo "DONE [PID: $(promtail_pid)]" || echo "STOPPED"
+    ;;
+  'stop')
+    promtail_status && {
+      echo -n "Stopping... "
+      promtail_stop
+      sleep $SHUTDOWN_TIME
+      promtail_status && echo "Failed" || echo "Success"
+    } || {
+      echo "Not Running..."
+      exit 1
+    }
+    ;;
+  'restart')
+    promtail_status && {
+      echo -n "Stopping... "
+      promtail_stop
+      sleep $SHUTDOWN_TIME
+      promtail_status && {
+        echo "Failed"
+        exit 1
+      } || echo "Success"
+    } || {
+      echo "Not Running..."
+      exit 1
+    }
+
+    echo -n "Starting... "
+    promtail_start
+    sleep $STARTUP_TIME
+    promtail_status && echo "DONE [PID: $(cat $PIDFILE)]" || echo "ERROR"
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    ;;
+esac

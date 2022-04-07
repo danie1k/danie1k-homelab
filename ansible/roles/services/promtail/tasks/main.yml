@@ -1,7 +1,25 @@
 ---
 
-- set_fact:  # noqa 502
-    _promtail_dir: '{{ unraid.homelab_dir }}/promtail'
+- set_fact:
+    homelab_storage_dir_name: promtail
+    promtail_positions_filename: '{{ unraid.services_data_dir }}/promtail/positions.yaml'
+#    loki_ramdisk_size: 1G
+#    loki_storage:
+#      boltdb_cache: '{{ tmpfs.mountpoint }}/loki/boltdb/cache'
+#      boltdb_index: '{{ tmpfs.mountpoint }}/loki/boltdb/index'
+#      compactor: '{{ tmpfs.mountpoint }}/loki/compactor'
+#      filesystem: '{{ tmpfs.mountpoint }}/loki/storage'
+#    zfs_dataset_name: zfs/loki
+#    zfs_mount_point: '{{ zfs.mountpoint }}/loki'
+
+#- include_tasks: '{{ playbook_dir }}/dry/github_release_downloader.yml'
+#  vars:
+#    repository_name: grafana/loki
+#    files_to_download:
+#      - promtail-linux-amd64.zip
+#    files_to_install:
+#      promtail-linux-amd64: promtail
+#    install_on_boot: true
 
 - name: Create directories
   ansible.builtin.file:
@@ -9,66 +27,29 @@
     state: directory
   with_list:
     - '{{ unraid.services_data_dir }}/promtail'
-    - '{{ _promtail_dir }}'
 
-- name: Get latest release version number
-  ansible.builtin.shell:
-    cmd: 'curl -s https://api.github.com/repos/grafana/loki/releases/latest | jq -r .tag_name'
-    warn: false
-  register: version
-  changed_when: false
-
-- set_fact:  # noqa 502
-    latest_version_file_path: '{{ _promtail_dir }}/promtail-{{ version.get("stdout", "unknown") | replace(".", "") }}'
-
-- block:
-    - name: Download latest Promtail release to /tmp
-      ansible.builtin.unarchive:
-        # yamllint disable-line rule:line-length
-        src: 'https://github.com/grafana/loki/releases/download/{{ version.get("stdout", "unknown") }}/promtail-linux-amd64.zip'  # noqa 204
-        remote_src: true
-        dest: /tmp
-        creates: '{{ latest_version_file_path }}'
-      register: _download
-
-    - name: Copy Promtail binary from /tmp to USB drive
-      ansible.builtin.command:
-        cmd: "mv /tmp/promtail-linux-amd64 '{{ latest_version_file_path }}'"
-        creates: '{{ latest_version_file_path }}'
-      when: _download.changed
-  always:
-    - ansible.builtin.file:  # noqa 502
-        path: /tmp/promtail-linux-amd64
-        state: absent
-
-- name: Copy Promtail config file
+- name: Copy files to persistent storage
   ansible.builtin.template:
-    src: config.yaml
-    dest: '{{ _promtail_dir }}/config.yaml'
+    src: '{{ item }}'
+    dest: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ item }}'
     force: true
-
-- name: Copy syslog config file
-  ansible.builtin.copy:
-    src: syslog.conf
-    dest: '{{ _promtail_dir }}/syslog.conf'
-    force: true
+  with_list:
+    - rc.promtail
+    - promtail.config.yaml
+    - syslog.promtail.conf
 
 - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
-    name: Promtail
+    name: Start Promtail
     script: |
-      if [ -f '{{ _promtail_dir }}/syslog.conf' ]; then
-        fromdos < '{{ _promtail_dir }}/syslog.conf' > /etc/rsyslog.d/promtail.conf
-        /etc/rc.d/rc.rsyslogd reload
-      fi
-      cp -vf '{{ latest_version_file_path }}' /usr/bin/promtail
-      chmod -v +x /usr/bin/promtail
+      fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/syslog.promtail.conf' > /etc/rsyslog.d/syslog.promtail.conf
 
-- include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'
-  vars:
-    name: promtail
-    programs:
-      promtail:
-        autorestart: true
-        autostart: true
-        command: /usr/bin/promtail -config.file '{{ _promtail_dir }}/config.yaml'
+      fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/promtail.config.yaml' > /etc/promtail.config.yaml
+      fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/rc.promtail' > /etc/rc.d/rc.promtail
+      chmod -v +x /etc/rc.d/rc.promtail
+
+      touch '{{ promtail_positions_filename }}'
+      echo > '{{ promtail_positions_filename }}'
+
+      /etc/rc.d/rc.promtail start
+      /etc/rc.d/rc.rsyslogd reload

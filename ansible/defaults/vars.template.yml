@@ -184,6 +184,12 @@ services:
       uptime_targets: []
     speedtest:
       server: CHANGEME
+  promtail:
+    log_level: warn  # debug, info, warn, error
+    ingest:
+      port:
+        grpc: 9093
+        http: 9094
   registry:
     http_secret:
   reverse_proxy:
