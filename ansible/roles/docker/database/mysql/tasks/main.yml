@@ -15,6 +15,7 @@
       - name: '{{ docker_config.network.external.name }}'
         ipv4_address: '{{ services.mysql.static_ip }}'
       - name: '{{ docker_config.network.internal.name }}'
+        aliases: [ '{{ services.mysql.ingest_host }} }' ]
     volumes:
       - [ '', '/config', 'rw' ]
 

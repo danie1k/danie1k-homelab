@@ -28,7 +28,7 @@
       - name: '{{ docker_config.network.external.name }}'
         ipv4_address: '{{ services.elasticsearch.static_ip }}'
       - name: '{{ docker_config.network.internal.name }}'
-        aliases: [ '{{ _name }}.{{ lab_domain_name }}' ]
+        aliases: [ '{{ services.elasticsearch.ingest_host }}' ]
     volumes:
       - [ '/config', '/usr/share/elasticsearch/config', 'rw' ]
       - [ '/data', '{{ _path_data }}', 'rw' ]

@@ -22,6 +22,7 @@
       - name: '{{ docker_config.network.external.name }}'
         ipv4_address: '{{ services.postgresql.static_ip }}'
       - name: '{{ docker_config.network.internal.name }}'
+        aliases: [ '{{ services.postgresql.ingest_host }} }' ]
     volumes:
       - [ '', '/var/lib/pgsql/data', 'rw' ]
 

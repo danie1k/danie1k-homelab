@@ -128,6 +128,7 @@ services:
   ebooks:
     library_volume:
   elasticsearch:
+    ingest_host: 'elasticsearch.{{ lab_domain_name }}'
     static_ip:
   grafana:
     postgres:
@@ -159,6 +160,7 @@ services:
   minio:
     static_ip:
   mysql:
+    ingest_host: 'mysql.{{ lab_domain_name }}'
     static_ip:
   nextcloud:
     data_dir: /mnt/user/appdata/nextcloud/data
@@ -173,6 +175,7 @@ services:
   portainer:
     business_license_key: false  # optional
   postgresql:
+    ingest_host: 'postgres.{{ lab_domain_name }}'
     root_username: root
     root_password:
     static_ip:
