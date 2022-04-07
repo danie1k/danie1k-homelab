@@ -130,10 +130,12 @@ services:
   elasticsearch:
     static_ip:
   grafana:
-    postgres_host: 'postgres.{{ docker_config.network.internal.name }}:5432'
-    postgres_dbname:
-    postgres_user:
-    postgres_password:
+    postgres:
+      host: 'postgres.{{ docker_config.network.internal.name }}:5432'
+      dbname:
+      user:
+      password:
+    static_ip:
   influxdb:
     static_ip:
     ingest:
