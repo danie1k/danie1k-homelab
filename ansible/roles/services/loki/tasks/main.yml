@@ -1,111 +1,49 @@
 ---
 
-- set_fact:  # noqa 502
-    _loki_dir: '{{ unraid.homelab_dir }}/loki'
-    _loki_ramdisk_size: 1G
-    _loki_config:
-      dir:
-        compactor: 'compactor'
-        boltdb_index: 'boltdb/index'
-        boltdb_cache: 'boltdb/cache'
-        storage_directory: 'storage'
-      server:
-        http:
-          address: 0.0.0.0
-          port: 9211
-        grpc:
-          address: 0.0.0.0
-          port: 9212
+- set_fact:
+    homelab_storage_dir_name: loki
+    loki_ramdisk_size: 1G
+    loki_storage:
+      boltdb_cache: '{{ tmpfs.mountpoint }}/loki/boltdb/cache'
+      boltdb_index: '{{ tmpfs.mountpoint }}/loki/boltdb/index'
+      compactor: '{{ tmpfs.mountpoint }}/loki/compactor'
+      filesystem: '{{ tmpfs.mountpoint }}/loki/storage'
+    zfs_dataset_name: zfs/loki
+    zfs_mount_point: '{{ zfs.mountpoint }}/loki'
 
-- name: Get latest release version number
-  ansible.builtin.shell:
-    cmd: 'curl -s https://api.github.com/repos/grafana/loki/releases/latest | jq -r .tag_name | cut -c2-'
-    warn: false
-  register: version
-  changed_when: false
+- include_tasks: '{{ playbook_dir }}/dry/github_release_downloader.yml'
+  vars:
+    repository_name: grafana/loki
+    files_to_download:
+      - logcli-linux-amd64.zip
+      - loki-linux-amd64.zip
+    files_to_install:
+      logcli-linux-amd64: logcli
+      loki-linux-amd64: loki
+    install_on_boot: true
 
-- set_fact:  # noqa 502
-    latest_version_dir_path: '{{ _loki_dir }}/loki-{{ version.get("stdout", "unknown") | replace(".", "") }}'
-
-- name: Create directories
-  ansible.builtin.file:
-    path: '{{ item }}'
-    state: directory
-  with_list:
-    - '{{ _loki_dir }}'
-    - '{{ latest_version_dir_path }}'
-
-- block:
-    - name: Download latest Loki release to /tmp
-      ansible.builtin.unarchive:
-        # yamllint disable-line rule:line-length
-        src: 'https://github.com/grafana/loki/releases/download/v{{ version.get("stdout", "unknown") }}/loki-linux-amd64.zip'
-        remote_src: true
-        dest: /tmp
-        creates: '{{ latest_version_dir_path }}/loki-linux-amd64'
-      register: _download
-    - name: Download latest Logcli release to /tmp
-      ansible.builtin.unarchive:
-        # yamllint disable-line rule:line-length
-        src: 'https://github.com/grafana/loki/releases/download/v{{ version.get("stdout", "unknown") }}/logcli-linux-amd64.zip'
-        remote_src: true
-        dest: /tmp
-        creates: '{{ latest_version_dir_path }}/logcli-linux-amd64'
-      register: _download
-
-    - name: Copy Loki binary from /tmp to USB drive
-      ansible.builtin.command:
-        cmd: 'mv /tmp/loki-linux-amd64 "{{ latest_version_dir_path }}"/'  # noqa 204
-        creates: '{{ latest_version_dir_path }}/loki-linux-amd64'
-    - name: Copy Logcli binary from /tmp to USB drive
-      ansible.builtin.command:
-        cmd: 'mv /tmp/logcli-linux-amd64 "{{ latest_version_dir_path }}"/'  # noqa 204
-        creates: '{{ latest_version_dir_path }}/logcli-linux-amd64'
-  always:
-    - ansible.builtin.file:  # noqa 502
-        path: '/tmp/loki-linux-amd64'
-        state: absent
-    - ansible.builtin.file:  # noqa 502
-        path: '/tmp/logcli-linux-amd64'
-        state: absent
-
-- name: Copy config files
+- name: Copy files to persistent storage
   ansible.builtin.template:
     src: '{{ item }}'
-    dest: '{{ _loki_dir }}/{{ item }}'
+    dest: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ item }}'
     force: true
   with_list:
-    - loki_ramdisk.sh
-    - config.yaml
+    - rc.loki
+    - loki.conf.yaml
 
 - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
-    name: Install Loki and Logcli
+    name: Start Loki
     script: |
-      cp -fv '{{ latest_version_dir_path }}'/loki-linux-amd64 /usr/bin/loki
-      cp -fv '{{ latest_version_dir_path }}'/logcli-linux-amd64 /usr/bin/logcli
-      chmod -v +x /usr/bin/loki /usr/bin/logcli
+      fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/rc.loki' > /etc/rc.d/rc.loki
+      fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/loki.conf.yaml' > /etc/loki.conf.yaml
+      chmod -v +x /etc/rc.d/rc.loki
 
-      mkdir -vp /etc/loki
-      fromdos < '{{ _loki_dir }}/config.yaml' > /etc/loki/config.yaml
-
-      fromdos < '{{ _loki_dir }}/loki_ramdisk.sh' > /usr/bin/loki_ramdisk.sh
-      chmod -v +x /usr/bin/loki_ramdisk.sh
-
-      mkdir -vp '{{ tmpfs.mountpoint }}/loki'
-      mount -v -t tmpfs -o size={{ _loki_ramdisk_size }},noatime tmpfs '{{ tmpfs.mountpoint }}/loki'
-
-      mkdir -vp \
-        '{{ tmpfs.mountpoint }}/loki/{{ _loki_config.dir.compactor }}' \
-        '{{ tmpfs.mountpoint }}/loki/{{ _loki_config.dir.boltdb_index }}' \
-        '{{ tmpfs.mountpoint }}/loki/{{ _loki_config.dir.boltdb_cache }}' \
-        '{{ tmpfs.mountpoint }}/loki/{{ _loki_config.dir.storage_directory }}'
-
-      /usr/bin/loki_ramdisk.sh start
+      /etc/rc.d/rc.loki start
 
       (
         crontab -l 2>/dev/null
         echo
         echo "# Persistent Loki storage"
-        echo "*/5 * * * * /usr/bin/loki_ramdisk.sh sync > /dev/null"
+        echo "*/5 * * * * /etc/rc.d/rc.loki dump 2>&1 >/dev/null 2>&1
       ) | crontab -

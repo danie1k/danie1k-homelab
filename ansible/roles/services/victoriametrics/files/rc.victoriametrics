@@ -12,6 +12,7 @@ ZFS_DATASET_NAME='{{ zfs_dataset_name }}'
 victoriametrics_start() {
   if ! zfs mount | grep "${ZFS_DATASET_NAME}" >/dev/null 2>&1
   then
+    echo '(Mounting ZFS dataset) '
     zfs mount "${ZFS_DATASET_NAME}" >/dev/null 2>&1
   fi
 
@@ -24,7 +25,7 @@ victoriametrics_start() {
 victoriametrics_pid() {
   if victoriametrics_status
   then
-    pgrep -a -f /usr/bin/victoria_metrics | grep '/usr/bin/victoria_metrics' | grep -v 'grep' | awk '{print $1}'
+    pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep' | awk '{print $1}'
   else
     return 1
   fi

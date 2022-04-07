@@ -214,7 +214,7 @@ export VM__storage_minFreeDiskSpaceBytes='100MB'
 
 # [string] Minimum level of errors to log.
 # Possible values: INFO, WARN, ERROR, FATAL, PANIC (default "INFO")
-export VM__loggerLevel='{{ vm_log_level }}'
+export VM__loggerLevel='{{ services.victoriametrics.log_level }}'
 
 # [string] Output for the logs.
 # Supported values: stderr, stdout (default "stderr")

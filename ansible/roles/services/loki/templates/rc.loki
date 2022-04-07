@@ -1,0 +1,133 @@
+#!/bin/sh
+# Inspired by https://docs.observium.org/persistent_ramdisk/
+
+DAEMON=/usr/bin/loki
+CONFIG=/etc/loki.conf.yaml
+
+STARTUP_TIME=5
+SHUTDOWN_TIME=5
+
+ZFS_DATASET_NAME='{{ zfs_dataset_name }}'
+ZFS_MOUNT_POINT='{{ zfs_mount_point }}'
+
+loki_prepare_ramdisk() {
+  if df | grep '{{ tmpfs.mountpoint }}/loki' >/dev/null 2>&1
+  then
+    return 0
+  fi
+
+  echo -n '(Mounting ramdisk) '
+  mkdir -p '{{ tmpfs.mountpoint }}/loki'
+  mount -v -t tmpfs -o size={{ loki_ramdisk_size }},noatime tmpfs '{{ tmpfs.mountpoint }}/loki'
+
+  mkdir -p \
+    '{{ loki_storage.compactor }}' \
+    '{{ loki_storage.boltdb_index }}' \
+    '{{ loki_storage.boltdb_cache }}' \
+    '{{ loki_storage.filesystem }}'
+}
+
+loki_start() {
+  if ! zfs mount | grep "${ZFS_DATASET_NAME}" >/dev/null 2>&1
+  then
+    echo -n '(Mounting ZFS dataset) '
+    zfs mount "${ZFS_DATASET_NAME}" >/dev/null 2>&1
+  fi
+
+  loki_prepare_ramdisk
+
+  echo '(Copying files to ramdisk) '
+  loki_restore
+
+  # https://unix.stackexchange.com/questions/124455/linux-how-to-redirect-stdout-stderr-to-logger
+  exec $DAEMON -config.file $CONFIG 2>&1 | logger --tag "loki" &
+}
+
+loki_pid() {
+  if loki_status
+  then
+    pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep' | awk '{print $1}'
+  else
+    return 1
+  fi
+}
+
+loki_status() {
+  pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep' >/dev/null 2>&1
+  if [ $? -eq 0 ]
+  then
+    return 0
+  else
+    return 1
+  fi
+}
+
+loki_stop() {
+  kill -s 15 $(loki_pid)
+}
+
+loki_dump() {
+  rsync -av --delete --recursive --force '{{ tmpfs.mountpoint }}/loki'/ "${ZFS_MOUNT_POINT}"/ >/dev/null 2>&1
+  echo "Loki ramdisk dumped to HD" | logger --tag "loki"
+}
+
+loki_restore() {
+  rsync -av "${ZFS_MOUNT_POINT}"/ '{{ tmpfs.mountpoint }}/loki'/ >/dev/null 2>&1
+  echo "Loki ramdisk synced from HD" | logger --tag "loki"
+}
+
+case "$1" in
+  'start')
+    loki_status && {
+      echo -n "Already running. "
+      exit 0
+    } || {
+      echo -n "Starting... "
+      loki_start
+      sleep $STARTUP_TIME
+    }
+    loki_status && echo "DONE [PID: $(loki_pid)]" || echo "ERROR"
+    ;;
+  'status')
+    loki_status && echo "DONE [PID: $(loki_pid)]" || echo "STOPPED"
+    ;;
+  'dump')
+    loki_dump && echo "Success" || echo "Error"
+    ;;
+  'restore')
+    loki_restore && echo "Success" || echo "Error"
+    ;;
+  'stop')
+    loki_status && {
+      echo -n "Stopping... "
+      loki_stop
+      sleep $SHUTDOWN_TIME
+      loki_status && echo "Failed" || echo "Success"
+    } || {
+      echo "Not Running..."
+      exit 1
+    }
+    ;;
+  'restart')
+    loki_status && {
+      echo -n "Stopping... "
+      loki_stop
+      sleep $SHUTDOWN_TIME
+      loki_status && {
+        echo "Failed"
+        exit 1
+      } || echo "Success"
+    } || {
+      echo "Not Running..."
+      exit 1
+    }
+
+    echo -n "Starting... "
+    loki_start
+    sleep $STARTUP_TIME
+    loki_status && echo "DONE [PID: $(cat $PIDFILE)]" || echo "ERROR"
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|dump|restore|status}"
+    ;;
+esac

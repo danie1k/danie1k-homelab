@@ -5,11 +5,13 @@
 auth_enabled: false
 
 server:
-  grpc_listen_address: {{ _loki_config.server.grpc.address }}
-  grpc_listen_port: {{ _loki_config.server.grpc.port }}
-  http_listen_address: {{ _loki_config.server.http.address }}
-  http_listen_port: {{ _loki_config.server.http.port }}
-  log_level: warn
+  log_level: {{ services.loki.log_level }}
+  # grpc
+  grpc_listen_address: 0.0.0.0
+  grpc_listen_port: {{ services.loki.ingest.port.grpc }}
+  # http
+  http_listen_address: 0.0.0.0
+  http_listen_port: {{ services.loki.ingest.port.http }}
 
 # The ingester service is responsible for writing log data to long-term storage backends on the write path
 # and returning log data for in-memory queries on the read path.
@@ -47,17 +49,17 @@ limits_config:
 # and merging all the files to a single file per table.
 compactor:
   shared_store: filesystem
-  working_directory: {{ tmpfs.mountpoint }}/loki/{{ _loki_config.dir.compactor }}
+  working_directory: {{ loki_storage.compactor }}
 
 storage_config:
   boltdb_shipper:
-    active_index_directory: {{ tmpfs.mountpoint }}/loki/{{ _loki_config.dir.boltdb_index }}
-    cache_location: {{ tmpfs.mountpoint }}/loki/{{ _loki_config.dir.boltdb_cache }}
+    active_index_directory: {{ loki_storage.boltdb_index }}
+    cache_location: {{ loki_storage.boltdb_cache }}
     cache_ttl: 24h
     shared_store: filesystem
 
   filesystem:
-    directory: {{ tmpfs.mountpoint }}/loki/{{ _loki_config.dir.storage_directory }}
+    directory: {{ loki_storage.filesystem }}
 
 # Storage Retention
 # https://grafana.com/docs/loki/v2.1.0/operations/storage/retention/

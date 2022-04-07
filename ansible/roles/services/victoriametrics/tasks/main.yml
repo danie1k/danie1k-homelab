@@ -2,7 +2,6 @@
 
 - set_fact:
     homelab_storage_dir_name: victoriametrics
-    vm_log_level: WARN  # INFO, WARN, ERROR, FATAL, PANIC
     vm_storage_dir: /opt/zfs/victoriametrics
     zfs_dataset_name: zfs/victoriametrics
 
