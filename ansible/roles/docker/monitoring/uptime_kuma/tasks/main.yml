@@ -23,6 +23,6 @@
       - [ '/entrypoint.sh', '/app/extra/entrypoint.sh', 'ro' ]
 
     extra:
-      cpus: 0.5
+      cpus: 1
       memory: 512M
       kernel_memory: 512M

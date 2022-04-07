@@ -38,6 +38,7 @@
     - docker/database/sqlitebrowser
 
     - docker/monitoring/grafana
+    - docker/monitoring/changedetection
     - docker/monitoring/prometheus
     - docker/monitoring/prometheus_speedtest
     # - docker/monitoring/prometheus_uptime
@@ -45,7 +46,6 @@
     - docker/monitoring/uptime_kuma
 
     - docker/apps/aria2
-    - docker/apps/changedetection
     - docker/apps/dlna
     - docker/apps/diagrams
     - docker/apps/ebooks
