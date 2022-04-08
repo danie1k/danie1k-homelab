@@ -7,6 +7,8 @@
     - defaults/vars.yml
 
   roles:
+    - prerequisites/unraid_version
+
     # =======================================================
     # Prerequisites
     # =======================================================

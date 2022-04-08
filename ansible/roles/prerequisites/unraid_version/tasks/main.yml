@@ -1,0 +1,11 @@
+---
+
+- name: Read unRAID version
+  ansible.builtin.shell:
+    cmd: cat /usr/local/emhttp/state/var.ini | grep version | cut -c9- | jq -r | cat -e
+    warn: false
+  register: raw_unraid_version
+  changed_when: false
+
+- set_fact:  # noqa 502
+    UNRAID_VERSION: '{{ raw_unraid_version.stdout | split(".") | map("int") }}'
