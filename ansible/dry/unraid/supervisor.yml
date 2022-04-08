@@ -14,6 +14,7 @@
       stdout_logfile = /var/log/%(program_name)s.log
       stdout_logfile_backups = 0
       stopasgroup = {{ (item.value.stopasgroup | default(false)) | string | lower }}
+      user = {{ docker_config.default_user.split(":")[0] }}
   with_dict: '{{ programs }}'
   register: _programs
 

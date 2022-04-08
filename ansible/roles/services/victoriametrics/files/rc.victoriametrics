@@ -32,7 +32,7 @@ victoriametrics_pid() {
 }
 
 victoriametrics_status() {
-  pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep'  >/dev/null 2>&1
+  pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep' >/dev/null 2>&1
   if [ $? -eq 0 ]
   then
     return 0

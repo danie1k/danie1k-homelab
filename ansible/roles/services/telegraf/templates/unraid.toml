@@ -7,7 +7,7 @@
 
 [[outputs.influxdb]]
   # InfluxDB v1.x
-  urls = [ "{{ services.influxdb.url }}" ]
+  urls = [ "{{ services.influxdb.ingest.url }}" ]
   database = "telegraf"
   skip_database_creation = true
 
@@ -28,6 +28,7 @@
   totalcpu = true
   collect_cpu_time = true
   report_active = false
+  fielddrop = ["time_*"]
 
 # Disk - metrics about disk usage
 [[inputs.disk]]
@@ -81,8 +82,9 @@
 # S.M.A.R.T. - get metrics using the command line utility smartctl
 [[inputs.smart]]
   # https://github.com/influxdata/telegraf/blob/master/plugins/inputs/smart/README.md
+  attributes = true
   nocheck = "standby"
-  devices = [ "/dev/sdc", "/dev/sdd", "/dev/sde", "/dev/sdf" ]
+  devices = [ "/dev/sdc", "/dev/sdd", "/dev/sde", "/dev/sdf", "/dev/sdg", "/dev/sdh", "/dev/sdi", "/dev/sdj" ]
 
 # Swap - system swap metrics.
 [[inputs.swap]]

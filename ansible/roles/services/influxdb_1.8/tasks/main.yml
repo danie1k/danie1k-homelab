@@ -6,9 +6,6 @@
     _influx_config:
       cpu_cores: 4
       ramdisk_size: 1G
-      bind_address:
-        http: 0.0.0.0:9111
-        rpc: 0.0.0.0:9112
       dir:
         data: '{{ zfs.mountpoint }}/influxdb/data'
         meta: '{{ zfs.mountpoint }}/influxdb/meta'

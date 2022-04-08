@@ -7,7 +7,7 @@
 reporting-disabled = false
 
 # The bind address to use for the RPC service for backup and restore.
-bind-address = "{{ _influx_config.bind_address.rpc }}"
+bind-address = "0.0.0.0:{{ services.influxdb.ingest.port.rpc }}"
 
 [meta]
 # This section controls parameters for the InfluxDB metastore, which stores
@@ -265,7 +265,7 @@ bind-address = "{{ _influx_config.bind_address.rpc }}"
   flux-enabled = false
 
   # The bind address (port) used by the HTTP service.
-  bind-address = "{{ _influx_config.bind_address.http }}"
+  bind-address = "0.0.0.0:{{ services.influxdb.ingest.port.http }}"
 
   # Determines whether user authentication is enabled over HTTP and HTTPS.
   # To require authentication, set the value to true.
@@ -312,7 +312,7 @@ bind-address = "{{ _influx_config.bind_address.rpc }}"
   ping-auth-enabled = false
 
   # Determines whether HTTPS is enabled.
-  https-enabled = true
+  https-enabled = '{% if services.influxdb.ingest.https | bool %}true{% else %}false{% endif %}'
 
   # The path of the SSL certificate file to use when HTTPS is enabled.
   https-certificate = "{{ unraid.tls_storage_dir }}/cert.pem"
@@ -322,7 +322,7 @@ bind-address = "{{ _influx_config.bind_address.rpc }}"
   # to load the private key from the https-certificate file.
   # If a separate https-private-key file is specified, the httpd service will
   # load the private key from the https-private-key file.
-   https-private-key = "{{ unraid.tls_storage_dir }}/privkey.pem"
+  https-private-key = "{{ unraid.tls_storage_dir }}/privkey.pem"
 
   # The shared secret used to validate public API requests using JWT tokens.
   # shared-secret = ""

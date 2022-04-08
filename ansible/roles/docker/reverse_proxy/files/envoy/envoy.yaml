@@ -57,8 +57,8 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
               common_tls_context:
                 tls_certificates:
-                  - certificate_chain: { filename: "/config/tls/fullchain1.pem" }
-                    private_key: { filename: "/config/tls/privkey1.pem" }
+                  - certificate_chain: { filename: "/config/tls/fullchain.pem" }
+                    private_key: { filename: "/config/tls/privkey.pem" }
                 alpn_protocols: [ "h2,http/1.1" ]
 
   clusters:

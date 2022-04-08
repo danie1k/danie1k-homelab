@@ -107,7 +107,7 @@
           "webui": "{{ webui | default(__default_webui) }}",
         })
       }}
-  when: (webui|default(None) == None) or (webui is string and len(webui) > 0)
+  when: (webui|default(None) == None) or (webui is string and (webui | length > 0))
 
 
 # NETWORKS
@@ -389,7 +389,7 @@
         <Icon>{{ __container_facts.icon }}</Icon>
         <Name>{{ __container_facts.name }}</Name>
         <Repository>{{ __container_facts.image }}</Repository>
-        {% if __container_facts.webui|default(False) %}<WebUI>{{ __container_facts.webui }}</WebUI>{% endif %}
+        <WebUI>{% if __container_facts.webui|default(False) %}{{ __container_facts.webui }}{% endif %}</WebUI>
       </Container>
     dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
 

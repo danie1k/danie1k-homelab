@@ -11,7 +11,7 @@
 
 [[outputs.influxdb]]
   # InfluxDB v1.x
-  urls = [ "{{ services.influxdb.url }}" ]
+  urls = [ "{{ services.influxdb.ingest.url }}" ]
   database = "telegraf"
   skip_database_creation = true
 
