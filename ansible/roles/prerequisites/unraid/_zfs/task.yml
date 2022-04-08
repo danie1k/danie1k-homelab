@@ -7,7 +7,7 @@
       (
         crontab -l 2>/dev/null
         echo
-        echo "# ZFS scrub"
-        echo "{{ zfs.scrub_cron_expression }} zpool scrub {{ zfs.pool_name }}"
+        echo '# ZFS scrub'
+        echo '{{ zfs.scrub_cron_expression }} zpool scrub {{ zfs.pool_name }}'
       ) | crontab -
   when: zfs.scrub_cron_expression | length > 0

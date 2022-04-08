@@ -8,6 +8,7 @@
   vars:
     name: portainer
     image: 'portainer/{{ _image }}:alpine'
+    include_secrets: false
     volumes:
       - [ '', '/data', 'rw' ]
       - '/var/run/docker.sock:/var/run/docker.sock'

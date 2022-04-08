@@ -1,4 +1,0 @@
----
-
-dependencies:  # noqa 701
-  - role: prerequisites/docker_networks

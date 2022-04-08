@@ -118,11 +118,7 @@ services:
     mysql_dbname:
     mysql_user:
     mysql_password:
-  diagrams:
-    keystore_pass:
-    key_pass:
   dlna:
-    log_level:
     static_ip:
     media_volumes: []
   ebooks:
@@ -183,8 +179,6 @@ services:
       port:
         grpc: 9093
         http: 9094
-  registry:
-    http_secret:
   reverse_proxy:
     traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
     static_ip:

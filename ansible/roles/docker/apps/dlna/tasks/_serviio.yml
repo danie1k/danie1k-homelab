@@ -1,6 +1,5 @@
 ---
 # https://github.com/riftbit/docker-serviio
-# https://github.com/danie1k/docker-serviio
 
 # You will get a 15 day evaluation of the Pro edition, after which Serviio automatically reverts to the Free edition.
 # -- https://serviio.org/download
@@ -15,8 +14,9 @@
   vars:
     name: '{{ _name }}'
     image: danie1k/serviio:latest
+    include_secrets: false
     env:
-      LOG_LEVEL: '{{ services.dlna.log_level }}'
+      LOG_LEVEL: WARN
     webui: 'http://{{ _name }}.{{ lab_domain_name }}:23423/console/'
     networks:
       - name: '{{ docker_config.network.iot.name }}'

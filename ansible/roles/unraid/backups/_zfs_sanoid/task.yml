@@ -22,6 +22,6 @@
       (
         crontab -l 2>/dev/null
         echo
-        echo "# Sanoid ZFS snapshot management"
-        echo "* * * * * /usr/local/sbin/sanoid --cron 1> /dev/null"
+        echo '# Sanoid ZFS snapshot management'
+        echo '* * * * * /usr/local/sbin/sanoid --cron 1> /dev/null'
       ) | crontab -

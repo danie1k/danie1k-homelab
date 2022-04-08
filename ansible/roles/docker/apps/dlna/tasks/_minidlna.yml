@@ -24,7 +24,7 @@
       MINIDLNA_DB_DIR: /minidlna/cache
       MINIDLNA_INOTIFY: 'no'
       MINIDLNA_LOG_DIR: /minidlna/logs
-      MINIDLNA_LOG_LEVEL: '{{ _minidlna_log_types | join("=" ~ services.dlna.log_level ~ ",") }}={{services.dlna.log_level}}'
+      MINIDLNA_LOG_LEVEL: '{{ _minidlna_log_types | join("=" ~ services.dlna.log_level ~ ",") }}=WARN'
       # TODO: MINIDLNA_MEDIA_DIR_...
       MINIDLNA_NETWORK_INTERFACE: eth0
       # https://sudonull.com/post/131557-Correctly-configure-the-DLNA-server-for-Samsung-TVs

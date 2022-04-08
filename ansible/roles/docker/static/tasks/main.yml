@@ -4,6 +4,8 @@
   vars:
     name: static
     image: nginx:latest
+    command: nginx -g 'daemon off;'
+    include_secrets: false
     icon: nginx
     webui: false
     volumes:

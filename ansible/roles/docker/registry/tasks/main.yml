@@ -1,16 +1,11 @@
 ---
 
-- set_fact:
-    _name: docker-registry
-    _storage_path: /mnt/user/services/registry/registry
+# unraid/secrets:
+#  REGISTRY_HTTP_SECRET
 
-- name: Persistent registry storage on non-cache drive
-  file:
-    path: '{{ _storage_path }}'
-    mode: '0774'
-    owner: '{{ docker_config.default_user.split(":")[0] }}'
-    group: '{{ docker_config.default_user.split(":")[1] }}'
-    state: directory
+- set_fact:
+    _config_file_path: /etc/docker/registry/config.yml
+    _name: docker-registry
 
 # https://docs.docker.com/registry/configuration
 
@@ -18,13 +13,13 @@
   vars:
     name: '{{ _name }}'
     image: registry:2
+    command: '{{ _config_file_path }}'
     icon: _docker
     webui: false
-    env:
-      REGISTRY_HTTP_SECRET: '{{ services.registry.http_secret }}'
+    service_data_dir: '{{ _name }}'
     volumes:
-      - [ '/config.yml', '/etc/docker/registry/config.yml' ]
-      - '/mnt/user/services/registry/registry:/var/lib/registry:rw'
+      - [ '/config.yml', '{{ _config_file_path }}' ]
+      - '/mnt/user/services/{{ _name }}/registry:/var/lib/registry:rw'
 
     files:
       - src: nginx.conf
@@ -43,21 +38,25 @@
 
 # https://docs.docker.com/registry/garbage-collection/
 
-- name: Install User Script
-  include_tasks: '{{ playbook_dir }}/dry/unraid/user-script.yml'
+- name: Install cron job on boot
+  include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
-    name: '{{ _name }}-garbage-collect'
-    description: Docker Registry garbage collection
+    name: Docker Registry garbage collection
     script: |
-      #!/bin/sh
-      docker exec {{ _name }} registry garbage-collect /etc/docker/registry/config.yml
+      (
+        crontab -l 2>/dev/null
+        echo
+        echo '# Docker Registry garbage collection'
+        echo '0 */12 * * * [[ "$(docker ps --filter "name=^{{ _name }}$" --format {%raw%}"{{.Names}}"{%endraw%})" == "{{ _name }}" ]] && docker exec docker-registry registry garbage-collect "{{ _config_file_path }}" >/dev/null 2>&1'
+      ) | crontab -
 
 # https://github.com/Joxit/docker-registry-ui
 
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
-    name: docker
+    name: '{{ _name }}-ui'
     image: joxit/docker-registry-ui:latest
+    include_secrets: false
     icon: _docker
     env:
       DELETE_IMAGES: 'true'
@@ -65,11 +64,13 @@
       REGISTRY_TITLE: '{{ lab_domain_name }}'
       SINGLE_REGISTRY: 'true'
       SHOW_CONTENT_DIGEST: 'true'
+    service_data_dir: '{{ _name }}'
     volumes:
       - '{{ unraid.services_data_dir }}/{{ _name }}/nginx.conf:/etc/nginx/nginx.conf:ro'
 
     proxy:
       - http_port: 80
+        hostname: docker
 
     extra:
       cpus: 2

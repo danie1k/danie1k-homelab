@@ -1,5 +1,5 @@
 ---
-# https://www.collaboraoffice.com/code/quick-tryout-nextcloud-docker/
+# https://sdk.collaboraonline.com/docs/installation/CODE_Docker_image.html
 
 - set_fact:  # noqa 502
     _name: collabora
@@ -8,13 +8,17 @@
   vars:
     name: '{{ _name }}'
     image: collabora/code:latest
+    include_secrets: false
     webui: false
     networks:
       - name: '{{ docker_config.network.internal.name }}'
+        aliases: [ '{{ _name }}.{{ lab_domain_name }}' ]
       - name: '{{ docker_config.network.external.name }}'
     env:
+      DONT_GEN_SSL_CERT: '1'
+      server_name: '{{ _name }}.{{ lab_domain_name }}'
       # https://www.collaboraoffice.com/code/nginx-reverse-proxy/
-      extra_params: '--o:ssl.enable=false --o:ssl.termination=true'
+      extra_params: --o:ssl.enable=false --o:ssl.termination=true --o:logging.level=warning
 
     proxy:
       - http_port: 9980
@@ -23,6 +27,8 @@
       cpus: 4
       memory: 6G
       kernel_memory: 8G
+
+# https://www.collaboraoffice.com/code/quick-tryout-nextcloud-docker/
 
 - name: Install Collabora for Nextcloud
   include_tasks: '{{ playbook_dir }}/dry/docker/exec.yml'

@@ -10,6 +10,7 @@
 #   (optional) extra
 #   (optional) files
 #   (optional) icon
+#   (optional) include_secrets
 #   (optional) labels
 #   (optional) networks
 #   (optional) proxy
@@ -142,7 +143,7 @@
       set_fact:
         _traefik_labels: >-2
           {
-            "traefik.http.routers.{{ name }}-http-{{ _index }}.rule": "Host(`{{ name }}.{{ lab_domain_name }}`)",
+            "traefik.http.routers.{{ name }}-http-{{ _index }}.rule": "Host(`{{ http_item.hostname | default(name, true) }}.{{ lab_domain_name }}`)",
             "traefik.http.routers.{{ name }}-http-{{ _index }}.service": (
               "{% if 'service' in http_item and http_item.service is not mapping %}"
                 "{{ http_item.service }}"
@@ -328,21 +329,43 @@
         | combine(extra | default({}, true))
       }}
 
-- name: "dry/unraid-container : {{ name }} : Container's command"
-  set_fact:
-    __container_params: '{{ __container_params | combine({"command": command}) }}'
-  when: command | default(false, true)
+# COMMAND & ENTRYPOINT
 
-- name: "dry/unraid-container : {{ name }} : Container's entrypoint"
+- name: "dry/unraid-container : {{ name }} : Collect container's command"
+  set_fact:
+    command: '{{ pulled_image.image.Config.Cmd }}'
+  when: (command is not defined)
+- block:
+    - name: "dry/unraid-container : {{ name }} : Collect container's command : Convert str -> list"
+      ansible.builtin.command:
+        argv:
+          - '{{ unraid.python_venv_dir }}/bin/python'
+          - '-c'
+          - "import json,shlex; print(json.dumps(list(map(str.strip, shlex.split(''' {{command}} ''')))))"
+      register: _command_as_json_list
+    - set_fact:  # noqa 502
+        __container_command: '{{ _command_as_json_list.stdout | from_json }}'
+  when: command is string
+- set_fact:  # noqa 502
+    __container_command: '{{ command | list }}'
+  when: command | type_debug == "list"
+- name: "dry/unraid-container : {{ name }} : Set container's command"
   set_fact:  # noqa 502
-    __container_params: >-2
-      {{ __container_params | combine({
-        "entrypoint": (
-          ([secrets.docker.entrypoint] if (__include_secrets | bool) else [])
-          +
-          ((entrypoint | default(false, true)) or pulled_image.image.Config.Entrypoint)
-        ),
-      }) }}
+    __container_params: '{{ __container_params | combine({"command": __container_command}) }}'
+  when: __container_command | length > 0
+
+- name: "dry/unraid-container : {{ name }} : Collect container's entrypoint"
+  set_fact:  # noqa 502
+    entrypoint: '{{ pulled_image.image.Config.Entrypoint or [] }}'
+  when: (entrypoint is not defined)
+- name: "dry/unraid-container : {{ name }} : Collect container's entrypoint : Add 'secrets' entrypoint"
+  set_fact:  # noqa 502
+    entrypoint: '{{ [secrets.docker.entrypoint] + entrypoint }}'
+  when: __include_secrets | bool
+- name: "dry/unraid-container : {{ name }} : Set container's entrypoint"
+  set_fact:  # noqa 502
+    __container_params: '{{ __container_params | combine({"entrypoint": entrypoint}) }}'
+  when: entrypoint | length > 0
 
 # CREATE DIRECTORIES & FILES
 
@@ -395,7 +418,7 @@
 
 - name: 'dry/unraid-container : {{ name }} : Spin up the Container'
   community.docker.docker_container: '{{ __container_params }}'
-#  debug: { var: __container_params }
+  #debug: { var: __container_params }
 
 # UNSET FACTS
 
