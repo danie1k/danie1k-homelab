@@ -14,6 +14,7 @@
   vars:
     name: '{{ _name }}'
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.2
+    include_secrets: false
     webui: false
     env:
       path.data: '{{ _path_data }}'

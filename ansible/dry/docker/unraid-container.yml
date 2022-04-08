@@ -32,6 +32,7 @@
 
 - name: 'dry/unraid-container : {{ name }} : Set defaults'
   set_fact:
+    __include_secrets: '{{ include_secrets | default(true) }}'
     __default_labels: '{{ docker_config.container_defaults.labels | default({}, true) }}'
     __default_networks:
       - name: '{{ docker_config.network.internal.name }}'
@@ -53,6 +54,15 @@
         "service_data_dir": "{{ service_data_dir | default(name, true) }}",
         "volume_base": "{{ unraid.services_data_dir }}/{{ service_data_dir | default(name, true) }}",
       }
+
+# PULL IMAGE
+
+- name: 'dry/unraid-container : {{ name }} : Pull Docker Image'
+  community.docker.docker_image:
+    name: '{{ __container_facts.image }}'
+    source: pull
+    state: present
+  register: pulled_image
 
 # ENVIRONMENT VARIABLES
 
@@ -260,12 +270,22 @@
     __container_facts: >-2
       {{
         __container_facts
-        | combine({"container_volumes": (_volumes.results | map(attribute="ansible_facts") | map(attribute="volume"))})
-        | combine({"any_volumes_to_create": (
+        |
+        combine({
+          "container_volumes": (
+            ([secrets.docker.volume] if (__include_secrets | bool) else [])
+            +
+            (_volumes.results | map(attribute="ansible_facts") | map(attribute="volume"))
+          )
+        })
+        |
+         combine({
+           "any_volumes_to_create": (
             (volumes | default([], true) | length > 0)
             or (files | default([], true) | length > 0)
             or (templates | default([], true) | length > 0)
-        )})
+          )
+        })
       }}
 
 # FINAL CONTAINER PARAMS
@@ -315,8 +335,14 @@
 
 - name: "dry/unraid-container : {{ name }} : Container's entrypoint"
   set_fact:  # noqa 502
-    __container_params: '{{ __container_params | combine({"entrypoint": entrypoint}) }}'
-  when: entrypoint | default(false, true)
+    __container_params: >-2
+      {{ __container_params | combine({
+        "entrypoint": (
+          ([secrets.docker.entrypoint] if (__include_secrets | bool) else [])
+          +
+          ((entrypoint | default(false, true)) or pulled_image.image.Config.Entrypoint)
+        ),
+      }) }}
 
 # CREATE DIRECTORIES & FILES
 
@@ -367,18 +393,9 @@
       </Container>
     dest: '/boot/config/plugins/dockerMan/templates-user/{{ name }}.xml'
 
-# PULL IMAGE
-
-- name: 'dry/unraid-container : {{ name }} : Pull Docker Image'
-  community.docker.docker_image:
-    name: '{{ __container_facts.image }}'
-    source: pull
-    state: present
-
-# RUN CONTAINER
-
 - name: 'dry/unraid-container : {{ name }} : Spin up the Container'
   community.docker.docker_container: '{{ __container_params }}'
+#  debug: { var: __container_params }
 
 # UNSET FACTS
 
@@ -393,10 +410,12 @@
     files:
     icon:
     image:
+    include_secrets:
     labels:
     name:
     networks:
     proxy:
+    pulled_image:
     service_data_dir:
     templates:
     user:

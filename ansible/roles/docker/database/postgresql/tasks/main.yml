@@ -3,6 +3,13 @@
 # CREATE USER youruser WITH ENCRYPTED PASSWORD 'yourpass';
 # GRANT ALL PRIVILEGES ON DATABASE yourdbname TO youruser;
 
+# unraid/secrets:
+#  POSTGRES_USER      -  root username
+#  POSTGRES_PASSWORD  -  root password
+
+- set_fact:
+    _pgdata: /var/lib/pgsql/data
+
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: postgres
@@ -15,16 +22,14 @@
       -c log_statement=none
       -c logging_collector=off
     env:
-      POSTGRES_USER: '{{ services.postgresql.root_username }}'
-      POSTGRES_PASSWORD: '{{ services.postgresql.root_password }}'
-      PGDATA: /var/lib/pgsql/data
+      PGDATA: '{{ _pgdata }}'
     networks:
       - name: '{{ docker_config.network.external.name }}'
         ipv4_address: '{{ services.postgresql.static_ip }}'
       - name: '{{ docker_config.network.internal.name }}'
         aliases: [ '{{ services.postgresql.ingest_host }} }' ]
     volumes:
-      - [ '', '/var/lib/pgsql/data', 'rw' ]
+      - [ '', '{{ _pgdata }}', 'rw' ]
 
     extra:
       cpus: 4

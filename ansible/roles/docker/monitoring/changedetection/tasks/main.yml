@@ -4,6 +4,7 @@
   vars:
     name: changedetection
     image: dgtlmoon/changedetection.io:latest
+    include_secrets: false
     networks:
       - name: '{{ docker_config.network.internal.name }}'
       - name: '{{ docker_config.network.external.name }}'

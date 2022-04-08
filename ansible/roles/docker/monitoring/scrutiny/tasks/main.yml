@@ -10,13 +10,11 @@
     _devices: '{{ _devices.results | map(attribute="ansible_facts._device") | list | sort }}'
     _port: '8080'
 
-- debug:
-    var: _devices
-
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: scrutiny
     image: ghcr.io/linuxserver/scrutiny:latest
+    include_secrets: false
     env:
       GIN_MODE: release  # https://stackoverflow.com/a/48926122
       SCRUTINY_API_ENDPOINT: 'http://127.0.0.1:{{ _port }}'

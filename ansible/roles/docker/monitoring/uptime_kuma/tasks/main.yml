@@ -5,6 +5,7 @@
   vars:
     name: uptime-kuma
     image: louislam/uptime-kuma:latest
+    include_secrets: false
     networks:
       - name: '{{ docker_config.network.internal.name }}'
       - name: '{{ docker_config.network.external.name }}'

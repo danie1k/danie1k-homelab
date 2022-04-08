@@ -5,6 +5,7 @@
   vars:
     name: traefik
     image: traefik:latest
+    include_secrets: false
     command: --configFile=/config/traefik.toml
     networks:
       - name: '{{ docker_config.network.external.name }}'

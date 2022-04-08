@@ -9,6 +9,7 @@
   vars:
     name: mysql
     image: ghcr.io/linuxserver/mariadb
+    include_secrets: false
     env:
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     networks:

@@ -131,11 +131,6 @@ services:
     ingest_host: 'elasticsearch.{{ lab_domain_name }}'
     static_ip:
   grafana:
-    postgres:
-      host: 'postgres.{{ docker_config.network.internal.name }}:5432'
-      dbname:
-      user:
-      password:
     static_ip:
   influxdb:
     static_ip:
@@ -176,8 +171,6 @@ services:
     business_license_key: false  # optional
   postgresql:
     ingest_host: 'postgres.{{ lab_domain_name }}'
-    root_username: root
-    root_password:
     static_ip:
   prometheus:
     blackbox:

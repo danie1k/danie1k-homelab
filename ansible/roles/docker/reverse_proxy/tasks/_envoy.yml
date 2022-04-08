@@ -6,6 +6,7 @@
     # Log levels: [trace][debug][info][warning|warn][error][critical][off]
     command: --log-level warn --config-path /config/envoy.yaml
     image: danie1k/homelab-envoyproxy:rolling
+    include_secrets: false
     networks:
       - name: '{{ docker_config.network.external.name }}'
         ipv4_address: '{{ services.reverse_proxy.static_ip }}'
