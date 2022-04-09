@@ -110,8 +110,6 @@ idrac:
 
 services:
   aria2:
-    aria2_rpc_secret: 123qwerty
-    ariang_http_auth: admin:admin
     static_ip:
     volumes: []
   authentik:
@@ -149,8 +147,9 @@ services:
         rpc: 9092
       url: 'https://<static_ip>:9091'   # wherever your InfluxDB instance is hosted
   jellyfin:
-    static_ip:
-    media_volumes: []
+    server:
+      static_ip:
+      media_volumes: []
   ldap:
     static_ip:
   loki:
@@ -164,16 +163,6 @@ services:
   mysql:
     ingest_host: 'mysql.{{ lab_domain_name }}'
     static_ip:
-  nextcloud:
-    data_dir: /mnt/user/appdata/nextcloud/data
-    postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
-    postgres_port: 5432
-    postgres_dbname:
-    postgres_user:
-    postgres_password:
-    postgres_dbtableprefix:
-    redis_host: 'redis.{{ docker_config.network.internal.name }}'
-    redis_port: 6379
   portainer:
     business_license_key: false  # optional
   postgresql:

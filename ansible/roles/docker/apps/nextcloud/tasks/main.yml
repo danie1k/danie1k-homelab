@@ -9,14 +9,29 @@
   vars:
     parent_container_name: '{{ _name }}'
 
-# MAIN SERVER
+## MAIN SERVER
+
+- set_fact:  # noqa 502
+    _nextcloud_config:
+      # https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/caching_configuration.html#id2
+      # https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/occ_command.html
+      - [ system, 'memcache.distributed', '\\OC\\Memcache\\Redis'                               ]
+      - [ system, 'memcache.locking',     '\\OC\\Memcache\\Redis'                               ]
+      - [ system, 'overwrite.cli.url',    'https://nextcloud.{{ lab_domain_name }}'             ]
+      - [ system, 'redis host',           '{{ redis_host }}'                                    ]
+      - [ system, 'redis port',           '{{ redis_port }}'                                                ]
+      - [ system, 'redis password',       '{{ redis_password }}'                                ]
+      - [ system, 'trusted_domains 1',    'nextcloud.{{ lab_domain_name }}'                     ]
+      - [ system, 'trusted_domains 2',    'nextcloud.{{ docker_config.network.internal.name }}' ]
 
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: '{{ _name }}'
     image: ghcr.io/linuxserver/nextcloud
+    include_secrets: false
     networks:
       - name: '{{ docker_config.network.internal.name }}'
+        aliases: [ '{{ _name }}.{{ lab_domain_name }}' ]
       - name: '{{ docker_config.network.external.name }}'  # Because Nextcloud needs access to the Internet
     volumes:
       - [ '/config', '/config', 'rw' ]
@@ -33,13 +48,13 @@
 - include_tasks: ./_configure_web_server.yml
   register: __configure_web_server
 
-- include_tasks: '{{ playbook_dir }}/dry/docker/exec.yml'
-  vars:
-    container_name: '{{ _name }}'
-    commands:
-      # https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/caching_configuration.html#id2
-      # https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/occ_command.html
-      - occ --no-ansi --no-warnings config:system:set redis host --value='{{ redis_host }}'
-      - occ --no-ansi --no-warnings config:system:set redis port --value=6379
-      - occ --no-ansi --no-warnings config:system:set memcache.distributed --value='\\OC\\Memcache\\Redis'
-      - occ --no-ansi --no-warnings config:system:set memcache.locking --value='\\OC\\Memcache\\Redis'
+- block:  # noqa 502
+  - set_fact:  # noqa 502
+      cmd: "occ --no-ansi --no-warnings config:{{item[0]}}:set {{item[1]}} --value='{{item[2]}}'"
+    register: _nextcloud_config_commands
+    with_list: '{{ _nextcloud_config }}'
+
+  - include_tasks: '{{ playbook_dir }}/dry/docker/exec.yml'
+    vars:
+      container_name: '{{ _name }}'
+      commands: '{{ _nextcloud_config_commands.results | map(attribute="ansible_facts.cmd") | list }}'

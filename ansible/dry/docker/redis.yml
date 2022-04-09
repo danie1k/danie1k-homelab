@@ -8,35 +8,41 @@
     that: ['"redis" not in parent_container_name|lower']
     fail_msg: "Word 'redis' is forbidden in 'parent_container_name' variable"
 
+- ansible.builtin.pause:  # noqa 502
+    prompt: "Enter REDIS password to set, or press [Enter] to continue without password"
+    echo: no
+  register: _raw_redis_password
+
 - set_fact:  # noqa 502
-    cpus: '{{ cpus | default("2") }}'
-    memory: '{{ memory | default("8G") }}'
-    maxconn: '{{ maxconn | default("1024") }}'
+    redis_cpus: '{{ cpus | default("2") }}'
+    redis_maxconn: '{{ maxconn | default("1024") }}'
+    redis_password: '{{ _raw_redis_password.user_input.strip() }}'
+    redis_port: '{{ 7000 | random(start=5000) }}'
 
 - include_tasks: ./unraid-container.yml
   vars:
-    webui: false
-    icon: redis
-    name: '{{ parent_container_name }}-redis'
-    service_data_dir: '{{ parent_container_name }}/redis'
+    name: 'redis-{{ parent_container_name }}'
     image: '{{ redis_image | default("redis:alpine") }}'
-
+    include_secrets: false
+    command: /redis/redis.conf
+    icon: redis
+    webui: false
+    service_data_dir: '{{ parent_container_name }}/redis'
     volumes:
-      - [ '/data', '/data', 'rw' ]
-      - [ '/redis.conf', '/usr/local/etc/redis/redis.conf', 'rw' ]
+      - [ '', '/redis' ]
 
-    files:
+    templates:
       - src: '{{ playbook_dir }}/dry/docker/files/redis.conf'
         dest: ''
         force: true
 
     extra:
-      cpus: '{{ cpus }}'
-      memory: '{{ memory }}'
-      kernel_memory: '{{ memory }}'
+      cpus: '{{ redis_cpus }}'
+      memory: 8G
+      kernel_memory: 8G
       user: '{{ docker_config.default_user }}'
       sysctls:
-        net.core.somaxconn: '{{ maxconn }}'
+        net.core.somaxconn: '{{ redis_maxconn }}'
 
 - set_fact:
-    redis_host: '{{ parent_container_name }}-redis.{{ docker_config.network.internal.name }}'
+    redis_host: 'redis-{{ parent_container_name }}.{{ docker_config.network.internal.name }}'

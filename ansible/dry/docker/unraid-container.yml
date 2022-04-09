@@ -334,7 +334,7 @@
 - name: "dry/unraid-container : {{ name }} : Collect container's command"
   set_fact:
     command: '{{ pulled_image.image.Config.Cmd }}'
-  when: (command is not defined)
+  when: (command is not defined) or (command is none)
 - block:
     - name: "dry/unraid-container : {{ name }} : Collect container's command : Convert str -> list"
       ansible.builtin.command:
@@ -349,10 +349,19 @@
 - set_fact:  # noqa 502
     __container_command: '{{ command | list }}'
   when: command | type_debug == "list"
+- name: "dry/unraid-container : {{ name }} : Collect container's command : Quote items"
+  ansible.builtin.command:
+    argv:
+      - '{{ unraid.python_venv_dir }}/bin/python'
+      - '-c'
+      - "import json,shlex; print(json.dumps(list(map(shlex.quote, {{__container_command|to_json}}))))"
+  register: _quoted_container_command
+  when: __container_command | length > 0
+
 - name: "dry/unraid-container : {{ name }} : Set container's command"
   set_fact:  # noqa 502
-    __container_params: '{{ __container_params | combine({"command": __container_command}) }}'
-  when: __container_command | length > 0
+    __container_params: '{{ __container_params | combine({"command": (_quoted_container_command.stdout | from_json)}) }}'
+  when: (__container_command | length > 0) and (_quoted_container_command is defined)
 
 - name: "dry/unraid-container : {{ name }} : Collect container's entrypoint"
   set_fact:  # noqa 502
