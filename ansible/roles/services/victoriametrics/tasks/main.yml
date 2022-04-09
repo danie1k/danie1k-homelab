@@ -3,6 +3,7 @@
 - set_fact:
     homelab_storage_dir_name: victoriametrics
     vm_storage_dir: /opt/zfs/victoriametrics
+    victoriametrics_log_level: WARN  # INFO, WARN, ERROR, FATAL, PANIC
     zfs_dataset_name: zfs/victoriametrics
 
 - include_tasks: '{{ playbook_dir }}/dry/github_release_downloader.yml'

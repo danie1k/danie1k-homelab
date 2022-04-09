@@ -357,7 +357,7 @@
 - name: "dry/unraid-container : {{ name }} : Collect container's entrypoint"
   set_fact:  # noqa 502
     entrypoint: '{{ pulled_image.image.Config.Entrypoint or [] }}'
-  when: (entrypoint is not defined)
+  when: (entrypoint is not defined) or (entrypoint is none)
 - name: "dry/unraid-container : {{ name }} : Collect container's entrypoint : Add 'secrets' entrypoint"
   set_fact:  # noqa 502
     entrypoint: '{{ [secrets.docker.entrypoint] + entrypoint }}'
@@ -365,7 +365,7 @@
 - name: "dry/unraid-container : {{ name }} : Set container's entrypoint"
   set_fact:  # noqa 502
     __container_params: '{{ __container_params | combine({"entrypoint": entrypoint}) }}'
-  when: entrypoint | length > 0
+  when: (entrypoint is sequence) and (entrypoint | length > 0)
 
 # CREATE DIRECTORIES & FILES
 

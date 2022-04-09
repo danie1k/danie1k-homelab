@@ -5,7 +5,7 @@
 auth_enabled: false
 
 server:
-  log_level: {{ services.loki.log_level }}
+  log_level: {{ loki_log_level }}
   # grpc
   grpc_listen_address: 0.0.0.0
   grpc_listen_port: {{ services.loki.ingest.port.grpc }}

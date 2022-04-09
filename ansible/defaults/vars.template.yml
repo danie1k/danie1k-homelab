@@ -32,6 +32,18 @@ unraid:
       pfsense_hostname:
       cert_descr:
 
+tmpfs:
+  mountpoint: /opt/tmpfs
+
+secrets:  # ansible/roles/unraid/secrets
+  docker:
+    entrypoint: /opt/secrets/entrypoint.sh
+    volume: '{{ tmpfs.mountpoint }}/secrets:/opt/secrets:ro'
+  storage:
+    permanent: '{{ unraid.homelab_dir }}/secrets'
+    in_container: /opt/secrets
+    on_host: '{{ tmpfs.mountpoint }}/secrets'
+
 zfs:
   chown: 99:100  # nobody
   mountpoint: /opt/zfs
@@ -139,10 +151,9 @@ services:
   jellyfin:
     static_ip:
     media_volumes: []
-  #ldap:
-  #  static_ip:
+  ldap:
+    static_ip:
   loki:
-    log_level: warn  # debug, info, warn, error
     ingest:
       port:
         grpc: 9095
@@ -174,7 +185,6 @@ services:
     speedtest:
       server: CHANGEME
   promtail:
-    log_level: warn  # debug, info, warn, error
     ingest:
       port:
         grpc: 9093
@@ -185,7 +195,6 @@ services:
   scrutiny:
     drives: []
       # - /dev/sda
-    log_level: WARN  # https://github.com/sirupsen/logrus#level-logging=
     notify:
       # Testing notifications: curl -x POST http://hostname/api/health/notify
       level: warn  # 'warn' or 'error'
@@ -218,7 +227,6 @@ services:
     username: tubearchivist
     password: verysecret
   victoriametrics:
-    log_level: WARN  # INFO, WARN, ERROR, FATAL, PANIC
     ingest:
       https: true  # boolean
       port:
@@ -235,12 +243,3 @@ services:
     postgres_dbname:
     postgres_user:
     postgres_password:
-
-# apps:
-#   # docker_container_firefly
-#   firefly:
-#     # https://docs.firefly-iii.org/firefly-iii/installation/docker/
-#     APP_KEY: CHANGEME_32_CHARS
-#     DB_DATABASE: CHANGEME
-#     DB_USERNAME: CHANGEME
-#     DB_PASSWORD: CHANGEME

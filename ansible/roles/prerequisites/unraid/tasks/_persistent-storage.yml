@@ -2,6 +2,8 @@
 
 - set_fact:
     _global_env_variables: |2
+      EDIOR=nano
+
       HOMELAB_DIR={{ unraid.homelab_dir }}
       SERVICES_DATA_DIR={{ unraid.services_data_dir }}
       PYTHON_VENV_DIR={{ unraid.python_venv_dir }}

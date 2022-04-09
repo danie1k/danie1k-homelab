@@ -3,6 +3,7 @@
 - set_fact:
     homelab_storage_dir_name: loki
     loki_ramdisk_size: 1G
+    loki_log_level: warn  # debug, info, warn, error
     loki_storage:
       boltdb_cache: '{{ tmpfs.mountpoint }}/loki/boltdb/cache'
       boltdb_index: '{{ tmpfs.mountpoint }}/loki/boltdb/index'
@@ -44,6 +45,6 @@
       (
         crontab -l 2>/dev/null
         echo
-        echo "# Persistent Loki storage"
-        echo "*/5 * * * * /etc/rc.d/rc.loki dump 2>&1 >/dev/null 2>&1
+        echo '# Persistent Loki storage'
+        echo '*/5 * * * * /etc/rc.d/rc.loki dump 2>&1 >/dev/null 2>&1'
       ) | crontab -

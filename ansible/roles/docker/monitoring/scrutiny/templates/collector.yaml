@@ -8,7 +8,7 @@ devices:
 
 log:
   file: ''
-  level: {{ services.scrutiny.log_level }}
+  level: {{ scrutiny_log_level }}
 
 api:
   endpoint: http://127.0.0.1:{{ _port }}

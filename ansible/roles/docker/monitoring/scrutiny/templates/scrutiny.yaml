@@ -13,7 +13,7 @@ web:
 
 log:
   file: ''
-  level: {{ services.scrutiny.log_level }}
+  level: {{ scrutiny_log_level }}
 
 {% if services.scrutiny.notify.urls | list | length > 0 %}
 notify:

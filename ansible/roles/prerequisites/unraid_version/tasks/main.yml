@@ -7,5 +7,16 @@
   register: raw_unraid_version
   changed_when: false
 
+
+- name: Read unRAID array status
+  # Stopped Started Formatting
+  ansible.builtin.shell:
+    # cat /usr/local/emhttp/state/var.ini | grep fsState | cut -c10- | rev | cut -c2- | rev | cat -e
+    cmd: cat /usr/local/emhttp/state/var.ini | grep fsState | cut -c9- | jq -r | cat -e
+    warn: false
+  register: raw_unraid_fsState
+  changed_when: false
+
 - set_fact:  # noqa 502
+    UNRAID_ARRAY_STATUS: '{{ raw_unraid_fsState.stdout }}'
     UNRAID_VERSION: '{{ raw_unraid_version.stdout | split(".") | map("int") }}'

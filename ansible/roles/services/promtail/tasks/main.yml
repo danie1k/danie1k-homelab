@@ -3,23 +3,16 @@
 - set_fact:
     homelab_storage_dir_name: promtail
     promtail_positions_filename: '{{ unraid.services_data_dir }}/promtail/positions.yaml'
-#    loki_ramdisk_size: 1G
-#    loki_storage:
-#      boltdb_cache: '{{ tmpfs.mountpoint }}/loki/boltdb/cache'
-#      boltdb_index: '{{ tmpfs.mountpoint }}/loki/boltdb/index'
-#      compactor: '{{ tmpfs.mountpoint }}/loki/compactor'
-#      filesystem: '{{ tmpfs.mountpoint }}/loki/storage'
-#    zfs_dataset_name: zfs/loki
-#    zfs_mount_point: '{{ zfs.mountpoint }}/loki'
+    promtail_log_level: warn  # debug, info, warn, error
 
-#- include_tasks: '{{ playbook_dir }}/dry/github_release_downloader.yml'
-#  vars:
-#    repository_name: grafana/loki
-#    files_to_download:
-#      - promtail-linux-amd64.zip
-#    files_to_install:
-#      promtail-linux-amd64: promtail
-#    install_on_boot: true
+- include_tasks: '{{ playbook_dir }}/dry/github_release_downloader.yml'
+  vars:
+    repository_name: grafana/loki
+    files_to_download:
+      - promtail-linux-amd64.zip
+    files_to_install:
+      promtail-linux-amd64: promtail
+    install_on_boot: true
 
 - name: Create directories
   ansible.builtin.file:
