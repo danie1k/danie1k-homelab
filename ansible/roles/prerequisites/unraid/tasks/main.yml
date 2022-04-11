@@ -7,12 +7,10 @@
     - include_tasks: _install-dell-tools.yml
     - include_tasks: _log-dir-size.yml
     - include_tasks: _python-virtualenv.yml
-    - include_tasks: _slow-down-fans.yml
     - include_tasks: _sysctl.yml
 
     - include_tasks: _docker_improvements/task.yml
     - include_tasks: _hddtemp/task.yml
-    - include_tasks: _scripts/main.yml
     - include_tasks: _supervisor/task.yml
     - include_tasks: _webhooks/task.yml
 

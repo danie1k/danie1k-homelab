@@ -1,0 +1,55 @@
+---
+
+- block:
+    - name: Copy scripts files to persistent storage
+      ansible.builtin.copy:
+        src: '{{ item[0] }}'
+        dest: '{{ unraid.scripts_dir }}/{{ item[1] | default(item[0]) }}'
+        force: true
+      with_list: '{{ files }}'
+
+    - name: Compile scripts from templates and write to persistent storage
+      ansible.builtin.template:
+        src: '{{ item }}'
+        dest: '{{ unraid.scripts_dir }}/{{ item }}'
+        force: true
+      with_list: '{{ templates }}'
+
+    - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+      vars:
+        name: Install scripts
+        script: |2
+          readonly scripts=(
+          {% for item in (files + templates) %}
+            {% if (item is sequence) and (item is not string) %}'{{ item[1] | default(item[0]) }}'{% else %}'{{ item }}'{% endif %}
+
+          {% endfor %}
+          )
+
+          for fname in "${scripts[@]}"
+          do
+            fromdos < "{{ unraid.scripts_dir }}/${fname}" > "/usr/bin/${fname}"
+            chmod -v +x "/usr/bin/${fname}"
+          done
+
+  vars:
+    files:
+      - [slow_down_idrac_fans.sh]
+      - [reattach_docker_networks.sh]
+      # https://www.youtube.com/watch?v=9bh5ZK8z4ZA, https://github.com/ezonakiusagi/bht
+      # The bht/bht script has been modified to remove email functionality
+      - [bht/bht, bht]
+    templates:
+      - get_tls_from_pfsense.sh
+      - update_idrac_tls.sh
+      - zfs_mount.sh
+
+
+# https://github.com/ipmitool/ipmitool/issues/30
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Slow down fans
+    script: |
+      fromdos < "{{ unraid.scripts_dir }}/slow_down_idrac_fans.sh" > "{{ unraid.boot_tmp_dir }}/slow_down_idrac_fans.sh"
+      /bin/bash "{{ unraid.boot_tmp_dir }}/slow_down_idrac_fans.sh"
