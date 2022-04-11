@@ -1,9 +1,0 @@
----
-# https://github.com/ipmitool/ipmitool/issues/30
-
-- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
-  vars:
-    name: Slow down fans
-    script: |
-      fromdos < "{{ unraid.scripts_dir }}/slow_down_idrac_fans.sh" > "{{ unraid.boot_tmp_dir }}/slow_down_idrac_fans.sh"
-      /bin/bash "{{ unraid.boot_tmp_dir }}/slow_down_idrac_fans.sh"
