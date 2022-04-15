@@ -6,9 +6,14 @@
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: '{{ _name }}'
-    image: 'docker.{{ lab_domain_name }}/{{ _name }}:20211203-02'
+    image: 'docker.{{ lab_domain_name }}/{{ _name }}:latest'
     icon: anime
-    log_driver: local
+    include_secrets: false
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}' # for 'pip install' etc.
+    volumes:
+      - '{{ zfs.mountpoint }}/encrypted/~git/anime-catalog/src:/app:ro'
 
     proxy:
       - http_port: 4321
