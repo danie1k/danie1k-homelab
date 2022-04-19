@@ -208,13 +208,7 @@ services:
     static_ip:
     volumes: []
   tubearchivist:
-    elasticsearch:
-      user: elastic
-      password:
-    storage:
-      downloaded_videos: /mnt/user/change/me
-    username: tubearchivist
-    password: verysecret
+    storage_volume: /mnt/user/change/me
   victoriametrics:
     ingest:
       https: true  # boolean

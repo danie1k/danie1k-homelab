@@ -24,7 +24,7 @@
     name: 'redis-{{ parent_container_name }}'
     image: '{{ redis_image | default("redis:alpine") }}'
     include_secrets: false
-    command: /redis/redis.conf
+    command: '{{ redis_cmd | default("/redis/redis.conf") }}'
     icon: redis
     webui: false
     service_data_dir: '{{ parent_container_name }}/redis'

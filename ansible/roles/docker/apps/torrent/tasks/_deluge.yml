@@ -9,6 +9,7 @@
   vars:
     name: torrent
     image: lscr.io/linuxserver/deluge
+    include_secrets: false
     icon: deluge
     networks:
       - name: '{{ docker_config.network.internal.name }}'
