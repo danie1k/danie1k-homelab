@@ -7,6 +7,7 @@
   vars:
     name: ebooks
     image: gotson/komga:latest
+    include_secrets: false
     icon: '{{ _name }}'
     volumes:
       - [ '/{{ _name }}', '/config', 'rw' ]
@@ -17,5 +18,5 @@
 
     extra:
       user: '{{ docker_config.default_user }}'
-      memory: 2G
-      kernel_memory: 2G
+      memory: 3G
+      kernel_memory: 4G
