@@ -43,7 +43,7 @@
         "name": "{{ name }}",
         "image": "{{ image }}",
         "icon": (
-          "https://raw.githubusercontent.com/danie1k/danie1k-homelab/master/icons/{{ icon | default(name, true) }}.png"
+          "https://github.com/walkxhub/dashboard-icons/raw/master/png/{{ icon | default(name, true) }}.png"
         ),
         "log_driver": "{{ log_driver | default("loki", true) }}",
         "networks": {},
