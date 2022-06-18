@@ -32,7 +32,7 @@
     name: 'Net between {{ docker_config.network.external.name }} and unraid'
     script: |
       ip link add {{ docker_config.network.external.name }}_bridge link {{ docker_config.network.external.parent }} type macvlan mode bridge
-      ip addr add {{ docker_config.network.external.ipam_config.aux_addresses.host }}/32' dev {{ docker_config.network.external.name }}_bridge
+      ip addr add {{ docker_config.network.external.ipam_config.aux_addresses.host }}/32 dev {{ docker_config.network.external.name }}_bridge
       ip link set {{ docker_config.network.external.name }}_bridge up
       ip route add {{ docker_config.network.external.ipam_config.iprange }} dev {{ docker_config.network.external.name }}_bridge
 
