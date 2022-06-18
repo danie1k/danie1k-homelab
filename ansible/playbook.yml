@@ -50,6 +50,7 @@
     - docker/monitoring/uptime_kuma
 
     - docker/apps/aria2
+    - docker/apps/bin
     - docker/apps/dlna
     - docker/apps/diagrams
     - docker/apps/ebooks
@@ -57,6 +58,7 @@
     - docker/apps/jellyfin
     - docker/apps/nextcloud
     - docker/apps/office
+    - docker/apps/podcast
     - docker/apps/torrent
     - docker/apps/tubearchivist
     - docker/apps/wiki
