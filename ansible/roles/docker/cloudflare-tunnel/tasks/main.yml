@@ -1,0 +1,45 @@
+---
+# https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/
+# https://developers.cloudflare.com/cloudflare-one/faq/cloudflare-tunnels-faq/
+
+# How to generate credentials.json file (https://github.com/cloudflare/cloudflared/issues/645#issuecomment-1136486550):
+# 1. crloudflared tunnel login
+# 3. crloudflared tunnel list
+# 3. crloudflared tunnel --creds-file /path/to/new/credentials.json <tunnel_id>
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: cloudflare-tunnel
+    image: cloudflare/cloudflared:latest
+    icon: cloudflare
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --config
+      - /home/nonroot/.cloudflared/config.yml
+      - --metrics
+      - 0.0.0.0:36477
+      - run
+    include_secrets: false
+    networks:
+      - name: '{{ docker_config.network.external.name }}'
+      - name: '{{ docker_config.network.internal.name }}'
+
+    files:
+      - src: credentials.json
+        dest: ''
+        force: false
+      - src: config.yml
+        dest: ''
+        force: false
+
+    volumes:
+      - [ '', '/home/nonroot/.cloudflared', 'ro' ]
+
+    proxy:
+      - http_port: 36477
+
+    extra:
+      cpus: 1
+      memory: 1G
+      kernel_memory: 1G
