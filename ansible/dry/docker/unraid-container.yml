@@ -143,8 +143,8 @@
       set_fact:
         _traefik_labels: >-2
           {
-            "traefik.http.routers.{{ name }}-http-{{ _index }}.rule": "Host(`{{ http_item.hostname | default(name, true) }}.{{ lab_domain_name }}`)",
-            "traefik.http.routers.{{ name }}-http-{{ _index }}.service": (
+            "traefik.http.routers.{{ http_item.hostname | default(name, true) }}-http-{{ _index }}.rule": "Host(`{{ http_item.hostname | default(name, true) }}.{{ lab_domain_name }}`)",
+            "traefik.http.routers.{{ http_item.hostname | default(name, true) }}-http-{{ _index }}.service": (
               "{% if 'service' in http_item and http_item.service is not mapping %}"
                 "{{ http_item.service }}"
               "{% else %}"
@@ -161,7 +161,7 @@
             ): "{{ http_item.http_port }}",
             {% if http_item.router is defined %}
               {% for _key, _value in http_item.router.items() %}
-                "traefik.http.routers.{{ name }}-http-{{ _index }}.{{ _key }}": "{{ _value }}",
+                "traefik.http.routers.{{ http_item.hostname | default(name, true) }}-http-{{ _index }}.{{ _key }}": "{{ _value }}",
               {% endfor %}
             {% endif %}
             {% if http_item.service is mapping %}
@@ -193,9 +193,9 @@
       set_fact:
         _traefik_labels: >-2
           {
-            "traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.entrypoints": "{{ tcp_item.tcp_entrypoint }}",
-            "traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.rule": "HostSNI(`*`)",
-            "traefik.tcp.routers.{{ name }}-tcp-{{ _index }}.service": (
+            "traefik.tcp.routers.{{ http_item.service_name | default(name, true) }}-tcp-{{ _index }}.entrypoints": "{{ tcp_item.tcp_entrypoint }}",
+            "traefik.tcp.routers.{{ http_item.service_name | default(name, true) }}-tcp-{{ _index }}.rule": "HostSNI(`*`)",
+            "traefik.tcp.routers.{{ http_item.service_name | default(name, true) }}-tcp-{{ _index }}.service": (
               "{% if 'service' in tcp_item and tcp_item.service is not mapping %}"
                 "{{ tcp_item.service }}"
               "{% else %}"
@@ -212,7 +212,7 @@
             ): "{{ tcp_item.tcp_port }}",
             {% if tcp_item.router is defined %}
               {% for _key, _value in tcp_item.router.items() %}
-                "traefik.http.routers.{{ name }}-tcp-{{ _index }}.{{ _key }}": "{{ _value }}",
+                "traefik.http.routers.{{ http_item.service_name | default(name, true) }}-tcp-{{ _index }}.{{ _key }}": "{{ _value }}",
               {% endfor %}
             {% endif %}
             {% if tcp_item.service is mapping %}
@@ -277,6 +277,8 @@
             ([secrets.docker.volume] if (__include_secrets | bool) else [])
             +
             (_volumes.results | map(attribute="ansible_facts") | map(attribute="volume"))
+            +
+            ["/etc/localtime:/etc/localtime:ro"]
           )
         })
         |
