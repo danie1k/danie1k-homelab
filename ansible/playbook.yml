@@ -36,6 +36,7 @@
     - docker/reverse_proxy
     - docker/sso
     - docker/static
+    - docker/vpn
 
     - docker/database/elasticsearch
     - docker/database/mysql

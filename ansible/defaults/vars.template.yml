@@ -220,6 +220,8 @@ services:
       # Prometheus config file with 'scrape_configs'
       # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
       config_file_path:
+  vpn:
+    static_ip:
   wikijs:
     postgres_host: 'postgres.{{ docker_config.network.internal.name }}'
     postgres_port: 5432

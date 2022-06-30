@@ -1,0 +1,39 @@
+---
+# https://github.com/qdm12/gluetun/wiki
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: vpn
+    image: qmcgaw/gluetun
+    icon: openvpn
+    webui: false
+    include_secrets: true
+    env:
+      VPN_SERVICE_PROVIDER: nordvpn
+      # https://nordvpn.com/pl/servers/tools/
+      SERVER_HOSTNAMES: pl137.nordvpn.com,de1099.nordvpn.com,nl400.nordvpn.com
+
+      HTTPPROXY: 'on'
+      HTTPPROXY_USER: lorem
+      HTTPPROXY_PASSWORD: ipsum
+      #HTTPPROXY_LOG: 'on'
+
+      SHADOWSOCKS: 'on'
+      SHADOWSOCKS_PASSWORD: loremipsum
+      SHADOWSOCKS_CIPHER: aes-256-gcm
+      #SHADOWSOCKS_LOG: 'on'
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: '{{ services.vpn.static_ip }}'
+
+    # PORTS:
+    #  8888/tcp  --  HTTP proxy
+    #  8388/tcp  --  Shadowsocks
+    #  8388/udp  --  Shadowsocks
+
+    extra:
+      capabilities:
+        - NET_ADMIN
+      devices:
+        - /dev/net/tun:/dev/net/tun
