@@ -65,6 +65,7 @@
     - docker/apps/wiki
 
     - docker/storage/static
+    - docker/storage/pydio
 
     - docker/own_apps/anime_catalog
 

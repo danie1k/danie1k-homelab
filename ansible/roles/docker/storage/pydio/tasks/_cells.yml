@@ -1,0 +1,37 @@
+---
+# https://pydio.com/en/docs/cells/v3/docker
+
+- set_fact:
+    _name: pydio
+    _port: 8080
+    _working_dir: /var/cells
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: '{{ _name }}'
+    image: pydio/cells
+    include_secrets: false
+    log_driver: local
+    env:
+      CELLS_WORKING_DIR: '{{ _working_dir }}'
+      CELLS_LOG_LEVEL: warn  # debug, info, warn, error
+      # https://pydio.com/en/docs/kb/deployment/running-cells-container-behind-traefik-reverse-proxy
+      CELLS_BIND: '0.0.0.0:{{ _port }}'
+      CELLS_EXTERNAL: 'https://{{ _name }}.{{ lab_domain_name }}'
+      CELLS_NO_TLS: '1'
+
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+
+    volumes:
+      - ['/cells/pydio', '{{ _working_dir }}', 'rw' ]
+      - [?, '/data', 'rw' ]
+
+    proxy:
+      - http_port: '{{ _port }}'
+
+    extra:
+      user: '{{ docker_config.default_user }}'
+      cpus: 4
+      memory: 6G
+      kernel_memory: 8G

@@ -1,0 +1,4 @@
+---
+
+#- include_tasks: _cells.yml
+- include_tasks: _core.yml

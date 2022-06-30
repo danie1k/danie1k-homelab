@@ -1,0 +1,47 @@
+---
+# https://hub.docker.com/r/linuxserver/pydio
+# https://github.com/linuxserver/docker-pydio
+
+- set_fact:
+    _volumes:
+      - [ '/core/config', '/config', 'rw' ]
+      - [ '/core/data', '/data', 'rw' ]
+
+      - [ '/core/50-install', '/etc/cont-init.d/50-install', ]
+      - [ '/core/pydio-core-8.2.5.zip', '/tmp/install.zip', 'ro' ]
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: pydio
+    image: 'docker.{{ lab_domain_name }}/pydio-core:latest'
+    include_secrets: false
+    log_driver: local
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+    volumes: '{{ _volumes|list + services.pydio.extra_volumes|list }}'
+
+    files:
+      - src: core/nginx/nginx.conf
+        dest: core/config/nginx/nginx.conf
+        force: true
+      - src: core/nginx/site-confs/default
+        dest: core/config/nginx/site-confs/default
+        force: true
+      - src: core/php/www2.conf
+        dest: core/config/php/www2.conf
+        force: true
+
+      - src: core/cont-init.d/50-install
+        dest: core/50-install
+        force: true
+      - src: core/pydio-core-8.2.5.zip
+        dest: core/pydio-core-8.2.5.zip
+        force: false
+
+    proxy:
+      - http_port: '80'
+
+    extra:
+      cpus: 4
+      memory: 6G
+      kernel_memory: 8G
