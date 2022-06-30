@@ -178,6 +178,8 @@ services:
       port:
         grpc: 9093
         http: 9094
+  pydio:
+    extra_volumes: []
   reverse_proxy:
     traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
     static_ip:
