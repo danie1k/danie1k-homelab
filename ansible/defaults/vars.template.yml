@@ -36,6 +36,7 @@ tmpfs:
   mountpoint: /opt/tmpfs
 
 secrets:  # ansible/roles/unraid/secrets
+  entrypoint: '{{ tmpfs.mountpoint }}/secrets/entrypoint.sh'
   docker:
     entrypoint: /opt/secrets/entrypoint.sh
     volume: '{{ tmpfs.mountpoint }}/secrets:/opt/secrets:ro'
