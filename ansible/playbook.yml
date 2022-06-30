@@ -35,7 +35,6 @@
     - docker/registry
     - docker/reverse_proxy
     - docker/sso
-    - docker/static
     - docker/vpn
 
     - docker/database/elasticsearch
@@ -64,6 +63,8 @@
     - docker/apps/torrent
     - docker/apps/tubearchivist
     - docker/apps/wiki
+
+    - docker/storage/static
 
     - docker/own_apps/anime_catalog
 
