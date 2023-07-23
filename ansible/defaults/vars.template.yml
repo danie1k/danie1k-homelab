@@ -169,6 +169,9 @@ services:
   postgresql:
     ingest_host: 'postgres.{{ lab_domain_name }}'
     static_ip:
+  postgresql14:
+    ingest_host: 'postgres14.{{ lab_domain_name }}'
+    static_ip:
   prometheus:
     blackbox:
       uptime_targets: []

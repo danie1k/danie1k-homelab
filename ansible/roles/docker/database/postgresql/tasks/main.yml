@@ -1,6 +1,6 @@
 ---
-# CREATE DATABASE yourdbname;
 # CREATE USER youruser WITH ENCRYPTED PASSWORD 'yourpass';
+# CREATE DATABASE yourdbname OWNER youruser;
 # GRANT ALL PRIVILEGES ON DATABASE yourdbname TO youruser;
 
 # unraid/secrets:
@@ -13,7 +13,9 @@
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: postgres
-    image: clearlinux/postgres:11  # https://hub.docker.com/r/clearlinux/postgres
+    image: postgres:11-alpine
+    icon: postgresql
+    include_secrets: true
     command: >-
       postgres
       -c log_connections=off
@@ -28,6 +30,34 @@
         ipv4_address: '{{ services.postgresql.static_ip }}'
       - name: '{{ docker_config.network.internal.name }}'
         aliases: [ '{{ services.postgresql.ingest_host }} }' ]
+    volumes:
+      - [ '', '{{ _pgdata }}', 'rw' ]
+
+    extra:
+      cpus: 4
+      memory: 6G
+      kernel_memory: 8G
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: postgres14
+    image: postgres:14-alpine
+    icon: postgresql
+    include_secrets: true
+    command: >-
+      postgres
+      -c log_connections=off
+      -c log_destination=stderr
+      -c log_disconnections=off
+      -c log_statement=none
+      -c logging_collector=off
+    env:
+      PGDATA: '{{ _pgdata }}'
+    networks:
+      - name: '{{ docker_config.network.external.name }}'
+        ipv4_address: '{{ services.postgresql14.static_ip }}'
+      - name: '{{ docker_config.network.internal.name }}'
+        aliases: [ '{{ services.postgresql14.ingest_host }} }' ]
     volumes:
       - [ '', '{{ _pgdata }}', 'rw' ]
 
