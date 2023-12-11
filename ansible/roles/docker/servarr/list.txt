@@ -5,6 +5,18 @@ Bazarr
   A companion application to Sonarr and Radarr that manages and downloads subtitles based on your requirements.
   https://www.bazarr.media/
 
+Bettarr-Notifications
+  Notifications for Sonarr, Radarr and Prowlarr. Supports Discord, Telegram, Slack, Pushover and ntfy.
+  https://github.com/NiNiyas/Bettarr-Notifications
+
+Bonarr
+  A fork of Radarr to work with porn.
+  https://github.com/gandalffoogray/Bonarr
+
+Flemmarr
+  A cript that parses a configuration written in YAML and can apply it to any of the -arr apps using their API.
+  https://github.com/Flemmarr/Flemmarr
+
 Jackett
   API Support for your favorite torrent trackers.
   https://github.com/Jackett/Jackett
@@ -12,6 +24,10 @@ Jackett
 Lidarr
   Music collection manager for Usenet and BitTorrent users.
   https://lidarr.audio/
+
+Notifiarr
+  We do notifications. Notifiarr provides native custom integrations with dozens, maybe hundreds of applications and websites.
+  https://notifiarr.wiki/en/home
 
 Prowlarr
   Indexer manager/proxy built on the popular arr .net/reactjs base stack to integrate with your various PVR apps.
@@ -25,6 +41,10 @@ Readarr
   eBook collection manager for Usenet and BitTorrent users.
   https://readarr.com/
 
+Recyclarr
+  Automatically sync TRaSH guides to your Sonarr and Radarr instances
+  https://github.com/recyclarr/recyclarr
+
 Sonarr
   Sonarr is a PVR for Usenet and BitTorrent users.
   https://sonarr.tv/
@@ -36,3 +56,7 @@ Tdarr
 Unmanic
   Tool for optimising file library.
   https://github.com/Unmanic/unmanic
+
+Whisparr
+  Adult movie collection manager for Usenet and BitTorrent users
+  https://github.com/Whisparr/Whisparr
