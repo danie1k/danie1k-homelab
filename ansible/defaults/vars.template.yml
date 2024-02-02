@@ -190,8 +190,6 @@ services:
     traefik_auth: 'user:password' # for basic auth - https://doc.traefik.io/traefik/v2.0/operations/api/#configuration
     static_ip:
   scrutiny:
-    drives: []
-      # - /dev/sda
     notify:
       # Testing notifications: curl -x POST http://hostname/api/health/notify
       level: warn  # 'warn' or 'error'

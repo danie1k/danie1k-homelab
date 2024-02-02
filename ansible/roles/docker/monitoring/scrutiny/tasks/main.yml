@@ -1,36 +1,28 @@
 ---
-# https://docs.linuxserver.io/images/docker-scrutiny
+# https://github.com/AnalogJ/scrutiny#docker
 
-- set_fact:  # noqa 502
-    _device: '{{ item }}:{{ item }}'
-  with_list: '{{ services.scrutiny.drives }}'
+- name: List disks
+  ansible.builtin.shell: lsblk -I 8 -d -o name,tran | grep -v usb | tail -n+2 | awk '{print "/dev/" $1 ":/dev/" $1}' | sort
   register: _devices
 
 - set_fact:  # noqa 502
-    _devices: '{{ _devices.results | map(attribute="ansible_facts._device") | list | sort }}'
     _port: '8080'
     scrutiny_log_level: WARN  # https://github.com/sirupsen/logrus#level-logging=
 
 - include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
   vars:
     name: scrutiny
-    image: ghcr.io/linuxserver/scrutiny:latest
+    image: ghcr.io/analogj/scrutiny:master-omnibus  # Using all-in-one image due to https://github.com/AnalogJ/scrutiny/issues/573
     include_secrets: false
+    log_driver: local
     env:
       GIN_MODE: release  # https://stackoverflow.com/a/48926122
-      SCRUTINY_API_ENDPOINT: 'http://127.0.0.1:{{ _port }}'
-      SCRUTINY_COLLECTOR: 'true'
-      SCRUTINY_WEB: 'true'
     networks:
-      - name: '{{ docker_config.network.internal.name }}'
-      - name: '{{ docker_config.network.external.name }}'  # Due to notifications
+      - name: internal
+      - name: unraid_docker  # Due to notifications
     proxy:
       - http_port: '{{ _port }}'
 
-    files:
-      - src: crontab
-        dest: crontabs/root
-        force: true
     templates:
       - src: collector.yaml
         dest: ''
@@ -39,7 +31,8 @@
         dest: ''
         force: true
     volumes:
-      - [ '', '/config' ]
+      - [ '/config', '/opt/scrutiny/config' ]
+      - [ '/influxdb', '/opt/scrutiny/influxdb' ]
       - '/run/udev:/run/udev:ro'
 
     extra:
@@ -51,4 +44,4 @@
         - SYS_RAWIO  # is necessary to allow smartctl permission to query your device SMART data
         #- SYS_ADMIN  # is required for NVMe drives
 
-      devices: '{{ _devices }}'
+      devices: '{{ _devices.stdout_lines }}'

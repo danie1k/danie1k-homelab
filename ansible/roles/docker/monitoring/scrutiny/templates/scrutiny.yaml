@@ -5,11 +5,18 @@ web:
   listen:
     port: {{ _port }}
     host: 0.0.0.0
+    basepath: ''
   database:
-    location: /config/scrutiny.db
+    location: /opt/scrutiny/config/scrutiny.db
   src:
     frontend:
-      path: /app/scrutiny-web
+      path: /opt/scrutiny/web
+
+  influxdb:
+    host: 127.0.0.1
+    port: 8086
+    bucket: scrutiny
+    retention_policy: true
 
 log:
   file: ''
@@ -17,6 +24,5 @@ log:
 
 {% if services.scrutiny.notify.urls | list | length > 0 %}
 notify:
-  level: {{ services.scrutiny.notify.level }}
   urls: {{ services.scrutiny.notify.urls }}
 {% endif %}
