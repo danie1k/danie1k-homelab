@@ -207,10 +207,6 @@ services:
         4: [ 10, 11, 30, 31 ]
   syslog:
     address: 'udp://<hostname_or_ip>:514'
-  telegraf:
-    openweathermap:
-      api_key: CHANGEME
-      cities: []
   torrent:
     static_ip:
     volumes: []

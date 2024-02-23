@@ -3,84 +3,46 @@
 # >>> CREATE DATABASE telegraf;
 # >>> CREATE RETENTION POLICY one_month ON telegraf DURATION 4w REPLICATION 1 DEFAULT;
 
-- set_fact:  # noqa 502
-    _telegraf_dir: '{{ unraid.homelab_dir }}/telegraf'
 
-- name: Create directories
+#- https://github.com/patagonaa/prometheus-mikrotik-swos-exporter
+#- https://github.com/mprasil/telegraf-snmp-mikrotik
+
+- set_fact:
+    homelab_storage_dir_name: telegraf
+    promtail_log_level: warn  # debug, info, warn, error
+
+- name: Create directory
   ansible.builtin.file:
-    path: '{{ item }}'
+    path: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}'
     state: directory
-  with_list:
-    - '{{ _telegraf_dir }}'
 
-- name: Get latest release version number
-  ansible.builtin.shell:
-    cmd: 'curl -s https://api.github.com/repos/influxdata/telegraf/releases/latest | jq -r .tag_name | cut -c2-'
-    warn: false
-  register: version
-  changed_when: false
-
-- set_fact:  # noqa 502
-    latest_version_file_path: '{{ _telegraf_dir }}/telegraf-{{ version.get("stdout", "unknown") | replace(".", "") }}'
-
-- block:
-    - name: Download latest Telegraf release to /tmp
-      ansible.builtin.unarchive:
-        # yamllint disable-line rule:line-length
-        src: 'https://dl.influxdata.com/telegraf/releases/telegraf-{{ version.get("stdout", "unknown") }}_linux_amd64.tar.gz'  # noqa 204
-        remote_src: true
-        dest: /tmp
-        creates: '{{ latest_version_file_path }}'
-      register: _download
-
-    - name: Copy Telegraf binary from /tmp to USB drive
-      ansible.builtin.command:
-        # yamllint disable-line rule:line-length
-        cmd: 'mv "/tmp/telegraf-{{ version.get("stdout", "unknown") }}/usr/bin/telegraf" "{{ latest_version_file_path }}"'  # noqa 204
-        creates: '{{ latest_version_file_path }}'
-      when: _download.changed
-  always:
-    - ansible.builtin.file:  # noqa 502
-        path: '/tmp/telegraf-{{ version.get("stdout", "unknown") }}'
-        state: absent
-
-- name: Copy config files
+- name: Copy files to persistent storage
   ansible.builtin.template:
     src: '{{ item }}'
-    dest: '{{ _telegraf_dir }}/{{ item }}'
+    dest: '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/{{ item }}'
     force: true
   with_list:
-    - idrac.toml
-    - unraid.toml
-    - weather.toml
+    - rc.telegraf
+    - telegraf.config.toml
 
 - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
-    name: Telegraf
-    script: |
-      cp -vf '{{ latest_version_file_path }}' /usr/bin/telegraf
+    name: Install Telegraf
+    script: |2
+      latest_release="$(curl -s https://api.github.com/repos/influxdata/telegraf/releases/latest | jq -r .tag_name | cut -c2-)"
+
+      mkdir -p /tmp/telegraf-setup
+      cd /tmp/telegraf-setup
+      rm -rf /tmp/telegraf-setup/*
+
+      wget "https://dl.influxdata.com/telegraf/releases/telegraf-${latest_release}_linux_amd64.tar.gz"
+      tar -xvzf telegraf-*.tar.gz
+
+      cp -vrf ./telegraf-*/* /
       chmod -v +x /usr/bin/telegraf
 
-- name: Set up Supervisord config
-  include_tasks: '{{ playbook_dir }}/dry/unraid/supervisor.yml'
-  vars:
-    name: telegraf
-    programs:
-      idrac:
-        autorestart: true
-        autostart: true
-        command: /usr/bin/telegraf --config '{{ _telegraf_dir }}/idrac.toml'
-        killasgroup: true
-        stopasgroup: true
-      unraid:
-        autorestart: true
-        autostart: true
-        command: /usr/bin/telegraf --config '{{ _telegraf_dir }}/unraid.toml'
-        killasgroup: true
-        stopasgroup: true
-      weather:
-        autorestart: true
-        autostart: true
-        command: /usr/bin/telegraf --config '{{ _telegraf_dir }}/weather.toml'
-        killasgroup: true
-        stopasgroup: true
+      fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/rc.telegraf' > /etc/rc.d/rc.telegraf
+      chmod -v +x /etc/rc.d/rc.telegraf
+
+      cd /tmp
+      rm -rf /tmp/telegraf-setup

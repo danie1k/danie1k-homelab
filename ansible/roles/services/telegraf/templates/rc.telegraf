@@ -1,0 +1,91 @@
+#!/bin/sh
+
+DAEMON=/usr/bin/telegraf
+CONFIG=/etc/telegraf.config.toml
+
+STARTUP_TIME=5
+SHUTDOWN_TIME=3
+
+
+telegraf_start() {
+  fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/telegraf.config.toml' > /etc/telegraf.config.toml
+
+  # https://unix.stackexchange.com/questions/124455/linux-how-to-redirect-stdout-stderr-to-logger
+  exec $DAEMON --config $CONFIG | logger --tag "telegraf" &
+
+  /etc/rc.d/rc.syslog reload
+}
+
+telegraf_pid() {
+  if telegraf_status
+  then
+    pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep' | awk '{print $1}'
+  else
+    return 1
+  fi
+}
+
+telegraf_status() {
+  pgrep -a -f $DAEMON | grep $DAEMON | grep -v 'grep' >/dev/null 2>&1
+  if [ $? -eq 0 ]
+  then
+    return 0
+  else
+    return 1
+  fi
+}
+
+telegraf_stop() {
+  kill -s 15 $(telegraf_pid)
+}
+
+
+case "$1" in
+  'start')
+    telegraf_status && {
+      echo -n "Already running. "
+      exit 0
+    } || {
+      echo -n "Starting... "
+      telegraf_start
+      sleep $STARTUP_TIME
+    }
+    telegraf_status && echo "DONE [PID: $(telegraf_pid)]" || echo "ERROR"
+    ;;
+  'status')
+    telegraf_status && echo "DONE [PID: $(telegraf_pid)]" || echo "STOPPED"
+    ;;
+  'stop')
+    telegraf_status && {
+      echo -n "Stopping... "
+      telegraf_stop
+      sleep $SHUTDOWN_TIME
+      telegraf_status && echo "Failed" || echo "Success"
+    } || {
+      echo "Not Running..."
+      exit 1
+    }
+    ;;
+  'restart')
+    telegraf_status && {
+      echo -n "Stopping... "
+      telegraf_stop
+      sleep $SHUTDOWN_TIME
+      telegraf_status && {
+        echo "Failed"
+        exit 1
+      } || echo "Success"
+    } || {
+      echo "Not Running..."
+      exit 1
+    }
+
+    echo -n "Starting... "
+    telegraf_start
+    sleep $STARTUP_TIME
+    telegraf_status && echo "DONE [PID: $(cat $PIDFILE)]" || echo "ERROR"
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    ;;
+esac
