@@ -21,7 +21,6 @@
     - unraid/secrets
     - unraid/scripts
     - unraid/backups
-    - services/influxdb_1.8
     - services/promtail
     - services/telegraf
 

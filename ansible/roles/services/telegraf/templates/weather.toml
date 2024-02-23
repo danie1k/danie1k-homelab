@@ -9,7 +9,7 @@ round_interval = true
 
 [[outputs.influxdb]]
 # InfluxDB v1.x
-urls = [ "{{ services.influxdb.ingest.url }}" ]
+urls = [ "{{ influxdb_ingest_url }}" ]
 database = "weather"
 skip_database_creation = true
 
