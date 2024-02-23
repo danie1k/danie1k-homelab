@@ -8,8 +8,18 @@ SHUTDOWN_TIME=3
 
 
 promtail_start() {
+  fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/syslog.promtail.conf' > /etc/rsyslog.d/syslog.promtail.conf
+  fromdos < '{{ unraid.homelab_dir }}/{{ homelab_storage_dir_name }}/promtail.config.yaml' > /etc/promtail.config.yaml
+
+  if ! [ -e /tmp/promtail-positions.yaml ]; then
+    touch /tmp/promtail-positions.yaml
+    echo > /tmp/promtail-positions.yaml
+  fi
+
   # https://unix.stackexchange.com/questions/124455/linux-how-to-redirect-stdout-stderr-to-logger
   exec $DAEMON -config.file $CONFIG | logger --tag "promtail" &
+
+  /etc/rc.d/rc.syslog reload
 }
 
 promtail_pid() {
