@@ -11,7 +11,6 @@
 
     - include_tasks: _docker_improvements/task.yml
     - include_tasks: _hddtemp/task.yml
-    - include_tasks: _supervisor/task.yml
     - include_tasks: _webhooks/task.yml
 
     - include_tasks: _zfs/task.yml
