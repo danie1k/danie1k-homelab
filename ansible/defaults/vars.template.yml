@@ -161,11 +161,23 @@ services:
       url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
   minio:
     static_ip:
+  mongodb:
+    static_ip:
   mysql:
     ingest_host: 'mysql.{{ lab_domain_name }}'
     static_ip:
-  portainer:
+  p0:  # (photoprism)
+    mysql_host: 'mysql.{{ docker_config.network.internal.name }}:3306'
+    mysql_dbname:
+    mysql_user:
+    mysql_password:
+    photoprism_cache_path:
+    photoprism_originals_path:
+    photoprism_storage_path:
+    tensorflow_type: '' # choices: cpu, avx, avx2  portainer:
     business_license_key: false  # optional
+  plex:
+    static_ip:
   postgresql:
     ingest_host: 'postgres.{{ lab_domain_name }}'
     static_ip:
@@ -215,17 +227,6 @@ services:
     volumes: []
   tubearchivist:
     storage_volume: /mnt/user/change/me
-  victoriametrics:
-    ingest:
-      https: true  # boolean
-      port:
-        http:     8428
-        graphite: 2003  # empty = disabled
-        opentsdb: 4242  # empty = disabled
-    prometheus:
-      # Prometheus config file with 'scrape_configs'
-      # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
-      config_file_path:
   vpn:
     static_ip:
   wikijs:

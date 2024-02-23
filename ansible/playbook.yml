@@ -25,7 +25,6 @@
     - services/loki
     - services/promtail
     - services/telegraf
-    - services/victoriametrics
 
     # =======================================================
     # DOCKER
