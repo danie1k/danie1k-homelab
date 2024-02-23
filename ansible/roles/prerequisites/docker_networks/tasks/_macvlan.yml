@@ -11,7 +11,7 @@
   ignore_errors: true
   changed_when: false
 
-- name: Create 'external' (macvlan) Docker Network
+- name: Create the 'external' (macvlan) Docker Network
   community.docker.docker_network:
     name: '{{ docker_config.network.external.name }}'
     attachable: false
@@ -37,22 +37,22 @@
       ip route add {{ docker_config.network.external.ipam_config.iprange }} dev {{ docker_config.network.external.name }}_bridge
 
 
-- name: Check if 'iot' Docker Network exists
-  ansible.builtin.shell: 'docker network ls | grep {{ docker_config.network.iot.name }}'
-  register: docker_iot_network_stat
-  ignore_errors: true
-  changed_when: false
-
-- name: Create 'iot' (macvlan) Docker Network
-  community.docker.docker_network:
-    name: '{{ docker_config.network.iot.name }}'
-    attachable: false
-    driver: macvlan
-    driver_options:
-      parent: '{{ docker_config.network.iot.parent }}'
-    enable_ipv6: false
-    internal: false
-    ipam_config: [ '{{ docker_config.network.iot.ipam_config }}' ]
-    ipam_driver: default
-    labels: '{{ docker_config.container_defaults.labels | default({}, true) }}'
-  when: docker_iot_network_stat.get('rc', 1) > 0
+#- name: Check if 'iot' Docker Network exists
+#  ansible.builtin.shell: 'docker network ls | grep {{ docker_config.network.iot.name }}'
+#  register: docker_iot_network_stat
+#  ignore_errors: true
+#  changed_when: false
+#
+#- name: Create 'iot' (macvlan) Docker Network
+#  community.docker.docker_network:
+#    name: '{{ docker_config.network.iot.name }}'
+#    attachable: false
+#    driver: macvlan
+#    driver_options:
+#      parent: '{{ docker_config.network.iot.parent }}'
+#    enable_ipv6: false
+#    internal: false
+#    ipam_config: [ '{{ docker_config.network.iot.ipam_config }}' ]
+#    ipam_driver: default
+#    labels: '{{ docker_config.container_defaults.labels | default({}, true) }}'
+#  when: docker_iot_network_stat.get('rc', 1) > 0

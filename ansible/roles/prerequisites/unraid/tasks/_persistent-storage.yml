@@ -13,7 +13,7 @@
       IDRAC_USERNAME={{ idrac.username }}
       IDRAC_PASSWORD={{ idrac.password }}
 
-      LOKI_ADDR={{ services.loki.ingest.url.split("/loki/api/v1/push")[0] }}
+      LOKI_ADDR={{ loki_ingest_url.split("/loki/api/v1/push")[0] }}
 
 - name: 'persistent-storage : write .env file'
   ansible.builtin.copy:

@@ -250,10 +250,14 @@
         syslog-address: '{{ services.syslog.address }}'
         tag: '{{ name }}.docker'
       loki:
-        loki-url: '{{ services.loki.ingest.url }}'
+        loki-url: '{{ loki_ingest_url }}'
         loki-batch-size: '128'
         loki-external-labels: 'job=docker,container={{ name }},network={{ __container_facts.networks[0].name }}'
-        # no-file: true
+        loki-max-backoff: 800ms
+        loki-retries: '2'
+        loki-timeout: 1s
+        keep-file: 'true'
+        no-file: 'false'
         max-size: '1m'
         max-file: '1'
 

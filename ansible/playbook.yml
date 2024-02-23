@@ -22,7 +22,6 @@
     - unraid/scripts
     - unraid/backups
     - services/influxdb_1.8
-    - services/loki
     - services/promtail
     - services/telegraf
 

@@ -2,6 +2,8 @@
 
 lab_domain_name: example.com
 
+loki_ingest_url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
+
 unraid:
   homelab_dir: /boot/homelab  # A place where all persistent stuff will be stored
   scripts_dir: /boot/homelab/_scripts
@@ -153,12 +155,6 @@ services:
       media_volumes: []
   ldap:
     static_ip:
-  loki:
-    ingest:
-      port:
-        grpc: 9095
-        http: 9092
-      url: 'http://<hostname_or_ip>:9092/loki/api/v1/push'  # wherever your Loki instance is hosted
   minio:
     static_ip:
   mongodb:

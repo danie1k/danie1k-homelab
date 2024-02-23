@@ -7,7 +7,7 @@ server:
   log_level: {{ promtail_log_level }}
 
 clients:
-  - url: '{{ services.loki.ingest.url }}'
+  - url: '{{ loki_ingest_url }}'
 
 # The positions block configures where Promtail will save a file indicating how far it has read into a file.
 positions:
