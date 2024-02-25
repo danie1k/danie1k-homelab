@@ -10,6 +10,7 @@
     - include_tasks: _sysctl.yml
 
     - include_tasks: _docker_improvements/task.yml
+    - include_tasks: _vm_improvements/task.yml
     - include_tasks: _hddtemp/task.yml
     - include_tasks: _webhooks/task.yml
 

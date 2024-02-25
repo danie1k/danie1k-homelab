@@ -17,9 +17,9 @@
     dest: '{{ _directory }}/{{ item }}'
     force: true
   with_list:
+    - css.css
     - docker.png
     - docker-image.png
-    - docker-image-icon.patch
     - docker-webui-url.patch
     - reattach-docker-networks.patch
 
@@ -34,19 +34,22 @@
 - include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
   vars:
     name: Install Docker Improvements
-    script: |
+    script: |2
       # Icons
       {% for key, value in icons.items() %}
       cp -vf '{{ _directory }}/{{ key }}' '/usr/local/emhttp/plugins/dynamix.docker.manager/images/{{ value }}'
       {% endfor %}
 
-      fromdos < '{{ _directory }}/docker-image-icon.patch' > '{{ unraid.boot_tmp_dir }}'/docker-image-icon.patch
-      patch --verbose /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerContainers.php '{{ unraid.boot_tmp_dir }}'/docker-image-icon.patch
+      sed -i 's#/webGui/images/disk.png#/plugins/dynamix.docker.manager/images/image.png#g' \
+        /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerContainers.php
 
       # Reattach Docker Networks
       fromdos < '{{ _directory }}/reattach-docker-networks.patch' > '{{ unraid.boot_tmp_dir }}'/reattach-docker-networks.patch
-      patch --verbose /etc/rc.d/rc.docker '{{ unraid.boot_tmp_dir }}'/reattach-docker-networks.patch
+      patch --verbose /usr/local/etc/rc.d/rc.docker '{{ unraid.boot_tmp_dir }}'/reattach-docker-networks.patch
 
       # WebUI URL
       fromdos < '{{ _directory }}/docker-webui-url.patch' > '{{ unraid.boot_tmp_dir }}'/docker-webui-url.patch
       patch --verbose /usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php '{{ unraid.boot_tmp_dir }}'/docker-webui-url.patch
+
+      # WebUI CSS
+      fromdos < '{{ _directory }}/css.css' >> /usr/local/emhttp/webGui/styles/default-white.css

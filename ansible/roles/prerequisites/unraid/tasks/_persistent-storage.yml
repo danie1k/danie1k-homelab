@@ -5,7 +5,8 @@
       EDIOR=nano
 
       HOMELAB_DIR={{ unraid.homelab_dir }}
-      SERVICES_DATA_DIR={{ unraid.services_data_dir }}
+      DOCKER_DATA_DIR={{ unraid.docker_data_dir }}
+      VM_DATA_DIR={{ unraid.vm_data_dir }}
       PYTHON_VENV_DIR={{ unraid.python_venv_dir }}
       TLS_STORAGE_DIR={{ unraid.tls_storage_dir }}
 

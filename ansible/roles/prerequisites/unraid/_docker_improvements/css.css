@@ -1,0 +1,5 @@
+
+#docker_list img.img { width: 64px; height: 64px; object-fit: contain; }
+#docker_list .appname { font-size: 1.2em; font-weight: bold; }
+#docker_containers thead > tr > th:nth-child(2), #docker_containers tbody > tr.sortable > td:nth-child(2) { display: none; }
+#docker_containers thead > tr > th:nth-child(6), #docker_containers tbody > tr.sortable > td:nth-child(6) { display: table-cell !important; }

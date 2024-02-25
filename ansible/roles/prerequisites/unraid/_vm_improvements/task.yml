@@ -1,0 +1,18 @@
+---
+
+- name: Create storage directory
+  ansible.builtin.file:
+    path: '{{ unraid.homelab_dir }}/vm_improvements/icons'
+    state: directory
+
+# https://flemmingss.com/how-to-use-custom-icons-for-virtual-machines-in-unraid/
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Install VM Improvements
+    script: |2
+
+      # Install Icons
+      cp -fv '{{ unraid.homelab_dir }}/vm_improvements/icons'/*.png /usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/
+
+      # Create tmp directories
+      find '{{ unraid.vm_data_dir }}' -mindepth 1 -maxdepth 1 -type d -execdir mkdir '/tmp/{}' \;
