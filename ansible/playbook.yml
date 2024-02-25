@@ -21,6 +21,7 @@
     - unraid/secrets
     - unraid/scripts
     - unraid/backups
+    - unraid/ohmyzsh
     - services/promtail
     - services/telegraf
 

@@ -1,0 +1,52 @@
+# Ref.: https://gist.github.com/khongi/23103333ff0493e7cf109d6494515fba
+
+- name: Create directory
+  ansible.builtin.file:
+    path: '{{ unraid.homelab_dir }}/oh-my-zsh'
+    state: directory
+
+- name: Copy .zshrc file
+  ansible.builtin.template:
+    src: .zshrc
+    dest: '{{ unraid.homelab_dir }}/oh-my-zsh/.zshrc'
+    force: true
+
+- include_tasks: '{{ playbook_dir }}/dry/unraid/boot.yml'
+  vars:
+    name: Install Oh My Zsh
+    script: |2
+      HOME=/root
+      OH_MY_ZSH_ROOT=$HOME/.oh-my-zsh
+      ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
+      ZSH_CUSTOM=$HOME/.oh-my-zsh/custom
+      OH_MY_ZSH_PLUGINS="$ZSH_CUSTOM/plugins"
+      OH_MY_ZSH_THEMES="$ZSH_CUSTOM/themes"
+
+      # Install Oh My Zsh
+      sh -c "$(curl -fsSL https://install.ohmyz.sh/) --unattended --keep-zshrc"
+
+      mkdir -p \
+        $OH_MY_ZSH_PLUGINS \
+        $OH_MY_ZSH_THEMES \
+        $ZSH_CACHE_DIR \
+        $ZSH_CUSTOM
+
+      # Install zsh-autosuggestions
+      if [[ ! -d "$OH_MY_ZSH_PLUGINS/zsh-autosuggestions" ]]; then
+        git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions $OH_MY_ZSH_PLUGINS/zsh-autosuggestions
+      fi
+
+      # Install zsh-syntax-highlighting
+      if [[ ! -d "$OH_MY_ZSH_PLUGINS/zsh-syntax-highlighting" ]]; then
+        git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git $OH_MY_ZSH_PLUGINS/zsh-syntax-highlighting
+      fi
+
+      chmod 755 $OH_MY_ZSH_PLUGINS/zsh-autosuggestions $OH_MY_ZSH_PLUGINS/zsh-syntax-highlighting
+
+      rm -f /root/.zshrc
+      touch {{ unraid.homelab_dir }}/oh-my-zsh/history
+      cp -sf {{ unraid.homelab_dir }}/oh-my-zsh/.zshrc /root/.zshrc
+      cp -sf {{ unraid.homelab_dir }}/oh-my-zsh/history /root/.cache/.history
+
+      # change bash to zsh
+      chsh -s /bin/zsh
