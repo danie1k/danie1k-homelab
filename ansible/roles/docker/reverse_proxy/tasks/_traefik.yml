@@ -5,26 +5,30 @@
   vars:
     name: traefik
     image: traefik:latest
-    include_secrets: false
+    include_secrets: true
+    log_driver: local
     command: --configFile=/config/traefik.toml
     networks:
-      - name: '{{ docker_config.network.external.name }}'
+      - name: unraid_docker
         ipv4_address: '{{ services.reverse_proxy.static_ip }}'
-      - name: '{{ docker_config.network.internal.name }}'
+      - name: internal
     volumes:
       - [ '', '/config', 'rw' ]
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - '{{ unraid.tls_storage_dir }}:/tls:ro'
 
     proxy:
       - http_port: 8080
         service: api@internal
 
-    files:
+    templates:
       - src: traefik/traefik.toml
         dest: ''
         force: true
-    templates:
       - src: traefik/dynamic.toml
         dest: ''
         force: true
+
+    extra:
+      cpus: 4
+      memory: 6G
+      kernel_memory: 6G

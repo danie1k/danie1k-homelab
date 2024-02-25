@@ -27,10 +27,10 @@
     # =======================================================
     # DOCKER
     # =======================================================
+    - docker/reverse_proxy
     - docker/cloudflare-tunnel
     - docker/portainer
     - docker/registry
-    - docker/reverse_proxy
     - docker/sso
     - docker/vpn
 

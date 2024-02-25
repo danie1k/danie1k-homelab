@@ -10,11 +10,6 @@
     regex = "https://(.*)/.well-known/(card|cal)dav"
     replacement = "https://${1}/remote.php/dav/"
 
-# https://ssl-config.mozilla.org/#server=traefik&version=2.1.2&config=modern&hsts=false&guideline=5.6
-[[tls.certificates]]
-  certFile = "/tls/cert.pem"
-  keyFile = "/tls/privkey.pem"
-
 [tls.options]
-[tls.options.modern]
-  minVersion = "VersionTLS13"
+  [tls.options.modern]
+    minVersion = "VersionTLS13"
