@@ -43,7 +43,7 @@
         "name": "{{ name }}",
         "image": "{{ image }}",
         "icon": (
-          "https://github.com/walkxhub/dashboard-icons/raw/master/png/{{ icon | default(name, true) }}.png"
+          "https://raw.githubusercontent.com/walkxcode/Dashboard-Icons/master/png/{{ icon | default(name, true) }}.png"
         ),
         "log_driver": "{{ log_driver | default("loki", true) }}",
         "networks": {},
@@ -53,7 +53,7 @@
         "container_labels": {},
         "default_user": "{{ user | default(docker_config.default_user, true) }}",
         "service_data_dir": "{{ service_data_dir | default(name, true) }}",
-        "volume_base": "{{ unraid.services_data_dir }}/{{ service_data_dir | default(name, true) }}",
+        "volume_base": "{{ unraid.docker_data_dir }}/{{ service_data_dir | default(name, true) }}",
       }
 
 # PULL IMAGE
@@ -193,9 +193,10 @@
       set_fact:
         _traefik_labels: >-2
           {
-            "traefik.tcp.routers.{{ http_item.service_name | default(name, true) }}-tcp-{{ _index }}.entrypoints": "{{ tcp_item.tcp_entrypoint }}",
-            "traefik.tcp.routers.{{ http_item.service_name | default(name, true) }}-tcp-{{ _index }}.rule": "HostSNI(`*`)",
-            "traefik.tcp.routers.{{ http_item.service_name | default(name, true) }}-tcp-{{ _index }}.service": (
+            "traefik.tcp.routers.{{ tcp_item.service_name | default(name, true) }}-tcp-{{ _index }}.entrypoints": "{{ tcp_item.tcp_entrypoint }}",
+            "traefik.tcp.routers.{{ tcp_item.service_name | default(name, true) }}-tcp-{{ _index }}.rule": "HostSNI(`{{ tcp_item.hostname | default(name, true) }}.{{ lab_domain_name }}`)",
+            "traefik.tcp.routers.{{ tcp_item.service_name | default(name, true) }}-tcp-{{ _index }}.tls.passthrough": "true",
+            "traefik.tcp.routers.{{ tcp_item.service_name | default(name, true) }}-tcp-{{ _index }}.service": (
               "{% if 'service' in tcp_item and tcp_item.service is not mapping %}"
                 "{{ tcp_item.service }}"
               "{% else %}"
@@ -212,7 +213,7 @@
             ): "{{ tcp_item.tcp_port }}",
             {% if tcp_item.router is defined %}
               {% for _key, _value in tcp_item.router.items() %}
-                "traefik.http.routers.{{ http_item.service_name | default(name, true) }}-tcp-{{ _index }}.{{ _key }}": "{{ _value }}",
+                "traefik.http.routers.{{ tcp_item.service_name | default(name, true) }}-tcp-{{ _index }}.{{ _key }}": "{{ _value }}",
               {% endfor %}
             {% endif %}
             {% if tcp_item.service is mapping %}
@@ -318,6 +319,9 @@
       networks: '{{ __container_facts.networks }}'
       networks_cli_compatible: true
       purge_networks: true
+      dns_servers:
+        - '{{ docker_config.network[__container_facts.networks[0].name].ipam_config.gateway }}'
+        - 127.0.0.11  # Falback
 
       # Runtime Environment
       detach: true
