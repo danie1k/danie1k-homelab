@@ -1,0 +1,31 @@
+---
+# https://github.com/drakkan/sftpgo/blob/main/docker/README.md
+
+- set_fact: # noqa 502
+    _webdav_port: '9091'
+
+- include_tasks: '{{ playbook_dir }}/dry/docker/unraid-container.yml'
+  vars:
+    name: sftpgo
+    image: ghcr.io/drakkan/sftpgo:alpine
+    include_secrets: false
+    env:
+      # https://github.com/drakkan/sftpgo/blob/main/docs/full-configuration.md
+      SFTPGO_LOG_VERBOSE: '0'  # https://github.com/drakkan/sftpgo/issues/580#issuecomment-948682310
+      SFTPGO_LOG_LEVEL: warn  # https://github.com/drakkan/sftpgo/issues/580#issuecomment-1519207847
+      SFTPGO_WEBDAVD__BINDINGS__0__PORT: '{{ _webdav_port }}'
+    networks:
+      - name: '{{ docker_config.network.internal.name }}'
+
+    volumes:
+      - [ '/config', '/var/lib/sftpgo', 'rw' ]
+      - [ '/data',   '/srv/sftpgo',     'rw' ]
+      - [ '/etc',    '/etc/sftpgo',     'rw' ]
+
+    proxy:
+      - http_port: 8080
+      - tcp_port: '{{ _webdav_port }}'
+        tcp_entrypoint: service1
+
+    extra:
+      user: '{{ docker_config.default_user }}'

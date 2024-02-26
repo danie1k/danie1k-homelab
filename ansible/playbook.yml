@@ -59,6 +59,7 @@
     - docker/apps/nextcloud
     - docker/apps/office
     - docker/apps/podcast
+    - docker/apps/sftpgo
     - docker/apps/torrent
     - docker/apps/tubearchivist
     - docker/apps/wiki
